@@ -31,14 +31,16 @@ bot.on('new_chat_members', async ctx => {
     .all(telegram_id, 1)
 
   console.log(node)
-  if (node == '') {
+  if (node == '' && ctx.message.new_chat_members[0].is_bot == 'false') {
     ctx.banChatMember(telegram_id)
     return
   }
 
-  return ctx.reply(
-    `Welcome to the Alliance, @${ctx.message.new_chat_members[0].first_name}!`
-  )
+  if (ctx.message.new_chat_members[0].is_bot == 'false') {
+    return ctx.reply(
+      `Welcome to the Alliance, @${ctx.message.new_chat_members[0].first_name}!`
+    )
+  }
 })
 
 //-----------------------END---------------------------
