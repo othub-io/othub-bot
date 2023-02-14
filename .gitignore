@@ -1,0 +1,5 @@
+.env
+test_bot.js
+test.js
+database/bot.db
+node_modules
