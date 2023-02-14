@@ -31,7 +31,7 @@ bot.on('new_chat_members', async ctx => {
     .all(telegram_id, 1)
 
   console.log(node)
-  if (!node) {
+  if (node == '') {
     bot.kickChatMember(process.env.BOT_TOKEN, telegram_id)
     return
   }
