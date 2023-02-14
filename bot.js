@@ -32,7 +32,7 @@ bot.on('new_chat_members', async ctx => {
 
   console.log(node)
   if (node == '') {
-    bot.banChatMember(process.env.BOT_TOKEN, telegram_id)
+    ctx.banChatMember(process.env.BOT_TOKEN, telegram_id)
     return
   }
 
