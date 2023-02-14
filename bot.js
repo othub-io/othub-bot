@@ -24,11 +24,13 @@ bot.use(session({ ttl: 10 }))
 bot.on('new_chat_members', async ctx => {
   console.log(ctx.message.new_chat_members)
   telegram_id = ctx.message.new_chat_members[0].id
+  console.log(telegram_id)
 
   node = await alliance_db
     .prepare('SELECT * FROM member_nodes WHERE tg_id = ? AND verified = ?')
     .all(telegram_id, 1)
 
+  console.log(node)
   if (!node) {
     bot.kickChatMember(process.env.BOT_TOKEN, telegram_id)
     return
