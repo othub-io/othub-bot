@@ -117,6 +117,7 @@ bot.command('mynodes', async ctx => {
 
   async function setValue (value) {
     all_nodes = value.length
+    console.log(ctx)
 
     telegram_id = JSON.stringify(ctx.message.chat.id)
     console.log(telegram_id)
