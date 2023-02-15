@@ -117,36 +117,36 @@ bot.command('mynodes', async ctx => {
 
   async function setValue (value) {
     all_nodes = value.length
-  }
 
-  telegram_id = JSON.stringify(ctx.message.chat.id)
-  console.log(telegram_id)
+    telegram_id = JSON.stringify(ctx.message.chat.id)
+    console.log(telegram_id)
 
-  nodes = await alliance_db
-    .prepare('SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?')
-    .all(1, telegram_id)
+    nodes = await alliance_db
+      .prepare('SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?')
+      .all(1, telegram_id)
 
-  node_count = Number(nodes.length)
+    node_count = Number(nodes.length)
 
-  total_ask = 0
-  for (i = 0; i < nodes.length; ++i) {
-    node = Number(nodes[i])
-    total_ask = total_ask + node.ask
-  }
+    total_ask = 0
+    for (i = 0; i < nodes.length; ++i) {
+      node = Number(nodes[i])
+      total_ask = total_ask + node.ask
+    }
 
-  total_stake = 0
-  for (i = 0; i < nodes.length; ++i) {
-    node = Number(nodes[i])
-    total_stake = total_stake + node.stake
-  }
+    total_stake = 0
+    for (i = 0; i < nodes.length; ++i) {
+      node = Number(nodes[i])
+      total_stake = total_stake + node.stake
+    }
 
-  node_percent = node_count / all_nodes
+    node_percent = node_count / all_nodes
 
-  msg = `${ctx.message.chat.first_name}'s Nodes:
+    msg = `${ctx.message.chat.first_name}'s Nodes:
         Nodes: ${node_count}(${node_percent.toFixed(2)}%)
         Avg. Ask: ${total_ask / node_count}
         Avg. Stake: ${total_ask / node_count}
     `
+  }
 })
 
 cron.schedule(process.env.ASK_RECONCILIATION, async function () {
