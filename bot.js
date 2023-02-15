@@ -147,7 +147,7 @@ bot.command('mynodes', async ctx => {
         Avg. Stake: ${total_ask / node_count}
     `
 
-    await bot.telegram.sendMessage(chatId, msg)
+    await bot.telegram.sendMessage(process.env.GROUP, msg)
     await ctx.deleteMessage()
   }
 })
@@ -392,7 +392,7 @@ cron.schedule(process.env.TEAM_MONITOR, async function () {
   }
 
   async function tellBot (msg) {
-    bot.telegram.sendMessage(chatId, msg)
+    bot.telegram.sendMessage(process.env.GROUP, msg)
   }
 })
 
@@ -528,7 +528,7 @@ cron.schedule(process.env.ALLIANCE_INFO, async function () {
            `
 
     console.log(msg)
-    await bot.telegram.sendMessage(chatId, msg)
+    await bot.telegram.sendMessage(process.env.GROUP, msg)
   }
 })
 
