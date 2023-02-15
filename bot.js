@@ -146,6 +146,9 @@ bot.command('mynodes', async ctx => {
         Avg. Ask: ${total_ask / node_count}
         Avg. Stake: ${total_ask / node_count}
     `
+
+    await bot.telegram.sendMessage(chatId, msg)
+    await ctx.deleteMessage()
   }
 })
 
