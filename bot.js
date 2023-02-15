@@ -1,5 +1,6 @@
 require('dotenv').config()
 const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
+const bot_db = require('better-sqlite3')(process.env.BOT_DB)
 // const queryTypes = require('./src/util/queryTypes')
 // const dailyStats = require('./src/modules/dailyStats.js')
 // const profit = require('./src/modules/profit.js')
@@ -152,7 +153,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       for (i = 0; i < noncompliant.length; ++i) {
         node_id = JSON > stringify(noncompliant[i])
 
-        warnings = await alliance_db
+        warnings = await bot_db
           .prepare(
             'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
           )
@@ -172,7 +173,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
             .prepare(`DELETE FROM member_nodes node_id = ? COLLATE NOCASE`)
             .run(node_id)
         } else {
-          await alliance_db
+          await bot_db
             .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
             .run(node_id, member_id, 'out_of_range', warnings + 1)
 
