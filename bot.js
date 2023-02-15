@@ -89,7 +89,7 @@ bot.on('new_chat_members', async ctx => {
   }
 })
 
-bot.on(message('/mynodes'), async ctx => {
+bot.command('mynodes', async ctx => {
   command = 'mynodes'
   spamCheck = await queryTypes.spamCheck()
   permission = await spamCheck
