@@ -119,7 +119,7 @@ bot.command('mynodes', async ctx => {
     all_nodes = value.length
     console.log(ctx.message)
 
-    telegram_id = JSON.stringify(ctx.message.chat.id)
+    telegram_id = JSON.stringify(ctx.message.from.id)
     console.log(telegram_id)
 
     nodes = await alliance_db
