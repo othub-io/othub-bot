@@ -31,6 +31,8 @@ bot.on('new_chat_members', async ctx => {
     .all(telegram_id, 1)
 
   console.log(node)
+  console.log(ctx.message.new_chat_members[0].is_bot)
+
   if (node == '' && ctx.message.new_chat_members[0].is_bot == 'false') {
     ctx.banChatMember(telegram_id)
     return
