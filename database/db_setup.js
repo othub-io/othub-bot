@@ -4,7 +4,7 @@ const sqlite3 = require('sqlite3').verbose()
 const db = new sqlite3.Database(__dirname + '/bot.db')
 const command_list = [
   //alphabetical
-  'activejobs'
+  'mynodes'
 ]
 
 async function build_db () {
@@ -17,6 +17,10 @@ async function build_db () {
     // )
     await db.exec(
       'CREATE TABLE IF NOT EXISTS node_compliance (node_id VARCHAR PRIMARY KEY NOT NULL, tg_id VARCHAR NOT NULL, type VARCHAR, warnings INT)'
+    )
+
+    await db.exec(
+      'CREATE TABLE IF NOT EXISTS node_operators (peer_id VARCHAR PRIMARY KEY NOT NULL, operator VARCHAR, current_ask INT, previous_ask INT, date_last_changed DATE)'
     )
 
     // await db.exec(
