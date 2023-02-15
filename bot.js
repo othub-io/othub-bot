@@ -33,12 +33,12 @@ bot.on('new_chat_members', async ctx => {
   console.log(node)
   console.log(ctx.message.new_chat_members[0].is_bot)
 
-  if (node == '' && ctx.message.new_chat_members[0].is_bot == 'false') {
+  if (node == '' && ctx.message.new_chat_members[0].is_bot === 'false') {
     ctx.banChatMember(telegram_id)
     return
   }
 
-  if (ctx.message.new_chat_members[0].is_bot == 'false') {
+  if (ctx.message.new_chat_members[0].is_bot === 'false') {
     return ctx.reply(
       `Welcome to the Alliance, @${ctx.message.new_chat_members[0].first_name}!`
     )
