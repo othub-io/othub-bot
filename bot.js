@@ -129,20 +129,16 @@ bot.command('mynodes', async ctx => {
     node_count = Number(nodes.length)
 
     total_ask = 0
-    for (i = 0; i < nodes.length; ++i) {
-      node = Number(nodes[i])
-      total_ask = total_ask + node.ask
-    }
-
     total_stake = 0
     for (i = 0; i < nodes.length; ++i) {
-      node = Number(nodes[i])
-      total_stake = total_stake + node.stake
+      node = nodes[i]
+      total_ask = total_ask + Number(node.ask)
+      total_stake = total_stake + Number(node.stake)
     }
 
     node_percent = node_count / all_nodes
 
-    msg = `${ctx.message.chat.first_name}'s Nodes:
+    msg = `${ctx.message.from.first_name}'s Nodes:
         Nodes: ${node_count}(${node_percent.toFixed(2)}%)
         Avg. Ask: ${total_ask / node_count}
         Avg. Stake: ${total_ask / node_count}
