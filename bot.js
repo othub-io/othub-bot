@@ -34,7 +34,7 @@ bot.on('new_chat_members', async ctx => {
   console.log(ctx.message.new_chat_members[0].is_bot)
 
   if (node == '' && ctx.message.new_chat_members[0].is_bot == false) {
-    ctx.unbanChatMember(telegram_id)
+    ctx.kickChatMember(telegram_id)
     return
   }
 
