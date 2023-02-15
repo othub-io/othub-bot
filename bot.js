@@ -27,8 +27,8 @@ bot.on('new_chat_members', async ctx => {
   console.log(telegram_id)
 
   node = await alliance_db
-    .prepare('SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?')
-    .all(1, telegram_id)
+    .prepare('SELECT * FROM member_nodes WHERE verified = ?')
+    .all(1)
 
   console.log(node)
   console.log(ctx.message.new_chat_members[0].is_bot)
