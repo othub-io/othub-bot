@@ -31,7 +31,7 @@ module.exports = spamCheck = async (command, telegram_id) => {
 
   timeDif = Math.abs(currentDate - expireDate)
   expireDate = Math.abs(expireDate)
-  cooldown = process.env.MILLIMIN_COOLDOWN
+  cooldown = Number(process.env.MILLIMIN_COOLDOWN)
 
   if (timeDif > cooldown) {
     permission = `allow`
