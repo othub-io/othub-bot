@@ -65,6 +65,7 @@ bot.use(session({ ttl: 10 }))
 
 //-------------------------------------NO API REQUIRED - AlPHABETICAL --------------------------------------------
 bot.on('new_chat_members', async ctx => {
+  console.log(`Screening new member.`)
   console.log(ctx.message.new_chat_members)
   telegram_id = JSON.stringify(ctx.message.new_chat_members[0].id)
   console.log(telegram_id)
@@ -221,6 +222,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         member_id,
         `There was no node found associated with telegram id ${member_id}. Banning member until a node is registed.`
       )
+      bot.telegram.banChatMember(telegram_id)
+      bot.telegram.unbanChatMember(telegram_id)
 
       return
     }
@@ -310,6 +313,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 })
 
 cron.schedule(process.env.TEAM_MONITOR, async function () {
+  console.log(`Running team node monitoring task.`)
   node_operators = await db
     .prepare(
       'SELECT peer_id, operator, current_ask, previous_ask, date_last_changed FROM node_operators LIMIT 1000'
@@ -404,6 +408,7 @@ cron.schedule(process.env.TEAM_MONITOR, async function () {
 })
 
 cron.schedule(process.env.ALLIANCE_INFO, async function () {
+  console.log(`Running daily alliance task.`)
   nodes = await alliance_db
     .prepare('SELECT * FROM member_nodes WHERE verified = ?')
     .all(1)
