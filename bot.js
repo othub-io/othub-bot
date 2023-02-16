@@ -188,6 +188,7 @@ cron.schedule(process.env.ASK_RECONCILIATION, async function () {
 })
 
 cron.schedule(process.env.ASK_MONITOR, async function () {
+  console.log(`Running ask monitoring task.`)
   min = Number(
     process.env.ALLIANCE_RANGE.substring(
       0,
@@ -214,6 +215,15 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         'SELECT node_id FROM member_nodes WHERE verified = ? AND tg_id = ?'
       )
       .all(1, member_id)
+
+    if (members_node_ids == '') {
+      await bot.telegram.sendMessage(
+        member_id,
+        `There was no node found associated with telegram id ${member_id}. Banning member until a node is registed.`
+      )
+
+      return
+    }
 
     obj = {
       member_id: member_id,
