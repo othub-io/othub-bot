@@ -474,6 +474,11 @@ cron.schedule(process.env.ALLIANCE_INFO, async function () {
       total_stake = total_stake + stake
     }
 
+    alliance_nodes = Number(nodes.length)
+    TL_nodes = Number(team_nodes.length)
+    free_nodes = total_nodes - (alliance_nodes + TL_nodes)
+    all_nodes = total_nodes
+
     console.log(total_alliance_ask)
     console.log(total_alliance_stake)
     console.log(alliance_nodes)
@@ -481,11 +486,6 @@ cron.schedule(process.env.ALLIANCE_INFO, async function () {
     console.log(total_TL_ask)
     console.log(total_TL_stake)
     console.log(TL_nodes)
-
-    alliance_nodes = Number(nodes.length)
-    TL_nodes = Number(team_nodes.length)
-    free_nodes = total_nodes - (alliance_nodes + TL_nodes)
-    all_nodes = total_nodes
 
     alliance_nodes_percent = 100 * (alliance_nodes / all_nodes)
     TL_nodes_percent = 100 * (TL_nodes / all_nodes)
