@@ -519,7 +519,7 @@ Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
       0
     )}%) | Solo: ${free_nodes}(${free_nodes_percent.toFixed(
       0
-    )}%) | Total: ${all_nodes}) 
+    )}%) | Total: ${all_nodes} 
 
 ->Avg. Asks:  
 Alliance: ${alliance_ask.toFixed(4)} | TraceLabs: ${TL_ask.toFixed(
