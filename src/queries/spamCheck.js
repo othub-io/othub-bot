@@ -49,7 +49,7 @@ module.exports = spamCheck = async (command, telegram_id) => {
     time_stamp = Math.abs(time_stamp)
     await db
       .prepare('UPDATE command_history SET date_last_used = ? WHERE tg_id = ?')
-      .run(command, time_stamp, telegram_id)
+      .run(time_stamp, telegram_id)
   } else {
     permission = `block`
     remaining = cooldown - timeDif
