@@ -27,15 +27,18 @@ module.exports = spamCheck = async (command, telegram_id) => {
   }
 
   expireDate = new Date(spam_result.date_last_used)
+  console.log(expireDate)
+
   currentDate = new Date()
+  console.log(currentDate)
 
   timeDif = Math.abs(currentDate - expireDate)
-  expireDate = Math.abs(expireDate)
-  cooldown = Number(process.env.MILLIMIN_COOLDOWN)
-
-  console.log(currentDate)
   console.log(timeDif)
+
+  expireDate = Math.abs(expireDate)
   console.log(expireDate)
+
+  cooldown = Number(process.env.MILLIMIN_COOLDOWN)
   console.log(cooldown)
 
   if (timeDif > cooldown) {
