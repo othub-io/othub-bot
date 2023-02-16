@@ -168,7 +168,7 @@ cron.schedule(process.env.ASK_RECONCILIATION, async function () {
 
   async function setValue (value) {
     shard_nodes = value
-    console.log(shard_nodes)
+    //console.log(shard_nodes)
 
     for (i = 0; i < shard_nodes.length; ++i) {
       shard_node = shard_nodes[i]
