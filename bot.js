@@ -449,17 +449,9 @@ cron.schedule(process.env.ALLIANCE_INFO, async function () {
     total_alliance_ask = 0
     total_alliance_stake = 0
     for (i = 0; i < nodes.length; ++i) {
-      node = Number(nodes[i])
-      total_alliance_ask = total_alliance_ask + node.ask
-      total_alliance_stake = total_alliance_stake + node.stake
-    }
-
-    total_TL_ask = 0
-    total_TL_stake = 0
-    for (i = 0; i < nodes.length; ++i) {
-      node = Number(nodes[i])
-      total_alliance_ask = total_alliance_ask + node.ask
-      total_alliance_stake = total_alliance_stake + node.stake
+      node = nodes[i]
+      total_alliance_ask = total_alliance_ask + Number(node.ask)
+      total_alliance_stake = total_alliance_stake + Number(node.stake)
     }
 
     total_ask = 0
@@ -513,10 +505,12 @@ Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
     )}%) | Solo: ${free_nodes}(${free_nodes_percent.toFixed(
       0
     )}%) | Total: ${all_nodes}) 
+
 ->Avg. Asks:  
 Alliance: ${alliance_ask.toFixed(4)} | TraceLabs: ${TL_ask.toFixed(
       4
     )} | Solo: ${free_ask.toFixed(4)} | All: ${all_ask.toFixed(4)}
+    
 -> Avg. Stakes: 
 Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
       2
