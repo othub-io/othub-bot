@@ -9,6 +9,8 @@ module.exports = spamCheck = async (command, telegram_id) => {
     .prepare('SELECT * FROM command_history WHERE command = ? AND tg_id = ?')
     .get(command, telegram_id)
 
+  console.log(spam_result)
+
   if (spam_result == '') {
     console.log(`Vistor:${api_key} is allow to ${type}.`)
 
