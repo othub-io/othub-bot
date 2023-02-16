@@ -116,11 +116,7 @@ bot.command('mynodes', async ctx => {
   )
 
   async function setValue (value) {
-    console.log(value)
-    console.log(ctx.message)
-
     telegram_id = JSON.stringify(ctx.message.from.id)
-    console.log(telegram_id)
 
     nodes = await alliance_db
       .prepare('SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?')
@@ -152,6 +148,7 @@ bot.command('mynodes', async ctx => {
 })
 
 cron.schedule(process.env.ASK_RECONCILIATION, async function () {
+  console.log(`Running ask reconciliation task.`)
   members = await alliance_db
     .prepare('SELECT * FROM member_nodes WHERE verified = ?')
     .all(1)
