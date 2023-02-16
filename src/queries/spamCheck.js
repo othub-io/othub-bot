@@ -18,7 +18,7 @@ module.exports = spamCheck = async (command, telegram_id) => {
     time_stamp = new Date()
     time_stamp = Math.abs(time_stamp)
     await db
-      .prepare('REPLACE INTO command_history VALUES (?,?,?)')
+      .prepare('INSERT INTO command_history VALUES (?,?,?)')
       .run(command, telegram_id, time_stamp)
 
     return {
@@ -48,8 +48,8 @@ module.exports = spamCheck = async (command, telegram_id) => {
     time_stamp = new Date()
     time_stamp = Math.abs(time_stamp)
     await db
-      .prepare('REPLACE INTO command_history VALUES (?,?,?)')
-      .run(command, telegram_id, time_stamp)
+      .prepare('UPDATE command_history SET date_last_used = ? WHERE tg_id = ?')
+      .run(command, time_stamp, telegram_id)
   } else {
     permission = `block`
     remaining = cooldown - timeDif
