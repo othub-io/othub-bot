@@ -11,7 +11,7 @@ module.exports = spamCheck = async (command, telegram_id) => {
 
   console.log(spam_result)
 
-  if (spam_result == '') {
+  if (!spam_result) {
     console.log(`Vistor:${api_key} is allow to ${type}.`)
 
     //insert a new time stamp
