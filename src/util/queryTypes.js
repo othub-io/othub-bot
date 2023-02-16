@@ -3,7 +3,7 @@ const spamCheck = require('../queries/spamCheck')
 const queryTypes = [
   {
     name: 'spamCheck',
-    getData: () => spamCheck(command)
+    getData: () => spamCheck(command, telegram_id)
   }
 ]
 

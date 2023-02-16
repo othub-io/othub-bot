@@ -93,8 +93,10 @@ bot.on('new_chat_members', async ctx => {
 bot.command('mynodes', async ctx => {
   command = 'mynodes'
   spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
   permission = await spamCheck
-    .getData(command)
+    .getData(command, telegram_id)
     .then(async ({ permission }) => {
       return permission
     })
