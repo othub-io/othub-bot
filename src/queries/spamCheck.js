@@ -6,9 +6,7 @@ const db = require('better-sqlite3')(`${__dirname}/../../database/bot.db`, {
 module.exports = spamCheck = async (command, telegram_id) => {
   //check for spam
   const spam_result = await db
-    .prepare(
-      'SELECT date_last_used FROM command_history WHERE command = ? AND tg_id = ?'
-    )
+    .prepare('SELECT * FROM command_history WHERE command = ? AND tg_id = ?')
     .get(command, telegram_id)
 
   if (spam_result == '') {
