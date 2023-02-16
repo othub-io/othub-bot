@@ -12,7 +12,7 @@ module.exports = spamCheck = async (command, telegram_id) => {
   console.log(spam_result)
 
   if (!spam_result) {
-    console.log(`Vistor:${telegram_id} is allow to ${type}.`)
+    console.log(`Vistor:${telegram_id} is allow to ${command}.`)
 
     //insert a new time stamp
     time_stamp = new Date()
