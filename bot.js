@@ -492,26 +492,26 @@ cron.schedule(process.env.ALLIANCE_INFO, async function () {
     free_stake = total_free_stake / free_nodes
     all_stake = total_stake / total_nodes
 
-    msg = `-OriginTrail Node Ops Alliance-     
-    -->Current ask range: ${process.env.ALLIANCE_RANGE}
+    msg = `-OriginTrail Node Ops Alliance- 
 
-    Nodes -> Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
+    ->Current ask range: ${process.env.ALLIANCE_RANGE}
+
+    ->Nodes: 
+    Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
       0
     )}%) | TraceLabs: ${TL_nodes}(${TL_nodes_percent.toFixed(
       0
     )}%) | Free Agents: ${free_nodes}(${free_nodes_percent.toFixed(
       0
     )}%) | Total: ${all_nodes}) 
-    Avg. Asks -> Alliance: ${alliance_ask.toFixed(
+    ->Avg. Asks:  
+    Alliance: ${alliance_ask.toFixed(4)} | TraceLabs: ${TL_ask.toFixed(
       4
-    )} | TraceLabs: ${TL_ask.toFixed(4)} | Free Agents: ${free_ask.toFixed(
-      4
-    )} | All: ${all_ask.toFixed(4)}
-    Avg. Stakes -> Alliance: ${alliance_stake.toFixed(
+    )} | Free Agents: ${free_ask.toFixed(4)} | All: ${all_ask.toFixed(4)}
+    -> Avg. Stakes: 
+    Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
       2
-    )} | TraceLabs: ${TL_stake.toFixed(2)} | Free Agents: ${free_stake.toFixed(
-      2
-    )} | All: ${all_stake.toFixed(2)}
+    )} | Free Agents: ${free_stake.toFixed(2)} | All: ${all_stake.toFixed(2)}
            `
 
     console.log(msg)
