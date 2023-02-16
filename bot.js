@@ -142,7 +142,7 @@ bot.command('mynodes', async ctx => {
     msg = `${ctx.message.from.first_name}'s Nodes:
         Nodes: ${node_count}(${node_percent.toFixed(2)}%)
         Avg. Ask: ${total_ask / node_count}
-        Avg. Stake: ${total_ask / node_count}
+        Avg. Stake: ${total_stake / node_count}
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
