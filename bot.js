@@ -135,11 +135,12 @@ bot.command('mynodes', async ctx => {
 
     console.log(all_nodes)
     node_percent = 100 * (node_count / all_nodes)
+    avg_stake = total_stake / node_count
 
     msg = `${ctx.message.from.first_name}'s Nodes:
         Nodes: ${node_count}(${node_percent.toFixed(2)}%)
         Avg. Ask: ${total_ask / node_count}
-        Avg. Stake: ${total_stake / node_count}
+        Avg. Stake: ${avg_stake.toFixed(2)}
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -473,6 +474,14 @@ cron.schedule(process.env.ALLIANCE_INFO, async function () {
       total_stake = total_stake + stake
     }
 
+    console.log(total_alliance_ask)
+    console.log(total_alliance_stake)
+    console.log(alliance_nodes)
+
+    console.log(total_TL_ask)
+    console.log(total_TL_stake)
+    console.log(TL_nodes)
+
     alliance_nodes = Number(nodes.length)
     TL_nodes = Number(team_nodes.length)
     free_nodes = total_nodes - (alliance_nodes + TL_nodes)
@@ -494,24 +503,24 @@ cron.schedule(process.env.ALLIANCE_INFO, async function () {
 
     msg = `-OriginTrail Node Ops Alliance- 
 
-    ->Current ask range: ${process.env.ALLIANCE_RANGE}
+->Current ask range: ${process.env.ALLIANCE_RANGE}
 
-    ->Nodes: 
-    Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
+->Nodes: 
+Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
       0
     )}%) | TraceLabs: ${TL_nodes}(${TL_nodes_percent.toFixed(
       0
-    )}%) | Free Agents: ${free_nodes}(${free_nodes_percent.toFixed(
+    )}%) | Solo: ${free_nodes}(${free_nodes_percent.toFixed(
       0
     )}%) | Total: ${all_nodes}) 
-    ->Avg. Asks:  
-    Alliance: ${alliance_ask.toFixed(4)} | TraceLabs: ${TL_ask.toFixed(
+->Avg. Asks:  
+Alliance: ${alliance_ask.toFixed(4)} | TraceLabs: ${TL_ask.toFixed(
       4
-    )} | Free Agents: ${free_ask.toFixed(4)} | All: ${all_ask.toFixed(4)}
-    -> Avg. Stakes: 
-    Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
+    )} | Solo: ${free_ask.toFixed(4)} | All: ${all_ask.toFixed(4)}
+-> Avg. Stakes: 
+Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
       2
-    )} | Free Agents: ${free_stake.toFixed(2)} | All: ${all_stake.toFixed(2)}
+    )} | Solo: ${free_stake.toFixed(2)} | All: ${all_stake.toFixed(2)}
            `
 
     console.log(msg)
