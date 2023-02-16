@@ -33,6 +33,11 @@ module.exports = spamCheck = async (command, telegram_id) => {
   expireDate = Math.abs(expireDate)
   cooldown = Number(process.env.MILLIMIN_COOLDOWN)
 
+  console.log(currentDate)
+  console.log(timeDif)
+  console.log(expireDate)
+  console.log(cooldown)
+
   if (timeDif > cooldown) {
     permission = `allow`
     console.log(`Command: ${command} is allowed from member ${telegram_id}`)
