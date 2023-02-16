@@ -466,6 +466,10 @@ cron.schedule(process.env.ALLIANCE_INFO, async function () {
     for (i = 0; i < asks.length; ++i) {
       ask = Number(asks[i])
       total_ask = total_ask + ask
+    }
+
+    for (i = 0; i < stakes.length; ++i) {
+      stake = Number(stakes[i])
       total_stake = total_stake + stake
     }
 
