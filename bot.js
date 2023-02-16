@@ -116,7 +116,7 @@ bot.command('mynodes', async ctx => {
   )
 
   async function setValue (value) {
-    all_nodes = value.length
+    all_nodes = Number(value.length)
     console.log(ctx.message)
 
     telegram_id = JSON.stringify(ctx.message.from.id)
@@ -136,6 +136,7 @@ bot.command('mynodes', async ctx => {
       total_stake = total_stake + Number(node.stake)
     }
 
+    console.log(all_nodes)
     node_percent = node_count / all_nodes
 
     msg = `${ctx.message.from.first_name}'s Nodes:
