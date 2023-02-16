@@ -116,7 +116,7 @@ bot.command('mynodes', async ctx => {
   )
 
   async function setValue (value) {
-    all_nodes = Number(value.length)
+    console.log(value)
     console.log(ctx.message)
 
     telegram_id = JSON.stringify(ctx.message.from.id)
@@ -127,6 +127,7 @@ bot.command('mynodes', async ctx => {
       .all(1, telegram_id)
 
     node_count = Number(nodes.length)
+    all_nodes = Number(value.length)
 
     total_ask = 0
     total_stake = 0
