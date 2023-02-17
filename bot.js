@@ -18,8 +18,6 @@ const {
   BaseScene,
   Stage
 } = require('telegraf')
-const TelegramBot = require('node-telegram-bot-api')
-const tg_bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true })
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const os = require('os')
 const fs = require('fs')
@@ -290,7 +288,9 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
     console.log(process.env.GROUP)
     console.log(cur_member.member_id.tg_id)
-    tg_member = await tg_bot.telegram.getChatMember(
+    console.log(bot.telegram)
+
+    tg_member = await bot.telegram.getChatMember(
       process.env.GROUP,
       cur_member.member_id.tg_id
     )
