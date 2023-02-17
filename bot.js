@@ -321,7 +321,12 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       if (warnings != 6) {
         await bot_db
           .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
-          .run(node_id, process.env.GROUP, 'out_of_range', warnings + 1)
+          .run(
+            node_id,
+            cur_member.member_id.tg_id,
+            'out_of_range',
+            warnings + 1
+          )
 
         await bot.telegram.sendMessage(
           process.env.GROUP,
