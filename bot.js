@@ -210,7 +210,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     .prepare('SELECT distinct tg_id FROM member_nodes WHERE verified = ?')
     .all(1)
 
-  console.log(`MEMBER IDS: ` + member_ids)
+  console.log(`MEMBER IDS: ` + JSON.stringify(member_ids))
 
   members_list = []
   for (i = 0; i < member_ids.length; ++i) {
