@@ -288,7 +288,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
     console.log(process.env.GROUP)
     console.log(cur_member.member_id.tg_id)
-    console.log(bot.telegram)
+    console.log(bot.telegram.getChatMember)
 
     tg_member = await bot.telegram.getChatMember(
       process.env.GROUP,
