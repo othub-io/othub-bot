@@ -280,9 +280,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     compliant = 'no'
     offender = '1'
 
-    if (noncompliant == '') {
+    if (noncompliant == []) {
       compliant = 'yes'
-      console.log(`Clearing warnings.`)
 
       offender = await bot_db
         .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
