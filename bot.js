@@ -243,7 +243,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
   console.log(`MEMBERS LIST: ` + JSON.stringify(members_list))
 
   console.log(members_list.length)
-  for (i = 0; i < members_list.length; ++i) {
+  for (i = 0; i < Number(members_list.length); ++i) {
     cur_member = members_list[i]
     console.log(`MEMBER COUNT: ` + i)
 
