@@ -281,6 +281,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     offender = '1'
 
     if (noncompliant == []) {
+      console.log(`USER IS COMPLIANT`)
       compliant = 'yes'
 
       offender = await bot_db
@@ -288,7 +289,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         .all(cur_member.member_id.tg_id)
     }
 
-    if (offender != '') {
+    if (offender != []) {
       previous_offender = 'yes'
     }
 
