@@ -289,6 +289,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         .all(cur_member.member_id.tg_id)
     }
 
+    console.log(`OFFENDER: ` + offender)
     if (offender != []) {
       previous_offender = 'yes'
     }
