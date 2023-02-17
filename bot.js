@@ -220,7 +220,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       )
       .all(1, member_id.tg_id)
 
-    console.log(`MEMBERS NODE IDS: ` + JSON.stringify(members_node_ids))
+    console.log(i + `--MEMBERS NODE IDS: ` + JSON.stringify(members_node_ids))
 
     if (members_node_ids == '') {
       console.log(`No nodes found for sure. Kicking...`)
