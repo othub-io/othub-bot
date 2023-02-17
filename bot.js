@@ -334,7 +334,7 @@ Node ${node_id} is out of ask range. ${
         )
       }
 
-      if (warnings == 6) {
+      if (warnings >= 6) {
         await bot.telegram.sendMessage(
           process.env.GROUP,
           `@${tg_member.user.username}, 
