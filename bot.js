@@ -320,6 +320,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       .prepare('SELECT * FROM member_nodes WHERE tg_id = ?')
       .all(cur_member.member_id)
 
+    console.log(`Exists: ${exists}`)
+
     if (exists == '') {
       await bot.telegram.sendMessage(
         cur_member.member_id,
@@ -328,7 +330,10 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
       bot.telegram.banChatMember(cur_member.member_id)
       bot.telegram.unbanChatMember(cur_member.member_id)
+      return
     }
+
+    console.log(`END`)
   }
 })
 
