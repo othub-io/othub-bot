@@ -278,22 +278,27 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     console.log(`NONCOMPLIANT: ` + JSON.stringify(noncompliant))
     previous_offender = 'no'
     compliant = 'no'
+    offender = '1'
 
     if (noncompliant == '') {
       compliant = 'yes'
       console.log(`Clearing warnings.`)
 
-      previous_offender = await bot_db
+      offender = await bot_db
         .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
         .all(cur_member.member_id.tg_id)
     }
 
+    if (offender != '') {
+      previous_offender = 'yes'
+    }
+
     console.log(`PREVIOUS OFFENDER: ` + previous_offender)
-    if (previous_offender != 'no') {
+    if (previous_offender == 'yes') {
       console.log(`updating warning back to 0`)
-      //   await bot_db
-      //     .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
-      //     .run(0, cur_member.member_id.tg_id)
+      await bot_db
+        .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
+        .run(0, cur_member.member_id.tg_id)
     }
 
     tg_member = await bot.telegram.getChatMember(
