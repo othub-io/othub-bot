@@ -277,27 +277,10 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
     noncompliant = JSON.stringify(noncompliant)
     console.log(`NONCOMPLIANT: ` + noncompliant)
-    previous_offender = 'no'
-    compliant = 'no'
-    offender = '1'
 
     if (noncompliant == '[]') {
       console.log(`USER IS COMPLIANT`)
-      compliant = 'yes'
 
-      offender = await bot_db
-        .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
-        .all(cur_member.member_id.tg_id)
-    }
-
-    console.log(`OFFENDER: ` + offender)
-    if (offender) {
-      previous_offender = 'yes'
-    }
-
-    console.log(`PREVIOUS OFFENDER: ` + previous_offender)
-    if (previous_offender == 'yes') {
-      console.log(`updating warning back to 0`)
       await bot_db
         .prepare(`UPDATE node_compliance SET warnings = ? WHERE tg_id = ?`)
         .run(0, cur_member.member_id.tg_id)
