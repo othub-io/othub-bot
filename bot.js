@@ -273,15 +273,15 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
     console.log(`NONCOMPLAINT: ` + JSON.stringify(noncompliant))
 
-    // if (noncompliant == '') {
-    //   console.log(`Clearing warnings.`)
-    //   //   await alliance_db
-    //   //     .prepare(
-    //   //       `INSERT INTO node_compliance (node_id,tg_id,type,warnings) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE  SET warnings = ? WHERE tg_id = ?`
-    //   //     )
-    //   //     .run(0, member.tg_id, 'out_of_range')
-    //   return
-    // }
+    if (noncompliant == '') {
+      console.log(`Clearing warnings.`)
+      await alliance_db
+        .prepare(
+          `REPLACE INTO node_compliance (node_id,tg_id,type,warnings) VALUES (?,?,?,?) WHERE tg_id = ?`
+        )
+        .run(0, member.tg_id, 'out_of_range', 0, member.tg_id)
+      return
+    }
 
     // for (c = 0; c < noncompliant.length; ++c) {
     //   node_id = JSON.stringify(noncompliant[c])
