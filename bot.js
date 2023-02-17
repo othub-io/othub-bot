@@ -318,7 +318,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
           .run(node_id, process.env.GROUP, 'out_of_range', warnings + 1)
 
         await bot.telegram.sendMessage(
-          JSON.stringify(process.env.GROUP),
+          process.env.GROUP,
           `Node ${node_id} is outside of the Alliance ask range. You have ${
             7 - (warnings + 1)
           } days to comply before being kicked.`
