@@ -297,7 +297,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     if (previous_offender == 'yes') {
       console.log(`updating warning back to 0`)
       await bot_db
-        .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
+        .prepare(`UPDATE node_compliance SET warnings = ? WHERE tg_id = ?`)
         .run(0, cur_member.member_id.tg_id)
     }
 
