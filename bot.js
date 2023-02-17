@@ -199,8 +199,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     )
   )
   max = Number(
-    process.env.ALLIANCE_RANGE.slice(
-      0,
+    process.env.ALLIANCE_RANGE.substring(
       process.env.ALLIANCE_RANGE.indexOf('-') + 1
     )
   )
