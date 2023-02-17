@@ -243,7 +243,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     members_list.push(obj)
   }
 
-  console.log(`MEMBERS LIST: ` + members_list)
+  console.log(`MEMBERS LIST: ` + JSON.stringify(members_list))
 
   for (i = 0; i < members_list.length; ++i) {
     cur_member = members_list[i]
