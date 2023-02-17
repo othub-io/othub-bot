@@ -295,8 +295,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     }
 
     tg_member = await bot.telegram.getChatMember(
-      process.env.GROUP,
-      cur_member.member_id.tg_id
+      cur_member.member_id.tg_id,
+      process.env.GROUP
     )
     console.log(`TG MEMBER: ` + tg_member)
     for (c = 0; c < Number(noncompliant.length); ++c) {
