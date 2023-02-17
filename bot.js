@@ -296,60 +296,60 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         .run(0, cur_member.member_id.tg_id)
     }
 
-    tg_member = await bot.telegram.getChatMember(
-      process.env.GROUP,
-      JSON.stringify(cur_member.member_id.tg_id)
-    )
+    // tg_member = await bot.telegram.getChatMember(
+    //   process.env.GROUP,
+    //   JSON.stringify(cur_member.member_id.tg_id)
+    // )
+    //console.log(`TG MEMBER: ` + tg_member)
 
-    console.log(`TG MEMBER: ` + tg_member)
-    // for (c = 0; c < Number(noncompliant.length); ++c) {
-    //   node_id = noncompliant[c]
+    for (c = 0; c < Number(noncompliant.length); ++c) {
+      node_id = noncompliant[c]
 
-    //   console.log(`thththth ` + cur_member.member_id.tg_id)
+      console.log(`thththth ` + cur_member.member_id.tg_id)
 
-    //   row = await bot_db
-    //     .prepare(
-    //       'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
-    //     )
-    //     .all(cur_member.member_id.tg_id, node_id)
+      row = await bot_db
+        .prepare(
+          'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
+        )
+        .all(cur_member.member_id.tg_id, node_id)
 
-    //   console.log(`WARNINGS: ${JSON.stringify(row)}`)
+      console.log(`WARNINGS: ${JSON.stringify(row)}`)
 
-    //   warnings = 0
+      warnings = 0
 
-    //   if (row != '') {
-    //     warnings = Number(row[0].warnings)
-    //   }
+      if (row != '') {
+        warnings = Number(row[0].warnings)
+      }
 
-    //   if (warnings != 6) {
-    //     await bot_db
-    //       .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
-    //       .run(
-    //         node_id,
-    //         cur_member.member_id.tg_id,
-    //         'out_of_range',
-    //         warnings + 1
-    //       )
+      if (warnings != 6) {
+        await bot_db
+          .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
+          .run(
+            node_id,
+            cur_member.member_id.tg_id,
+            'out_of_range',
+            warnings + 1
+          )
 
-    //     await bot.telegram.sendMessage(
-    //       process.env.GROUP,
-    //       `Node ${node_id} is outside of the Alliance ask range. You have ${
-    //         7 - (warnings + 1)
-    //       } days to comply before being kicked.`
-    //     )
-    //   }
+        await bot.telegram.sendMessage(
+          process.env.GROUP,
+          `Node ${node_id} is outside of the Alliance ask range. You have ${
+            7 - (warnings + 1)
+          } days to comply before being kicked.`
+        )
+      }
 
-    //   if (warnings == 6) {
-    //     await bot.telegram.sendMessage(
-    //       process.env.GROUP,
-    //       `Node ${node_id} is being kicked from the Alliance for not adhering to the ask range. Please reverify and stay within the ask range.`
-    //     )
+      if (warnings == 6) {
+        await bot.telegram.sendMessage(
+          process.env.GROUP,
+          `Node ${node_id} is being kicked from the Alliance for not adhering to the ask range. Please reverify and stay within the ask range.`
+        )
 
-    //     await alliance_db
-    //       .prepare(`DELETE FROM member_nodes node_id = ? COLLATE NOCASE`)
-    //       .run(node_id)
-    //   }
-    // }
+        await alliance_db
+          .prepare(`DELETE FROM member_nodes node_id = ? COLLATE NOCASE`)
+          .run(node_id)
+      }
+    }
 
     console.log(`END`)
   }
