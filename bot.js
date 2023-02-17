@@ -280,24 +280,22 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     if (noncompliant == '') {
       console.log(`Clearing warnings.`)
 
-      warnings = await bot_db
+      previous_offender = await bot_db
         .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
         .all(cur_member.member_id.tg_id)
       console.log(warnings)
-
-      if (warnings != '') {
-        await alliance_db
-          .prepare(
-            `UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`
-          )
-          .run(0, cur_member.member_id.tg_id)
-      }
-    } else {
-      //   tg_member = await bot.telegram.getChatMember(
-      //     process.env.GROUP,
-      //     cur_member.member_id.tg_id
-      //   )
     }
+
+    if (previous_offender != []) {
+      await alliance_db
+        .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
+        .run(0, cur_member.member_id.tg_id)
+    }
+
+    tg_member = await bot.telegram.getChatMember(
+      process.env.GROUP,
+      cur_member.member_id.tg_id
+    )
 
     console.log(`TG MEMBER: ` + tg_member)
     for (c = 0; c < Number(noncompliant.length); ++c) {
