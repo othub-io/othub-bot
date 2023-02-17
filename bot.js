@@ -342,6 +342,10 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
           last_node = 'yes'
         }
 
+        await bot_db
+          .prepare(`DELETE FROM node_compliance WHERE node_id = ?`)
+          .run(node_id)
+
         if (last_node == 'yes') {
           await bot.telegram.sendMessage(
             process.env.GROUP,
