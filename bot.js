@@ -220,7 +220,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       .prepare(
         'SELECT node_id FROM member_nodes WHERE verified = ? AND tg_id = ?'
       )
-      .all(1, member_id)
+      .all(1, member_id.tg_id)
 
     console.log(`MEMBERS NODE IDS: ` + members_node_ids)
 
