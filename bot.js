@@ -225,6 +225,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     console.log(`MEMBERS NODE IDS: ` + members_node_ids)
 
     if (members_node_ids == '') {
+      console.log(`No nodes found for sure. Kicking...`)
       await bot.telegram.sendMessage(
         member_id,
         `There was no node found associated with telegram id ${member_id}. Banning member until a node is registed.`
@@ -267,7 +268,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
     if (noncompliant != '') {
       for (i = 0; i < noncompliant.length; ++i) {
-        node_id = JSON > stringify(noncompliant[i])
+        node_id = JSON.stringify(noncompliant[i])
 
         warnings = await bot_db
           .prepare(
