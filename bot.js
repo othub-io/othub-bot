@@ -336,12 +336,12 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
           .all(1)
 
         console.log(nodes)
-        no_node = 'no'
-        if (nodes == '[]') {
-          no_node = 'yes'
+        last_node = 'no'
+        if (nodes.length == 1) {
+          last_node = 'yes'
         }
 
-        if (no_node == 'yes') {
+        if (last_node == 'yes') {
           await bot.telegram.sendMessage(
             process.env.GROUP,
             `@${tg_member.user.username}, 
