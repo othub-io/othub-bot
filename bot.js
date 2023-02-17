@@ -276,9 +276,14 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     }
 
     console.log(`NONCOMPLAINT: ` + JSON.stringify(noncompliant))
+    let previous_offender
 
     if (noncompliant == '') {
       console.log(`Clearing warnings.`)
+
+      previous_offender = await bot_db
+        .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
+        .all(Numbe(cur_member.member_id.tg_id))
     }
 
     console.log(`PREVIOUS OFFENDER: ` + previous_offender)
