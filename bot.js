@@ -291,12 +291,12 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     }
 
     console.log(`OFFENDER: ` + offender)
-    if (offender != []) {
+    if (offender) {
       previous_offender = 'yes'
     }
 
     console.log(`PREVIOUS OFFENDER: ` + previous_offender)
-    if (previous_offender != '') {
+    if (previous_offender == 'yes') {
       console.log(`updating warning back to 0`)
       await bot_db
         .prepare(`UPDATE node_compliance SET warnings = ? WHERE tg_id = ?`)
