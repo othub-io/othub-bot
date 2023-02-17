@@ -275,10 +275,10 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       }
     }
 
-    noncompliant = JSON.stringify(noncompliant)
-    console.log(`NONCOMPLIANT: ` + noncompliant)
+    noncompliant_str = JSON.stringify(noncompliant)
+    console.log(`NONCOMPLIANT: ` + noncompliant_str)
 
-    if (noncompliant == '[]') {
+    if (noncompliant_str == '[]') {
       console.log(`USER IS COMPLIANT`)
 
       await bot_db
