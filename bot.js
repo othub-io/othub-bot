@@ -254,7 +254,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     for (i = 0; i < cur_member.node_ids.length; ++i) {
       node_id = cur_member.node_ids[i]
 
-      console.log(`NODE ID: ` + node_id)
+      console.log(`NODE ID: ` + JSON.stringify(node_id))
       node_ask = await alliance_db
         .prepare(
           'SELECT ask FROM member_nodes WHERE verified = ? AND node_id = ?'
