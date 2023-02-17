@@ -283,13 +283,15 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     }
 
     for (c = 0; c < noncompliant.length; ++c) {
-      node_id = JSON.stringify(noncompliant[c])
+      node_id = noncompliant[c]
 
       warnings = await bot_db
         .prepare(
           'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
         )
         .all(cur_member.member_id, node_id)
+
+      console.log(`WARNINGS: ${warnings}`)
 
       if (warnings == '') {
         warnings = 0
