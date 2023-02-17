@@ -89,7 +89,7 @@ bot.on('new_chat_members', async ctx => {
 
   if (ctx.message.new_chat_members[0].is_bot == false) {
     return ctx.reply(
-      `Welcome to the Alliance, ${ctx.message.new_chat_members[0].first_name}!`
+      `Welcome to the Alliance, ${ctx.message.new_chat_members[0].username}!`
     )
   }
 })
@@ -144,10 +144,10 @@ bot.command('mynodes', async ctx => {
     node_percent = 100 * (node_count / all_nodes)
     avg_stake = total_stake / node_count
 
-    msg = `${ctx.message.from.first_name}'s Nodes:
-        Nodes: ${node_count}(${node_percent.toFixed(2)}%)
-        Avg. Ask: ${total_ask / node_count}
-        Avg. Stake: ${avg_stake.toFixed(2)}
+    msg = `${ctx.message.from.username}'s Nodes:
+Nodes: ${node_count}(${node_percent.toFixed(2)}%)
+Avg. Ask: ${total_ask / node_count}
+Avg. Stake: ${avg_stake.toFixed(2)}
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -342,7 +342,7 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
         )
 
         await alliance_db
-          .prepare(`DELETE FROM member_nodes node_id = ? COLLATE NOCASE`)
+          .prepare(`DELETE FROM member_nodes WHERE node_id = ? COLLATE NOCASE`)
           .run(JSON.stringify(node_id))
       }
     }
