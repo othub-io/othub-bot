@@ -278,17 +278,17 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     console.log(`NONCOMPLAINT: ` + JSON.stringify(noncompliant))
     let previous_offender
 
-    if (noncompliant == '') {
-      console.log(`Clearing warnings.`)
+    // if (noncompliant == '') {
+    //   console.log(`Clearing warnings.`)
 
-      previous_offender = await bot_db
-        .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
-        .all(Numbe(cur_member.member_id.tg_id))
-    }
+    //   previous_offender = await bot_db
+    //     .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
+    //     .all(Numbe(cur_member.member_id.tg_id))
+    // }
 
     console.log(`PREVIOUS OFFENDER: ` + previous_offender)
     if (previous_offender != '') {
-      await alliance_db
+      await bot_db
         .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
         .run(0, cur_member.member_id.tg_id)
     }
