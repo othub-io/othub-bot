@@ -286,6 +286,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       console.log(warnings)
     }
 
+    console.log(`PREVIOUS OFFENDER: ` + previous_offender)
     if (previous_offender != []) {
       await alliance_db
         .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
