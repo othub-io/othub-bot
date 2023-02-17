@@ -252,14 +252,14 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     console.log(`CURRENT MEMBER: ` + JSON.stringify(cur_member))
     noncompliant = []
     for (i = 0; i < cur_member.node_ids.length; ++i) {
-      node_id = cur_member.node_ids[i]
+      node = cur_member.node_ids[i]
 
-      console.log(`NODE ID: ` + JSON.stringify(node_id))
+      console.log(`NODE ID: ` + JSON.stringify(node.node_id))
       node_ask = await alliance_db
         .prepare(
           'SELECT ask FROM member_nodes WHERE verified = ? AND node_id = ?'
         )
-        .all(1, node_id)
+        .all(1, node.node_id)
 
       console.log(`NODE ASK: ` + node_ask)
 
