@@ -255,15 +255,15 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       node = cur_member.node_ids[i]
 
       console.log(`NODE ID: ` + JSON.stringify(node.node_id))
-      row = await alliance_db
+      ask = await alliance_db
         .prepare(
           'SELECT ask FROM member_nodes WHERE verified = ? AND node_id = ?'
         )
         .all(1, node.node_id)
 
-      console.log(`NODE ASK: ` + row)
+      console.log(`NODE ASK: ` + ask)
 
-      if (row.ask < min || row.ask > max) {
+      if (ask < min || ask > max) {
         noncompliant.push(node.node_id)
       }
     }
