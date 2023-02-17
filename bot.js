@@ -246,7 +246,6 @@ There was no node associated with your account. You are being removed from the A
 
   console.log(`MEMBERS LIST: ` + JSON.stringify(members_list))
 
-  console.log(members_list.length)
   for (a = 0; a < Number(members_list.length); ++a) {
     cur_member = members_list[a]
 
