@@ -286,12 +286,12 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     //     .all(Numbe(cur_member.member_id.tg_id))
     // }
 
-    console.log(`PREVIOUS OFFENDER: ` + previous_offender)
-    if (previous_offender != '') {
-      await bot_db
-        .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
-        .run(0, cur_member.member_id.tg_id)
-    }
+    // console.log(`PREVIOUS OFFENDER: ` + previous_offender)
+    // if (previous_offender == '') {
+    //   await bot_db
+    //     .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
+    //     .run(0, cur_member.member_id.tg_id)
+    // }
 
     tg_member = await bot.telegram.getChatMember(
       process.env.GROUP,
