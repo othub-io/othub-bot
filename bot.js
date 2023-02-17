@@ -282,7 +282,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
       previous_offender = await bot_db
         .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
-        .all(cur_member.member_id.tg_id)
+        .all(JSON.stringify(cur_member.member_id.tg_id))
       console.log(warnings)
     }
 
