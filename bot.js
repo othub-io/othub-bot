@@ -243,14 +243,14 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
   console.log(`MEMBERS LIST: ` + JSON.stringify(members_list))
 
   console.log(members_list.length)
-  for (i = 0; i < Number(members_list.length); ++i) {
-    cur_member = members_list[i]
-    console.log(`MEMBER COUNT: ` + i)
+  for (a = 0; a < Number(members_list.length); ++a) {
+    cur_member = members_list[a]
+    console.log(`MEMBER COUNT: ` + a)
 
     console.log(`CURRENT MEMBER: ` + JSON.stringify(cur_member))
     noncompliant = []
-    for (i = 0; i < cur_member.node_ids.length; ++i) {
-      node = cur_member.node_ids[i]
+    for (b = 0; b < cur_member.node_ids.length; ++b) {
+      node = cur_member.node_ids[b]
 
       console.log(`NODE ID: ` + JSON.stringify(node.node_id))
       ask = await alliance_db
@@ -274,8 +274,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     console.log(`NONCOMPLAINT: ` + JSON.stringify(noncompliant))
 
     if (noncompliant != '') {
-      for (i = 0; i < noncompliant.length; ++i) {
-        node_id = JSON.stringify(noncompliant[i])
+      for (b = 0; b < noncompliant.length; ++b) {
+        node_id = JSON.stringify(noncompliant[b])
 
         warnings = await bot_db
           .prepare(
