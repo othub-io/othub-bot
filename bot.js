@@ -144,7 +144,7 @@ bot.command('mynodes', async ctx => {
     node_percent = 100 * (node_count / all_nodes)
     avg_stake = total_stake / node_count
 
-    msg = `${ctx.message.from.username}'s Nodes:
+    msg = `@${ctx.message.from.username}'s Nodes:
 Nodes: ${node_count}(${node_percent.toFixed(2)}%)
 Avg. Ask: ${total_ask / node_count}
 Avg. Stake: ${avg_stake.toFixed(2)}
