@@ -229,8 +229,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       tg_member = await bot.telegram.getChatMember(process.env.GROUP, member_id)
       await bot.telegram.sendMessage(
         process.env.GROUP,
-        `@${tg_member.user.first_name}, 
-        
+        `@${tg_member.user.username}, 
+
 There was no node associated with your account. You are being removed from the Allaince.`
       )
       bot.telegram.banChatMember(telegram_id)
@@ -328,9 +328,9 @@ There was no node associated with your account. You are being removed from the A
 
         await bot.telegram.sendMessage(
           process.env.GROUP,
-          `@${tg_member.user.first_name},
+          `@${tg_member.user.username},
 
-    Node ${node_id} is out ask range. ${
+Node ${node_id} is out of ask range. ${
             7 - (warnings + 1)
           } days before being kicked.`
         )
@@ -339,9 +339,9 @@ There was no node associated with your account. You are being removed from the A
       if (warnings == 6) {
         await bot.telegram.sendMessage(
           process.env.GROUP,
-          `@${tg_member.user.first_name}, 
+          `@${tg_member.user.username}, 
 
-    Node ${node_id} is being kicked for not adhering to the ask range.`
+Node ${node_id} is being kicked for not adhering to the ask range.`
         )
 
         await alliance_db
