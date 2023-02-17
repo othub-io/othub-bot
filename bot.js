@@ -309,7 +309,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       warnings = 0
 
       if (row != '') {
-        warnings = Number(row.warnings)
+        warnings = Number(row[0].warnings)
       }
 
       if (warnings != 6) {
