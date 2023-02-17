@@ -227,7 +227,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     if (members_node_ids == '') {
       console.log(`No nodes found for sure. Kicking...`)
       await bot.telegram.sendMessage(
-        member_id,
+        process.env.GROUP,
         `There was no node found associated with telegram id ${member_id}. Banning member until a node is registed.`
       )
       bot.telegram.banChatMember(telegram_id)
@@ -315,15 +315,10 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       if (warnings != 6) {
         await bot_db
           .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
-          .run(
-            node_id,
-            cur_member.member_id.tg_id,
-            'out_of_range',
-            warnings + 1
-          )
+          .run(node_id, process.env.GROUP, 'out_of_range', warnings + 1)
 
         await bot.telegram.sendMessage(
-          JSON.stringify(cur_member.member_id.tg_id),
+          JSON.stringify(process.env.GROUP),
           `Node ${node_id} is outside of the Alliance ask range. You have ${
             7 - (warnings + 1)
           } days to comply before being kicked.`
@@ -332,7 +327,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
       if (warnings == 6) {
         await bot.telegram.sendMessage(
-          cur_member.member_id.tg_id,
+          process.env.GROUP,
           `Node ${node_id} is being kicked from the Alliance for not adhering to the ask range. Please reverify and stay within the ask range.`
         )
 
