@@ -204,8 +204,6 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
   )
   max = Number(process.env.ALLIANCE_RANGE.split('-').pop())
 
-  console.log(`min-max set:`)
-
   member_ids = await alliance_db
     .prepare('SELECT distinct tg_id FROM member_nodes WHERE verified = ?')
     .all(1)
@@ -251,9 +249,7 @@ There was no node associated with your account. You are being removed from the A
   console.log(members_list.length)
   for (a = 0; a < Number(members_list.length); ++a) {
     cur_member = members_list[a]
-    console.log(`MEMBER COUNT: ` + a)
 
-    console.log(`CURRENT MEMBER: ` + JSON.stringify(cur_member))
     noncompliant = []
     for (b = 0; b < cur_member.node_ids.length; ++b) {
       node = cur_member.node_ids[b]
@@ -265,12 +261,7 @@ There was no node associated with your account. You are being removed from the A
         )
         .all(1, node.node_id)
 
-      console.log(`NODE ASK: ` + JSON.stringify(ask))
       ask = Number(ask[0].ask)
-
-      console.log(ask)
-      console.log(min)
-      console.log(max)
 
       if (ask < min || ask > max) {
         noncompliant.push(node.node_id)
@@ -278,7 +269,6 @@ There was no node associated with your account. You are being removed from the A
     }
 
     noncompliant_str = JSON.stringify(noncompliant)
-    console.log(`NONCOMPLIANT: ` + noncompliant_str)
 
     compliant = 'no'
     if (noncompliant_str == '[]') {
