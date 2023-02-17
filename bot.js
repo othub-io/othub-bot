@@ -198,11 +198,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       process.env.ALLIANCE_RANGE.indexOf('-')
     )
   )
-  max = Number(
-    process.env.ALLIANCE_RANGE.substring(
-      process.env.ALLIANCE_RANGE.indexOf('-') + 1
-    )
-  )
+  max = Number(process.env.ALLIANCE_RANGE.split('-').pop())
 
   console.log(`min-max set:`)
 
