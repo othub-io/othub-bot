@@ -276,17 +276,17 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     if (noncompliant == '') {
       console.log(`Clearing warnings.`)
 
-      warnings = await bot_db
-        .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
-        .all(JSON.stringify(cur_member.member_id.tg_id))
+      //   warnings = await bot_db
+      //     .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
+      //     .all(JSON.stringify(cur_member.member_id.tg_id))
 
-      if (warnings != '') {
-        await alliance_db
-          .prepare(
-            `UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`
-          )
-          .run(0, JSON.stringify(cur_member.member_id.tg_id))
-      }
+      //   if (warnings != '') {
+      //     await alliance_db
+      //       .prepare(
+      //         `UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`
+      //       )
+      //       .run(0, JSON.stringify(cur_member.member_id.tg_id))
+      //   }
     }
 
     for (c = 0; c < Number(noncompliant.length); ++c) {
