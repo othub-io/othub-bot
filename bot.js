@@ -283,8 +283,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       return
     }
 
-    for (b = 0; b < noncompliant.length; ++b) {
-      node_id = JSON.stringify(noncompliant[b])
+    for (c = 0; c < noncompliant.length; ++c) {
+      node_id = JSON.stringify(noncompliant[c])
 
       warnings = await bot_db
         .prepare(
