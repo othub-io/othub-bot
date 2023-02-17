@@ -2,7 +2,7 @@ require('dotenv').config()
 const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB, {
   verbose: console.log
 })
-const bot_db = require('better-sqlite3')(`${__dirname}/database/bot.db`, {
+const bot_db = require('better-sqlite3')(__dirname + '/database/bot.db', {
   verbose: console.log
 })
 const queryTypes = require('./src/util/queryTypes')
