@@ -332,8 +332,10 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
         )
 
         nodes = await alliance_db
-          .prepare('SELECT * FROM member_nodes WHERE verified = ?')
-          .all(1)
+          .prepare(
+            'SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?'
+          )
+          .all(1, cur_member.member_id.tg_id)
 
         console.log(nodes)
         last_node = 'no'
@@ -347,8 +349,8 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
             `@${tg_member.user.username}, 
             There was no node associated with your account. You are being removed from the Allaince.`
           )
-          await bot.telegram.banChatMember(telegram_id)
-          await bot.telegram.unbanChatMember(telegram_id)
+          await bot.telegram.banChatMember(cur_member.member_id.tg_id)
+          await bot.telegram.unbanChatMember(cur_member.member_id.tg_id)
 
           await alliance_db
             .prepare(
