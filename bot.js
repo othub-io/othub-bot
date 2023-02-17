@@ -89,7 +89,7 @@ bot.on('new_chat_members', async ctx => {
 
   if (ctx.message.new_chat_members[0].is_bot == false) {
     return ctx.reply(
-      `Welcome to the Alliance, ${ctx.message.new_chat_members[0].username}!`
+      `Welcome to the Alliance, @${ctx.message.new_chat_members[0].username}!`
     )
   }
 })
