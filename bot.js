@@ -2,7 +2,7 @@ require('dotenv').config()
 const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB, {
   verbose: console.log
 })
-const bot_db = require('better-sqlite3')(__dirname + '/database/bot.db', {
+const bot_db = require('better-sqlite3')(`${__dirname}/database/bot.db`, {
   verbose: console.log
 })
 const queryTypes = require('./src/util/queryTypes')
@@ -280,14 +280,13 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     if (noncompliant == '') {
       console.log(`Clearing warnings.`)
 
-      previous_offender = await bot_db
-        .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
-        .all(Numbe(cur_member.member_id.tg_id))
-      console.log(warnings)
+      //   previous_offender = await bot_db
+      //     .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
+      //     .all(Numbe(cur_member.member_id.tg_id))
     }
 
     console.log(`PREVIOUS OFFENDER: ` + previous_offender)
-    if (previous_offender != []) {
+    if (previous_offender != '') {
       await alliance_db
         .prepare(`UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`)
         .run(0, cur_member.member_id.tg_id)
