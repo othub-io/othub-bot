@@ -201,11 +201,11 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
   max = Number(
     process.env.ALLIANCE_RANGE.slice(
       0,
-      process.env.ALLIANCE_RANGE.lastIndexOf('-')
+      process.env.ALLIANCE_RANGE.indexOf('-') + 1
     )
   )
 
-  console.log(`min-max set`)
+  console.log(`min-max set:`)
 
   member_ids = await alliance_db
     .prepare('SELECT distinct tg_id FROM member_nodes WHERE verified = ?')
