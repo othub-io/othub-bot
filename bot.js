@@ -275,12 +275,13 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       }
     }
 
-    console.log(`NONCOMPLIANT: ` + JSON.stringify(noncompliant))
+    noncompliant = JSON.stringify(noncompliant)
+    console.log(`NONCOMPLIANT: ` + noncompliant)
     previous_offender = 'no'
     compliant = 'no'
     offender = '1'
 
-    if (!noncompliant) {
+    if (noncompliant == '[]') {
       console.log(`USER IS COMPLIANT`)
       compliant = 'yes'
 
