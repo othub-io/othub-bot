@@ -298,19 +298,21 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
       console.log(`thththth ` + cur_member.member_id.tg_id)
 
-      warnings = await bot_db
+      row = await bot_db
         .prepare(
           'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
         )
         .all(cur_member.member_id.tg_id, node_id)
 
-      console.log(`WARNINGS: ${JSON.stringify(warnings)}`)
+      console.log(`WARNINGS: ${JSON.stringify(row)}`)
 
-      if (warnings == '') {
+      if (row.warnings == '') {
         warnings = 0
+      } else {
+        warnings = Number(row.warnings)
       }
 
-      if (warnings != '6') {
+      if (warnings != 6) {
         await bot_db
           .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
           .run(
@@ -328,7 +330,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         )
       }
 
-      if (warnings == '6') {
+      if (warnings == 6) {
         await bot.telegram.sendMessage(
           cur_member.member_id.tg_id,
           `Node ${node_id} is being kicked from the Alliance for not adhering to the ask range. Please reverify and stay within the ask range.`
