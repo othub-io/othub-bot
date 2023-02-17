@@ -343,7 +343,7 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
 
         await alliance_db
           .prepare(`DELETE FROM member_nodes WHERE node_id = ? COLLATE NOCASE`)
-          .run(JSON.stringify(node_id))
+          .run(node_id)
       }
     }
 
