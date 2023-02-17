@@ -293,7 +293,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         process.env.GROUP,
         cur_member.member_id.tg_id
       )
-      console.log(`TG MEMBER: ` + tg_member)
+      console.log(`TG MEMBER: ` + JSON.stringify(tg_member))
     }
 
     // for (c = 0; c < Number(noncompliant.length); ++c) {
