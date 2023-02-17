@@ -214,7 +214,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
   members_list = []
   for (i = 0; i < member_ids.length; ++i) {
-    member_id = JSON.stringify(member_ids[i])
+    member_id = member_ids[i]
 
     members_node_ids = await alliance_db
       .prepare(
