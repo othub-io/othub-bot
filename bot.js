@@ -261,7 +261,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         )
         .all(1, node.node_id)
 
-      console.log(`NODE ASK: ` + ask)
+      console.log(`NODE ASK: ` + JSON.stringify(ask))
+      ask = Number(ask)
 
       if (ask < min || ask > max) {
         noncompliant.push(node.node_id)
