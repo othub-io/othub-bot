@@ -335,8 +335,9 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
           .prepare('SELECT * FROM member_nodes WHERE verified = ?')
           .all(1)
 
+        console.log(nodes)
         no_node = 'no'
-        if (nodes == '') {
+        if (nodes == '[]') {
           no_node = 'yes'
         }
 
