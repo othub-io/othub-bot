@@ -308,6 +308,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         }
       }
     } else {
+      console.log(`Clearing warnings.`)
       await alliance_db
         .prepare(`UPDATE member_incidents SET warnings = ? WHERE tg_id = ?`)
         .run(0, member.tg_id)
