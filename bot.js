@@ -232,8 +232,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         `@${tg_member.user.username}, 
 There was no node associated with your account. You are being removed from the Allaince.`
       )
-      bot.telegram.banChatMember(telegram_id)
-      bot.telegram.unbanChatMember(telegram_id)
+      bot.telegram.banChatMember(member_id.tg_id)
+      bot.telegram.unbanChatMember(member_id.tg_id)
 
       return
     }
@@ -341,22 +341,29 @@ Node ${node_id} is out of ask range. ${
 Node ${node_id} is being kicked for not adhering to the ask range.`
         )
 
-        await alliance_db
-          .prepare(`DELETE FROM member_nodes WHERE node_id = ? COLLATE NOCASE`)
-          .run(node_id)
-
         nodes = await alliance_db
           .prepare('SELECT * FROM member_nodes WHERE verified = ?')
           .all(1)
 
+        no_node = 'no'
         if (nodes == '') {
+          no_node = 'yes'
+        }
+
+        if (no_node == 'yes') {
           await bot.telegram.sendMessage(
             process.env.GROUP,
             `@${tg_member.user.username}, 
-        There was no node associated with your account. You are being removed from the Allaince.`
+            There was no node associated with your account. You are being removed from the Allaince.`
           )
-          bot.telegram.banChatMember(telegram_id)
-          bot.telegram.unbanChatMember(telegram_id)
+          await bot.telegram.banChatMember(telegram_id)
+          await bot.telegram.unbanChatMember(telegram_id)
+
+          await alliance_db
+            .prepare(
+              `DELETE FROM member_nodes WHERE node_id = ? COLLATE NOCASE`
+            )
+            .run(node_id)
         }
       }
     }
