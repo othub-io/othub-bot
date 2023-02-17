@@ -275,11 +275,18 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
     if (noncompliant == '') {
       console.log(`Clearing warnings.`)
-      //   await alliance_db
-      //     .prepare(
-      //       `REPLACE INTO node_compliance (node_id,tg_id,type,warnings) VALUES (?,?,?,?) WHERE tg_id = ?`
-      //     )
-      //     .run(0, member.tg_id, 'out_of_range', 0, member.tg_id)
+
+      warnings = await bot_db
+        .prepare('SELECT * FROM node_compliance WHERE tg_id = ?')
+        .all(cur_member.member_id.tg_id)
+
+      if (warnings != '') {
+        await alliance_db
+          .prepare(
+            `UPDATE node_compliance (warnings) VALUES (?) WHERE tg_id = ?`
+          )
+          .run(0, cur_member.member_id.tg_id)
+      }
     }
 
     for (c = 0; c < Number(noncompliant.length); ++c) {
@@ -291,7 +298,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         .prepare(
           'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
         )
-        .all(cur_member.member_id, node_id)
+        .all(cur_member.member_id.tg_id, node_id)
 
       console.log(`WARNINGS: ${warnings}`)
 
@@ -302,10 +309,15 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       if (warnings != '6') {
         await bot_db
           .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
-          .run(node_id, member_id, 'out_of_range', warnings + 1)
+          .run(
+            node_id,
+            cur_member.member_id.tg_id,
+            'out_of_range',
+            warnings + 1
+          )
 
         await bot.telegram.sendMessage(
-          cur_member.member_id,
+          cur_member.member_id.tg_id,
           `Node ${node_id} is outside of the Alliance ask range. You have ${
             7 - (warnings + 1)
           } days to comply before being kicked.`
@@ -314,7 +326,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
       if (warnings == '6') {
         await bot.telegram.sendMessage(
-          cur_member.member_id,
+          cur_member.member_id.tg_id,
           `Node ${node_id} is being kicked from the Alliance for not adhering to the ask range. Please reverify and stay within the ask range.`
         )
 
