@@ -304,7 +304,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         )
         .all(cur_member.member_id.tg_id, node_id)
 
-      console.log(`WARNINGS: ${warnings}`)
+      console.log(`WARNINGS: ${JSON.stringify(warnings)}`)
 
       if (warnings == '') {
         warnings = 0
