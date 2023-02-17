@@ -306,9 +306,9 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 
       console.log(`WARNINGS: ${JSON.stringify(row)}`)
 
-      if (row == '') {
-        warnings = 0
-      } else {
+      warnings = 0
+
+      if (row) {
         warnings = Number(row.warnings)
       }
 
