@@ -194,16 +194,17 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
   console.log(`Running ask monitoring task.`)
   min = Number(
     process.env.ALLIANCE_RANGE.substring(
-      -1,
-      process.env.ALLIANCE_RANGE.indexOf('-')
-    )
-  )
-  max = Number(
-    process.env.ALLIANCE_RANGE.substring(
       1,
       process.env.ALLIANCE_RANGE.indexOf('-')
     )
   )
+  max = Number(
+    process.env.ALLIANCE_RANGE.slice(
+      0,
+      process.env.ALLIANCE_RANGE.lastIndexOf('-')
+    )
+  )
+
   console.log(`min-max set`)
 
   member_ids = await alliance_db
