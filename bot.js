@@ -344,6 +344,20 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
         await alliance_db
           .prepare(`DELETE FROM member_nodes WHERE node_id = ? COLLATE NOCASE`)
           .run(node_id)
+
+        nodes = await alliance_db
+          .prepare('SELECT * FROM member_nodes WHERE verified = ?')
+          .all(1)
+
+        if (nodes == '') {
+          await bot.telegram.sendMessage(
+            process.env.GROUP,
+            `@${tg_member.user.username}, 
+        There was no node associated with your account. You are being removed from the Allaince.`
+          )
+          bot.telegram.banChatMember(telegram_id)
+          bot.telegram.unbanChatMember(telegram_id)
+        }
       }
     }
 
