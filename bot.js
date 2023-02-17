@@ -259,7 +259,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         .prepare(
           'SELECT ask FROM member_nodes WHERE verified = ? AND node_id = ?'
         )
-        .all(1, JSON.stringify(node.node_id))
+        .all(1, node.node_id)
 
       console.log(`NODE ASK: ` + row)
 
