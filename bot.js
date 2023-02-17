@@ -337,7 +337,7 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
           )
           .all(1, cur_member.member_id.tg_id)
 
-        console.log(nodes)
+        console.log(nodes.length)
         last_node = 'no'
         if (nodes.length == 1) {
           last_node = 'yes'
