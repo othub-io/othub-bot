@@ -194,7 +194,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
   console.log(`Running ask monitoring task.`)
   min = Number(
     process.env.ALLIANCE_RANGE.substring(
-      0,
+      -1,
       process.env.ALLIANCE_RANGE.indexOf('-')
     )
   )
