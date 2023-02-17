@@ -285,6 +285,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     for (c = 0; c < Number(noncompliant.length); ++c) {
       node_id = noncompliant[c]
 
+      console.log(`thththth` + node_id)
+
       warnings = await bot_db
         .prepare(
           'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
