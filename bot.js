@@ -282,7 +282,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       //     .run(0, member.tg_id, 'out_of_range', 0, member.tg_id)
     }
 
-    for (c = 0; c < noncompliant.length; ++c) {
+    for (c = 0; c < Number(noncompliant.length); ++c) {
       node_id = noncompliant[c]
 
       warnings = await bot_db
