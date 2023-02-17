@@ -247,7 +247,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
   console.log(`MEMBERS LIST: ` + JSON.stringify(members_list))
 
   for (i = 0; i < members_list.length; ++i) {
-    cur_member = members_list[i]
+    cur_member = members_list[0][i]
 
     console.log(`CURRENT MEMBER: ` + JSON.stringify(cur_member))
     noncompliant = []
