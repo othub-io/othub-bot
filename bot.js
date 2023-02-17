@@ -231,6 +231,7 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
 There was no node associated with your account. You are being removed from the Allaince.`
       )
       await bot.telegram.kickChatMember(process.env.GROUP, member_id.tg_id)
+      await bot.telegram.unbanChatMember(process.env.GROUP, member_id.tg_id)
 
       return
     }
@@ -353,6 +354,10 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
 There was no node associated with your account. You are being removed from the Allaince.`
           )
           await bot.telegram.kickChatMember(
+            process.env.GROUP,
+            cur_member.member_id.tg_id
+          )
+          await bot.telegram.unbanChatMember(
             process.env.GROUP,
             cur_member.member_id.tg_id
           )
