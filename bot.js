@@ -280,45 +280,45 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
           `REPLACE INTO node_compliance (node_id,tg_id,type,warnings) VALUES (?,?,?,?) WHERE tg_id = ?`
         )
         .run(0, member.tg_id, 'out_of_range', 0, member.tg_id)
-      return
     }
 
-    // for (c = 0; c < noncompliant.length; ++c) {
-    //   node_id = JSON.stringify(noncompliant[c])
+    for (c = 0; c < noncompliant.length; ++c) {
+      node_id = JSON.stringify(noncompliant[c])
 
-    //   warnings = await bot_db
-    //     .prepare(
-    //       'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
-    //     )
-    //     .all(cur_member.member_id, node_id)
+      warnings = await bot_db
+        .prepare(
+          'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
+        )
+        .all(cur_member.member_id, node_id)
 
-    //   if (warnings == '') {
-    //     warnings = 0
-    //   }
+      if (warnings == '') {
+        warnings = 0
+      }
 
-    //   if (warnings != '6') {
-    //     await bot_db
-    //       .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
-    //       .run(node_id, member_id, 'out_of_range', warnings + 1)
+      if (warnings != '6') {
+        await bot_db
+          .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
+          .run(node_id, member_id, 'out_of_range', warnings + 1)
 
-    //     await bot.telegram.sendMessage(
-    //       cur_member.member_id,
-    //       `Node ${node_id} is outside of the Alliance ask range. You have ${
-    //         7 - (warnings + 1)
-    //       } days to comply before being kicked.`
-    //     )
-    //     return
-    //   }
+        await bot.telegram.sendMessage(
+          cur_member.member_id,
+          `Node ${node_id} is outside of the Alliance ask range. You have ${
+            7 - (warnings + 1)
+          } days to comply before being kicked.`
+        )
+      }
 
-    //   await bot.telegram.sendMessage(
-    //     cur_member.member_id,
-    //     `Node ${node_id} is being kicked from the Alliance for not adhering to the ask range. Please reverify and stay within the ask range.`
-    //   )
+      if (warnings == '6') {
+        await bot.telegram.sendMessage(
+          cur_member.member_id,
+          `Node ${node_id} is being kicked from the Alliance for not adhering to the ask range. Please reverify and stay within the ask range.`
+        )
 
-    //   await alliance_db
-    //     .prepare(`DELETE FROM member_nodes node_id = ? COLLATE NOCASE`)
-    //     .run(node_id)
-    // }
+        await alliance_db
+          .prepare(`DELETE FROM member_nodes node_id = ? COLLATE NOCASE`)
+          .run(node_id)
+      }
+    }
 
     console.log(`END`)
   }
