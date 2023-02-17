@@ -204,10 +204,13 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
       process.env.ALLIANCE_RANGE.indexOf('-')
     )
   )
+  console.log(`min-max set`)
 
   member_ids = await alliance_db
     .prepare('SELECT distinct tg_id FROM member_nodes WHERE verified = ?')
     .all(1)
+
+  console.log(`MEMBER IDS: ` + member_ids)
 
   members_list = []
   for (i = 0; i < member_ids.length; ++i) {
@@ -218,6 +221,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         'SELECT node_id FROM member_nodes WHERE verified = ? AND tg_id = ?'
       )
       .all(1, member_id)
+
+    console.log(`MEMBERS NODE IDS: ` + members_node_ids)
 
     if (members_node_ids == '') {
       await bot.telegram.sendMessage(
@@ -238,6 +243,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
     members_list.push(obj)
   }
 
+  console.log(`MEMBERS LIST: ` + members_list)
+
   for (i = 0; i < members_list.length; ++i) {
     cur_member = members_list[i]
 
@@ -255,6 +262,8 @@ cron.schedule(process.env.ASK_MONITOR, async function () {
         noncompliant.push(node_id)
       }
     }
+
+    console.log(`NONCOMPLAINT: ` + noncompliant)
 
     if (noncompliant != '') {
       for (i = 0; i < noncompliant.length; ++i) {
