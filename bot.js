@@ -267,7 +267,7 @@ There was no node associated with your account. You are being removed from the A
 
     compliant = 'no'
     if (noncompliant_str == '[]') {
-      console.log(`USER IS COMPLIANT`)
+      console.log(`Telegram ID: ${cur_member.member_id.tg_id} IS COMPLIANT`)
       compliant = 'yes'
 
       await bot_db
