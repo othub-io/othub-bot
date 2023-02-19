@@ -642,11 +642,13 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         )
         console.log(`TG MEMBER: ` + JSON.stringify(tg_member))
 
+        temp_bot = new Telegraf(member.bot_id)
+
         msg = `@${tg_member.user.username}, 
 ${shard_node.peer_id} has not been seen since ${shard_node.last_seen}.
 Last dial attempt was on ${last_dialed}.`
 
-        await bot.telegram.sendMessage(process.env.GROUP, msg)
+        await temp_bot.telegram.sendMessage(member.tg_id, msg)
       }
     }
   }
