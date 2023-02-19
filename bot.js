@@ -649,7 +649,7 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
 
         msg = `@${tg_member.user.username}, 
 ${shard_node.peer_id} has not been seen since ${shard_node.last_seen}.
-Last dial attempt was on ${last_dialed}.`
+Last dial attempt was on ${shard_node.last_dialed}.`
 
         await temp_bot.telegram.sendMessage(member.tg_id, msg)
       }
