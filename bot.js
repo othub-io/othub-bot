@@ -628,6 +628,7 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
 
       if (member != '') {
         last_seen = Math.abs(shard_node.last_seen)
+        last_dialed = Math.abs(shard_node.last_dialed)
       }
 
       if (last_seen) {
@@ -636,7 +637,7 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
       }
 
       if (
-        time_stamp - last_seen > Number(process.env.UPTIME_FREQ) &&
+        last_dialed - last_seen > Number(process.env.UPTIME_FREQ) &&
         member.bot_id != ''
       ) {
         tg_member = await bot.telegram.getChatMember(
