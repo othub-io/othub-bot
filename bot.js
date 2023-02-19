@@ -596,6 +596,62 @@ Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
   }
 })
 
+cron.schedule(process.env.UPTIME_MONITOR, async function () {
+  console.log(`Running ask reconciliation task.`)
+  members = await alliance_db
+    .prepare('SELECT * FROM member_nodes WHERE verified = ?')
+    .all(1)
+
+  shard_nodes = []
+  await connection.query(
+    `SELECT * from operationaldb2.shard`,
+    async function (error, row) {
+      if (error) {
+        console.log(error)
+        return
+      } else {
+        setValue(row)
+      }
+    }
+  )
+
+  async function setValue (value) {
+    shard_nodes = value
+    //console.log(shard_nodes)
+
+    for (i = 0; i < shard_nodes.length; ++i) {
+      shard_node = shard_nodes[i]
+
+      member = members.filter(obj => {
+        return obj.node_id === shard_node.peer_id
+      })
+
+      if (member != '') {
+        last_seen = Math.abs(shard_node.last_seen)
+      }
+
+      if (last_seen) {
+        time_stamp = new Date()
+        time_stamp = Math.abs(time_stamp)
+      }
+
+      if (time_stamp - last_seen > Number(process.env.UPTIME_FREQ)) {
+        tg_member = await bot.telegram.getChatMember(
+          process.env.GROUP,
+          member.tg_id
+        )
+        console.log(`TG MEMBER: ` + JSON.stringify(tg_member))
+
+        msg = `@${tg_member.user.username}, 
+${shard_node.peer_id} has not been seen since ${shard_node.last_seen}.
+Last dial attempt was on ${last_dialed}.`
+
+        await bot.telegram.sendMessage(process.env.GROUP, msg)
+      }
+    }
+  }
+})
+
 //-----------------------END---------------------------
 
 bot.launch()
