@@ -636,6 +636,11 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         time_stamp = Math.abs(time_stamp)
       }
 
+      console.log(
+        `MATH: ${last_dialed} - ${last_seen} > ${Number(
+          process.env.UPTIME_FREQ
+        )}`
+      )
       if (
         last_dialed - last_seen > Number(process.env.UPTIME_FREQ) &&
         member.bot_id != ''
@@ -644,7 +649,11 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
           process.env.GROUP,
           member.tg_id
         )
-        console.log(`TG MEMBER: ` + JSON.stringify(tg_member))
+        console.log(
+          `TG MEMBER ${JSON.stringify(
+            tg_member.user.username
+          )} has not been seen in over an hour.`
+        )
 
         temp_bot = new Telegraf(member.bot_id)
 
