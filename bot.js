@@ -597,7 +597,7 @@ Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
 })
 
 cron.schedule(process.env.UPTIME_MONITOR, async function () {
-  console.log(`Running ask reconciliation task.`)
+  console.log(`Running uptime monitor task.`)
   members = await alliance_db
     .prepare('SELECT * FROM member_nodes WHERE verified = ?')
     .all(1)
