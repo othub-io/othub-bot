@@ -632,6 +632,7 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         last_dialed = Math.abs(shard_node.last_dialed)
       }
 
+      let is_down
       if (last_seen) {
         time_stamp = new Date()
         time_stamp = Math.abs(time_stamp)
@@ -641,12 +642,14 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
             process.env.UPTIME_FREQ
           )}`
         )
+
+        is_down =
+          last_dialed - last_seen > Number(process.env.UPTIME_FREQ)
+            ? 'true'
+            : 'false'
       }
 
-      if (
-        last_dialed - last_seen > Number(process.env.UPTIME_FREQ) &&
-        member[0].bot_id != '[]'
-      ) {
+      if (is_down == 'true') {
         tg_member = await bot.telegram.getChatMember(
           process.env.GROUP,
           member[0].tg_id
