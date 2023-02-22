@@ -627,12 +627,8 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
       })
 
       if (member != '') {
-        console.log(`MEMBER: ${JSON.stringify(member[0].tg_id)}`)
         last_seen = Math.abs(shard_node.last_seen)
         last_dialed = Math.abs(shard_node.last_dialed)
-
-        console.log(shard_node.last_seen)
-        console.log(shard_node.last_dialed)
       }
 
       let is_down
@@ -640,18 +636,12 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         time_stamp = new Date()
         time_stamp = Math.abs(time_stamp)
 
-        console.log(`1 hour: ` + Number(process.env.UPTIME_FREQ))
-        console.log(last_dialed)
-        console.log(last_seen)
-        console.log(last_dialed - last_seen)
-
         is_down =
           last_dialed - last_seen > Number(process.env.UPTIME_FREQ)
             ? 'true'
             : 'false'
       }
 
-      console.log(`IS DOWN: ${is_down}`)
       if (is_down == 'true') {
         tg_member = await bot.telegram.getChatMember(
           process.env.GROUP,
@@ -663,7 +653,6 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
           )} has not been seen in over an hour.`
         )
 
-        console.log(JSON.stringify(member[0].bot_id))
         if (member[0].bot_id) {
           temp_bot = new Telegraf(member[0].bot_id)
 
