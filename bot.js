@@ -645,7 +645,7 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
 
       if (
         last_dialed - last_seen > Number(process.env.UPTIME_FREQ) &&
-        member[0].bot_id != ''
+        member[0].bot_id
       ) {
         tg_member = await bot.telegram.getChatMember(
           process.env.GROUP,
