@@ -630,6 +630,9 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         console.log(`MEMBER: ${JSON.stringify(member[0].tg_id)}`)
         last_seen = Math.abs(shard_node.last_seen)
         last_dialed = Math.abs(shard_node.last_dialed)
+
+        console.log(last_seen)
+        console.log(last_dialed)
       }
 
       let is_down
