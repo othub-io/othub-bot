@@ -626,6 +626,7 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         return obj.node_id === shard_node.peer_id
       })
 
+      console.log(`MEMBER: ${member}`)
       if (member != '') {
         last_seen = Math.abs(shard_node.last_seen)
         last_dialed = Math.abs(shard_node.last_dialed)
@@ -634,13 +635,14 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
       if (last_seen) {
         time_stamp = new Date()
         time_stamp = Math.abs(time_stamp)
+
+        console.log(
+          `MATH: ${last_dialed} - ${last_seen} > ${Number(
+            process.env.UPTIME_FREQ
+          )}`
+        )
       }
 
-      console.log(
-        `MATH: ${last_dialed} - ${last_seen} > ${Number(
-          process.env.UPTIME_FREQ
-        )}`
-      )
       if (
         last_dialed - last_seen > Number(process.env.UPTIME_FREQ) &&
         member.bot_id != ''
