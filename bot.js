@@ -631,8 +631,8 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         last_seen = Math.abs(shard_node.last_seen)
         last_dialed = Math.abs(shard_node.last_dialed)
 
-        console.log(last_seen)
-        console.log(last_dialed)
+        console.log(shard_node.last_seen)
+        console.log(shard_node.last_dialed)
       }
 
       let is_down
