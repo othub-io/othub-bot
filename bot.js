@@ -645,11 +645,11 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
 
       if (
         last_dialed - last_seen > Number(process.env.UPTIME_FREQ) &&
-        member.bot_id != ''
+        member[0].bot_id != ''
       ) {
         tg_member = await bot.telegram.getChatMember(
           process.env.GROUP,
-          member.tg_id
+          member[0].tg_id
         )
         console.log(
           `TG MEMBER ${JSON.stringify(
@@ -657,13 +657,13 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
           )} has not been seen in over an hour.`
         )
 
-        temp_bot = new Telegraf(member.bot_id)
+        temp_bot = new Telegraf(member[0].bot_id)
 
         msg = `@${tg_member.user.username}, 
 ${shard_node.peer_id} has not been seen since ${shard_node.last_seen}.
 Last dial attempt was on ${shard_node.last_dialed}.`
 
-        await temp_bot.telegram.sendMessage(member.tg_id, msg)
+        await temp_bot.telegram.sendMessage(member[0].tg_id, msg)
       }
     }
   }
