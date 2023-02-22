@@ -626,7 +626,7 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         return obj.node_id === shard_node.peer_id
       })
 
-      console.log(`MEMBER: ${JSON.stringify(member)}`)
+      console.log(`MEMBER: ${JSON.stringify(member[0].tg_id)}`)
       if (member != '') {
         last_seen = Math.abs(shard_node.last_seen)
         last_dialed = Math.abs(shard_node.last_dialed)
@@ -637,18 +637,13 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         time_stamp = new Date()
         time_stamp = Math.abs(time_stamp)
 
-        console.log(
-          `MATH: ${last_dialed} - ${last_seen} > ${Number(
-            process.env.UPTIME_FREQ
-          )}`
-        )
-
         is_down =
           last_dialed - last_seen > Number(process.env.UPTIME_FREQ)
             ? 'true'
             : 'false'
       }
 
+      console.log(`IS DOWN: ${is_down}`)
       if (is_down == 'true') {
         tg_member = await bot.telegram.getChatMember(
           process.env.GROUP,
