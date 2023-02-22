@@ -638,10 +638,7 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
         time_stamp = Math.abs(time_stamp)
 
         console.log(`1 hour: ` + Number(process.env.UPTIME_FREQ))
-        console.log(
-          `last time: ` + last_dialed - last_seen >
-            Number(process.env.UPTIME_FREQ)
-        )
+        console.log(last_dialed - last_seen > Number(process.env.UPTIME_FREQ))
 
         is_down =
           last_dialed - last_seen > Number(process.env.UPTIME_FREQ)
