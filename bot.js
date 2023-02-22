@@ -660,13 +660,18 @@ cron.schedule(process.env.UPTIME_MONITOR, async function () {
           )} has not been seen in over an hour.`
         )
 
-        temp_bot = new Telegraf(member[0].bot_id)
+        console.log(JSON.stringify(member[0].bot_id))
+        if (member[0].bot_id) {
+          temp_bot = new Telegraf(member[0].bot_id)
 
-        msg = `@${tg_member.user.username}, 
+          msg = `@${tg_member.user.username}, 
 ${shard_node.peer_id} has not been seen since ${shard_node.last_seen}.
 Last dial attempt was on ${shard_node.last_dialed}.`
 
-        await temp_bot.telegram.sendMessage(member[0].tg_id, msg)
+          await temp_bot.telegram.sendMessage(member[0].tg_id, msg)
+        } else {
+          console.log(`MEMBER DID NOT HAVE BOT TOKEN SET.`)
+        }
       }
     }
   }
