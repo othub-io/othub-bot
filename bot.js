@@ -497,6 +497,7 @@ cron.schedule(process.env.HOURLY, async function () {
   result = await querySubscan
     .getData(ext)
     .then(async ({ result }) => {
+      console.log(result)
       return result
     })
     .catch(error => console.log(`Error : ${error}`))
