@@ -582,15 +582,16 @@ cron.schedule(process.env.HOURLY, async function () {
     alli_commit_chng = alli_commit_chng.toFixed(2)
 
     msg = `-> Hourly <-
-    ->Total:
-    Publishes: ${hourly_publishes}(${publish_chng}%)
-    Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-    ->Alliance: 
-    Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-    Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-      2
-    )}(${alli_commit_chng}%)
+  ->Total:
+  Publishes: ${hourly_publishes}(${publish_chng}%)
+  Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+
+  ->Alliance: 
+  Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+  Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+    2
+  )}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -724,15 +725,17 @@ cron.schedule(process.env.DAILY, async function () {
     result = await querySubscan
       .getData(ext)
       .then(async ({ result }) => {
+        //console.log(result)
         return result
       })
       .catch(error => console.log(`Error : ${error}`))
 
-    console.log(result.data.data.count)
-    trac_committed = result.data.data[0].balance
-    trac_committed = (trac_committed / 1000000000000)
-      .toFixed(3)
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    result = JSON.stringify(result.data.data[0])
+    result = JSON.parse(result)
+    console.log(result.balance)
+
+    trac_committed = result.balance
+    trac_committed = (trac_committed / 1000000000000000000).toFixed(3)
     trac_committed = Number(trac_committed)
     console.log(trac_committed)
 
@@ -759,7 +762,7 @@ cron.schedule(process.env.DAILY, async function () {
       .prepare('UPDATE commit_history SET hourly = ?')
       .run(trac_committed)
 
-    alliance_nodes_percent = 100 * (nodes.length / shard_nodes.length)
+    alliance_nodes_percent = nodes.length / shard_nodes.length
     alliance_hourly_publishes = hourly_publishes * alliance_nodes_percent
     alliance_hourly_committed = hourly_committed * alliance_nodes_percent
 
@@ -789,10 +792,10 @@ cron.schedule(process.env.DAILY, async function () {
 
 ->Publishes:
 Total: ${hourly_publishes}(${publish_chng}%)
-Trac Committed to Epochs: ${hourly_committed}(${commit_chng}%)
+Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
 Alliance: ${alliance_hourly_publishes}(${alli_publish_chng}%)
-Trac Committed to Epochs: ${hourly_committed}(${alli_commit_chng}%)
+Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${alli_commit_chng}%)
 
 ->Nodes: 
 Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
