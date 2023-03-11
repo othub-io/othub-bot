@@ -749,8 +749,8 @@ cron.schedule(process.env.DAILY, async function () {
       .all()
     previous_publishes = Number(previous_publishes)
 
-    previous_committed = Number(previous_committed[0].hourly)
-    previous_publishes = Number(previous_publishes[0].hourly)
+    previous_committed = Number(previous_committed[0].daily)
+    previous_publishes = Number(previous_publishes[0].daily)
     hourly_publishes = total_publishes - previous_publishes
     hourly_committed = trac_committed - previous_committed
 
@@ -786,7 +786,7 @@ cron.schedule(process.env.DAILY, async function () {
     alli_commit_chng = alli_commit_chng * 100
     alli_commit_chng = alli_commit_chng.toFixed(2)
 
-    msg = `-OriginTrail Node Ops Alliance- 
+    msg = `-OriginTrail Node Alliance- 
 
 ->Current ask range: ${process.env.ALLIANCE_RANGE}
 
