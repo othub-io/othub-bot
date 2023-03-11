@@ -792,7 +792,9 @@ Total: ${hourly_publishes}(${publish_chng}%)
 Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
 Alliance: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${alli_commit_chng}%)
+Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+      2
+    )}(${alli_commit_chng}%)
 
 ->Nodes: 
 Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
