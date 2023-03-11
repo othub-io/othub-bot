@@ -507,9 +507,7 @@ cron.schedule(process.env.HOURLY, async function () {
   console.log(result.balance)
 
   trac_committed = result.balance
-  trac_committed = (trac_committed / 1000000000000)
-    .toFixed(3)
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  trac_committed = (trac_committed / 1000000000000).toFixed(3)
   trac_committed = Number(trac_committed)
   console.log(trac_committed)
 
