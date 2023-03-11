@@ -553,7 +553,7 @@ cron.schedule(process.env.HOURLY, async function () {
   async function setValue (value) {
     shard_nodes = value
 
-    alliance_nodes_percent = 100 * (member_nodes.length / shard_nodes.length)
+    alliance_nodes_percent = member_nodes.length / shard_nodes.length
     alliance_hourly_publishes = hourly_publishes * alliance_nodes_percent
     alliance_hourly_committed = hourly_committed * alliance_nodes_percent
 
@@ -584,7 +584,7 @@ cron.schedule(process.env.HOURLY, async function () {
     msg = `-> Hourly <-
     ->Total:
     Publishes: ${hourly_publishes}(${publish_chng}%)
-    Trac Committed to Epochs: ${hourly_committed}(${commit_chng}%)
+    Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
     ->Alliance: 
     Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
