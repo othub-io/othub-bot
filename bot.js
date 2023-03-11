@@ -501,7 +501,7 @@ cron.schedule(process.env.HOURLY, async function () {
     })
     .catch(error => console.log(`Error : ${error}`))
 
-  console.log(result.data.data.count)
+  console.log(`RESULT: ` + result)
   trac_committed = result.data.data[0].balance
   trac_committed = (trac_committed / 1000000000000)
     .toFixed(3)
