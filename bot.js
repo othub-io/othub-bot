@@ -759,7 +759,7 @@ cron.schedule(process.env.DAILY, async function () {
       .prepare('UPDATE commit_history SET hourly = ?')
       .run(trac_committed)
 
-    alliance_nodes_percent = nodes.length / shard_nodes.length
+    alliance_nodes_percent = nodes.length / all_nodes
     alliance_hourly_publishes = hourly_publishes * alliance_nodes_percent
     alliance_hourly_committed = hourly_committed * alliance_nodes_percent
 
