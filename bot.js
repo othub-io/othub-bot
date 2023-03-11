@@ -501,8 +501,8 @@ cron.schedule(process.env.HOURLY, async function () {
     })
     .catch(error => console.log(`Error : ${error}`))
 
-  console.log(`RESULT: ` + result.data)
-  trac_committed = result.data.data[0].balance
+  console.log(`RESULT: ` + result.data[0].balance)
+  trac_committed = result.data[0].balance
   trac_committed = (trac_committed / 1000000000000)
     .toFixed(3)
     .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
