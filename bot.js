@@ -752,16 +752,16 @@ cron.schedule(process.env.DAILY, async function () {
     hourly_committed = trac_committed - previous_committed
 
     await bot_db
-      .prepare('UPDATE publish_history SET hourly = ?')
+      .prepare('UPDATE publish_history SET daily = ?')
       .run(total_publishes)
 
     await bot_db
-      .prepare('UPDATE commit_history SET hourly = ?')
+      .prepare('UPDATE commit_history SET daily = ?')
       .run(trac_committed)
 
-    alliance_nodes_percent = nodes.length / all_nodes
-    alliance_hourly_publishes = hourly_publishes * alliance_nodes_percent
-    alliance_hourly_committed = hourly_committed * alliance_nodes_percent
+    alli_nodes_percent = nodes.length / all_nodes
+    alliance_hourly_publishes = hourly_publishes * alli_nodes_percent
+    alliance_hourly_committed = hourly_committed * alli_nodes_percent
 
     publish_chng = previous_publishes / total_publishes
     publish_chng = publish_chng * 100
@@ -791,7 +791,7 @@ cron.schedule(process.env.DAILY, async function () {
 Total: ${hourly_publishes}(${publish_chng}%)
 Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-Alliance: ${alliance_hourly_publishes}(${alli_publish_chng}%)
+Alliance: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
 Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${alli_commit_chng}%)
 
 ->Nodes: 
