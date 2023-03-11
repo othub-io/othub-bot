@@ -469,7 +469,7 @@ cron.schedule(process.env.TEAM_MONITOR, async function () {
 })
 
 cron.schedule(process.env.HOURLY, async function () {
-  console.log(`Running ask hourly publish notification.`)
+  console.log(`Running hourly task.`)
 
   querySubscan = queryTypes.querySubscan()
   ext = `evm/erc721/collectibles`
@@ -891,6 +891,396 @@ Last dial attempt was on ${shard_node.last_dialed}.`
         }
       }
     }
+  }
+})
+
+cron.schedule(process.env.WEEKLY, async function () {
+  console.log(`Running weekly task.`)
+
+  querySubscan = queryTypes.querySubscan()
+  ext = `evm/erc721/collectibles`
+  contract_address = '0x5cAC41237127F94c2D21dAe0b14bFeFa99880630'
+  address = null
+  row = 1
+  page = 0
+
+  result = await querySubscan
+    .getData(ext)
+    .then(async ({ result }) => {
+      return result
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  console.log(result.data.data.count)
+  total_publishes = Number(result.data.data.count)
+
+  ext = `evm/account/tokens`
+  contract_address = '0xffffffff00000000000000000000000000000001'
+  address = '0x61BB5F3Db740a9cb3451049c5166f319a18927eb'
+  row = null
+  page = null
+
+  result = await querySubscan
+    .getData(ext)
+    .then(async ({ result }) => {
+      //console.log(result)
+      return result
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  result = JSON.stringify(result.data.data[0])
+  result = JSON.parse(result)
+  console.log(result.balance)
+
+  trac_committed = result.balance
+  trac_committed = (trac_committed / 1000000000000000000).toFixed(3)
+  trac_committed = Number(trac_committed)
+  console.log(trac_committed)
+
+  previous_publishes = await bot_db
+    .prepare('SELECT weekly FROM publish_history')
+    .all()
+
+  previous_committed = await bot_db
+    .prepare('SELECT weekly FROM commit_history')
+    .all()
+
+  console.log(previous_publishes[0].hourly)
+
+  previous_committed = Number(previous_committed[0].weekly)
+  previous_publishes = Number(previous_publishes[0].weekly)
+  hourly_publishes = total_publishes - previous_publishes
+  hourly_committed = trac_committed - previous_committed
+
+  await bot_db
+    .prepare('UPDATE publish_history SET weekly = ?')
+    .run(total_publishes)
+
+  await bot_db
+    .prepare('UPDATE commit_history SET weekly = ?')
+    .run(trac_committed)
+
+  member_nodes = await alliance_db
+    .prepare('SELECT * FROM member_nodes WHERE verified = ?')
+    .all(1)
+
+  shardTable = []
+  await connection.query(
+    'SELECT * from operationaldb2.shard',
+    function (error, row) {
+      if (error) {
+        throw error
+      } else {
+        setValue(row)
+      }
+    }
+  )
+
+  async function setValue (value) {
+    shard_nodes = value
+
+    alliance_nodes_percent = member_nodes.length / shard_nodes.length
+    alliance_hourly_publishes = hourly_publishes * alliance_nodes_percent
+    alliance_hourly_committed = hourly_committed * alliance_nodes_percent
+
+    if (hourly_publishes === 0) {
+      publish_chng = '0.00'
+    } else {
+      publish_chng = hourly_publishes / total_publishes
+      publish_chng = publish_chng * 100
+      publish_chng = publish_chng.toFixed(2)
+    }
+
+    if (alliance_hourly_publishes === 0) {
+      alli_publish_chng = '0.00'
+    } else {
+      alli_publish_chng = alliance_hourly_publishes / previous_publishes
+      alli_publish_chng = alli_publish_chng * 100
+      alli_publish_chng = alli_publish_chng.toFixed(2)
+    }
+
+    commit_chng = hourly_committed / trac_committed
+    commit_chng = commit_chng * 100
+    commit_chng = commit_chng.toFixed(2)
+
+    alli_commit_chng = alliance_hourly_committed / previous_committed
+    alli_commit_chng = alli_commit_chng * 100
+    alli_commit_chng = alli_commit_chng.toFixed(2)
+
+    msg = `-> Weekly <-
+
+  ->Total:
+  Publishes: ${hourly_publishes}(${publish_chng}%)
+  Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+
+  ->Alliance: 
+  Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+  Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+    2
+  )}(${alli_commit_chng}%)
+    `
+
+    await bot.telegram.sendMessage(process.env.GROUP, msg)
+  }
+})
+
+cron.schedule(process.env.MONTHLY, async function () {
+  console.log(`Running monthly task.`)
+
+  querySubscan = queryTypes.querySubscan()
+  ext = `evm/erc721/collectibles`
+  contract_address = '0x5cAC41237127F94c2D21dAe0b14bFeFa99880630'
+  address = null
+  row = 1
+  page = 0
+
+  result = await querySubscan
+    .getData(ext)
+    .then(async ({ result }) => {
+      return result
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  console.log(result.data.data.count)
+  total_publishes = Number(result.data.data.count)
+
+  ext = `evm/account/tokens`
+  contract_address = '0xffffffff00000000000000000000000000000001'
+  address = '0x61BB5F3Db740a9cb3451049c5166f319a18927eb'
+  row = null
+  page = null
+
+  result = await querySubscan
+    .getData(ext)
+    .then(async ({ result }) => {
+      //console.log(result)
+      return result
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  result = JSON.stringify(result.data.data[0])
+  result = JSON.parse(result)
+  console.log(result.balance)
+
+  trac_committed = result.balance
+  trac_committed = (trac_committed / 1000000000000000000).toFixed(3)
+  trac_committed = Number(trac_committed)
+  console.log(trac_committed)
+
+  previous_publishes = await bot_db
+    .prepare('SELECT monthly FROM publish_history')
+    .all()
+
+  previous_committed = await bot_db
+    .prepare('SELECT monthly FROM commit_history')
+    .all()
+
+  console.log(previous_publishes[0].hourly)
+
+  previous_committed = Number(previous_committed[0].monthly)
+  previous_publishes = Number(previous_publishes[0].monthly)
+  hourly_publishes = total_publishes - previous_publishes
+  hourly_committed = trac_committed - previous_committed
+
+  await bot_db
+    .prepare('UPDATE publish_history SET monthly = ?')
+    .run(total_publishes)
+
+  await bot_db
+    .prepare('UPDATE commit_history SET monthly = ?')
+    .run(trac_committed)
+
+  member_nodes = await alliance_db
+    .prepare('SELECT * FROM member_nodes WHERE verified = ?')
+    .all(1)
+
+  shardTable = []
+  await connection.query(
+    'SELECT * from operationaldb2.shard',
+    function (error, row) {
+      if (error) {
+        throw error
+      } else {
+        setValue(row)
+      }
+    }
+  )
+
+  async function setValue (value) {
+    shard_nodes = value
+
+    alliance_nodes_percent = member_nodes.length / shard_nodes.length
+    alliance_hourly_publishes = hourly_publishes * alliance_nodes_percent
+    alliance_hourly_committed = hourly_committed * alliance_nodes_percent
+
+    if (hourly_publishes === 0) {
+      publish_chng = '0.00'
+    } else {
+      publish_chng = hourly_publishes / total_publishes
+      publish_chng = publish_chng * 100
+      publish_chng = publish_chng.toFixed(2)
+    }
+
+    if (alliance_hourly_publishes === 0) {
+      alli_publish_chng = '0.00'
+    } else {
+      alli_publish_chng = alliance_hourly_publishes / previous_publishes
+      alli_publish_chng = alli_publish_chng * 100
+      alli_publish_chng = alli_publish_chng.toFixed(2)
+    }
+
+    commit_chng = hourly_committed / trac_committed
+    commit_chng = commit_chng * 100
+    commit_chng = commit_chng.toFixed(2)
+
+    alli_commit_chng = alliance_hourly_committed / previous_committed
+    alli_commit_chng = alli_commit_chng * 100
+    alli_commit_chng = alli_commit_chng.toFixed(2)
+
+    msg = `-> Monthly <-
+
+  ->Total:
+  Publishes: ${hourly_publishes}(${publish_chng}%)
+  Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+
+  ->Alliance: 
+  Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+  Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+    2
+  )}(${alli_commit_chng}%)
+    `
+
+    await bot.telegram.sendMessage(process.env.GROUP, msg)
+  }
+})
+
+cron.schedule(process.env.YEARLY, async function () {
+  console.log(`Running yearly task.`)
+
+  querySubscan = queryTypes.querySubscan()
+  ext = `evm/erc721/collectibles`
+  contract_address = '0x5cAC41237127F94c2D21dAe0b14bFeFa99880630'
+  address = null
+  row = 1
+  page = 0
+
+  result = await querySubscan
+    .getData(ext)
+    .then(async ({ result }) => {
+      return result
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  console.log(result.data.data.count)
+  total_publishes = Number(result.data.data.count)
+
+  ext = `evm/account/tokens`
+  contract_address = '0xffffffff00000000000000000000000000000001'
+  address = '0x61BB5F3Db740a9cb3451049c5166f319a18927eb'
+  row = null
+  page = null
+
+  result = await querySubscan
+    .getData(ext)
+    .then(async ({ result }) => {
+      //console.log(result)
+      return result
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  result = JSON.stringify(result.data.data[0])
+  result = JSON.parse(result)
+  console.log(result.balance)
+
+  trac_committed = result.balance
+  trac_committed = (trac_committed / 1000000000000000000).toFixed(3)
+  trac_committed = Number(trac_committed)
+  console.log(trac_committed)
+
+  previous_publishes = await bot_db
+    .prepare('SELECT yearly FROM publish_history')
+    .all()
+
+  previous_committed = await bot_db
+    .prepare('SELECT yearly FROM commit_history')
+    .all()
+
+  console.log(previous_publishes[0].hourly)
+
+  previous_committed = Number(previous_committed[0].yearly)
+  previous_publishes = Number(previous_publishes[0].yearly)
+  hourly_publishes = total_publishes - previous_publishes
+  hourly_committed = trac_committed - previous_committed
+
+  await bot_db
+    .prepare('UPDATE publish_history SET yearly = ?')
+    .run(total_publishes)
+
+  await bot_db
+    .prepare('UPDATE commit_history SET yearly = ?')
+    .run(trac_committed)
+
+  member_nodes = await alliance_db
+    .prepare('SELECT * FROM member_nodes WHERE verified = ?')
+    .all(1)
+
+  shardTable = []
+  await connection.query(
+    'SELECT * from operationaldb2.shard',
+    function (error, row) {
+      if (error) {
+        throw error
+      } else {
+        setValue(row)
+      }
+    }
+  )
+
+  async function setValue (value) {
+    shard_nodes = value
+
+    alliance_nodes_percent = member_nodes.length / shard_nodes.length
+    alliance_hourly_publishes = hourly_publishes * alliance_nodes_percent
+    alliance_hourly_committed = hourly_committed * alliance_nodes_percent
+
+    if (hourly_publishes === 0) {
+      publish_chng = '0.00'
+    } else {
+      publish_chng = hourly_publishes / total_publishes
+      publish_chng = publish_chng * 100
+      publish_chng = publish_chng.toFixed(2)
+    }
+
+    if (alliance_hourly_publishes === 0) {
+      alli_publish_chng = '0.00'
+    } else {
+      alli_publish_chng = alliance_hourly_publishes / previous_publishes
+      alli_publish_chng = alli_publish_chng * 100
+      alli_publish_chng = alli_publish_chng.toFixed(2)
+    }
+
+    commit_chng = hourly_committed / trac_committed
+    commit_chng = commit_chng * 100
+    commit_chng = commit_chng.toFixed(2)
+
+    alli_commit_chng = alliance_hourly_committed / previous_committed
+    alli_commit_chng = alli_commit_chng * 100
+    alli_commit_chng = alli_commit_chng.toFixed(2)
+
+    msg = `-> Yearly <-
+
+  ->Total:
+  Publishes: ${hourly_publishes}(${publish_chng}%)
+  Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+
+  ->Alliance: 
+  Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+  Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+    2
+  )}(${alli_commit_chng}%)
+    `
+
+    await bot.telegram.sendMessage(process.env.GROUP, msg)
   }
 })
 
