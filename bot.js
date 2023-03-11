@@ -497,10 +497,13 @@ cron.schedule(process.env.HOURLY, async function () {
   result = await querySubscan
     .getData(ext)
     .then(async ({ result }) => {
-      console.log(result)
+      //console.log(result)
       return result
     })
     .catch(error => console.log(`Error : ${error}`))
+
+  result = JSON.stringify(result.data.data[0])
+  console.log(result)
 
   trac_committed = result.data[0].balance
   trac_committed = (trac_committed / 1000000000000)
