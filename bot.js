@@ -618,7 +618,6 @@ cron.schedule(process.env.DAILY, async function () {
 
   async function setValue (value) {
     shardTable = value
-    console.log(shardTable)
     peer_ids = []
     asks = []
     stakes = []
@@ -742,12 +741,10 @@ cron.schedule(process.env.DAILY, async function () {
     previous_committed = await bot_db
       .prepare('SELECT daily FROM commit_history')
       .all()
-    previous_committed = Number(previous_committed)
 
     previous_publishes = await bot_db
       .prepare('SELECT daily FROM publish_history')
       .all()
-    previous_publishes = Number(previous_publishes)
 
     previous_committed = Number(previous_committed[0].daily)
     previous_publishes = Number(previous_publishes[0].daily)
