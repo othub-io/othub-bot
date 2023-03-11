@@ -588,7 +588,9 @@ cron.schedule(process.env.HOURLY, async function () {
 
     ->Alliance: 
     Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-    Trac Committed to Epochs: ${alliance_hourly_committed}(${alli_commit_chng}%)
+    Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+      2
+    )}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
