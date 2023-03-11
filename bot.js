@@ -143,7 +143,7 @@ bot.command('mynodes', async ctx => {
     node_percent = 100 * (node_count / all_nodes)
     avg_stake = total_stake / node_count
 
-    msg = `@${ctx.message.from.username}'s Nodes:
+    msg = `@${ctx.message.from.username}
 Nodes: ${node_count}(${node_percent.toFixed(2)}%)
 Avg. Ask: ${total_ask / node_count}
 Avg. Stake: ${avg_stake.toFixed(2)}
@@ -507,7 +507,7 @@ cron.schedule(process.env.HOURLY, async function () {
   console.log(result.balance)
 
   trac_committed = result.balance
-  trac_committed = (trac_committed / 1000000000000).toFixed(3)
+  trac_committed = (trac_committed / 1000000000000000000).toFixed(3)
   trac_committed = Number(trac_committed)
   console.log(trac_committed)
 
@@ -587,7 +587,7 @@ cron.schedule(process.env.HOURLY, async function () {
     Trac Committed to Epochs: ${hourly_committed}(${commit_chng}%)
 
     ->Alliance: 
-    Publishes: ${alliance_hourly_publishes}(${alli_publish_chng}%)
+    Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
     Trac Committed to Epochs: ${alliance_hourly_committed}(${alli_commit_chng}%)
     `
 
