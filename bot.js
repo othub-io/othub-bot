@@ -583,15 +583,15 @@ cron.schedule(process.env.HOURLY, async function () {
 
     msg = `-> Hourly <-
 
-  ->Total:
-  Publishes: ${hourly_publishes}(${publish_chng}%)
-  Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+->Total:
+Publishes: ${hourly_publishes}(${publish_chng}%)
+Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-  ->Alliance: 
-  Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-  Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-    2
-  )}(${alli_commit_chng}%)
+->Alliance: 
+Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+      2
+    )}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -1009,15 +1009,15 @@ cron.schedule(process.env.WEEKLY, async function () {
 
     msg = `-> Weekly <-
 
-  ->Total:
-  Publishes: ${hourly_publishes}(${publish_chng}%)
-  Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+->Total:
+Publishes: ${hourly_publishes}(${publish_chng}%)
+Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-  ->Alliance: 
-  Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-  Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-    2
-  )}(${alli_commit_chng}%)
+->Alliance: 
+Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+      2
+    )}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -1139,15 +1139,15 @@ cron.schedule(process.env.MONTHLY, async function () {
 
     msg = `-> Monthly <-
 
-  ->Total:
-  Publishes: ${hourly_publishes}(${publish_chng}%)
-  Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+->Total:
+Publishes: ${hourly_publishes}(${publish_chng}%)
+Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-  ->Alliance: 
-  Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-  Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-    2
-  )}(${alli_commit_chng}%)
+->Alliance: 
+Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+      2
+    )}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -1269,15 +1269,15 @@ cron.schedule(process.env.YEARLY, async function () {
 
     msg = `-> Yearly <-
 
-  ->Total:
-  Publishes: ${hourly_publishes}(${publish_chng}%)
-  Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+->Total:
+Publishes: ${hourly_publishes}(${publish_chng}%)
+Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-  ->Alliance: 
-  Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-  Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-    2
-  )}(${alli_commit_chng}%)
+->Alliance: 
+Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
+      2
+    )}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
