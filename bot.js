@@ -583,6 +583,10 @@ cron.schedule(process.env.HOURLY, async function () {
 
     msg = `-> Hourly <-
 
+->Avg Trac per Asset: ${(
+      alliance_hourly_committed / alliance_hourly_publishes
+    ).toFixed(2)}
+
 ->Total:
 Publishes: ${hourly_publishes}(${publish_chng}%)
 Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
@@ -785,16 +789,28 @@ cron.schedule(process.env.DAILY, async function () {
 
     msg = `-OriginTrail Node Alliance- 
 
-->Current ask range: ${process.env.ALLIANCE_RANGE}
+->Alliance Ask: ${process.env.ALLIANCE_RANGE}
+->Avg Ask: ${(total_ask / all_nodes).toFixed(3)}
 
-->Publishes:
+->Assets:
+-- Overall --
+Total: ${total_publishes}
+Trac Committed to Epochs: ${trac_committed.toFixed(2)}
+Avg Trac per Asset: ${(trac_committed / total_publishes).toFixed(2)}
+
+-- Last Day --
 Total: ${hourly_publishes}(${publish_chng}%)
 Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+Avg Trac per Asset: ${(
+      alliance_hourly_committed / alliance_hourly_publishes
+    ).toFixed(2)}
 
 Alliance: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
 Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
       2
     )}(${alli_commit_chng}%)
+
+
 
 ->Nodes: 
 Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
@@ -1009,6 +1025,10 @@ cron.schedule(process.env.WEEKLY, async function () {
 
     msg = `-> Weekly <-
 
+->Avg Trac per Asset: ${(
+      alliance_hourly_committed / alliance_hourly_publishes
+    ).toFixed(2)}
+
 ->Total:
 Publishes: ${hourly_publishes}(${publish_chng}%)
 Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
@@ -1139,6 +1159,10 @@ cron.schedule(process.env.MONTHLY, async function () {
 
     msg = `-> Monthly <-
 
+->Avg Trac per Asset: ${(
+      alliance_hourly_committed / alliance_hourly_publishes
+    ).toFixed(2)}
+
 ->Total:
 Publishes: ${hourly_publishes}(${publish_chng}%)
 Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
@@ -1268,6 +1292,10 @@ cron.schedule(process.env.YEARLY, async function () {
     alli_commit_chng = alli_commit_chng.toFixed(2)
 
     msg = `-> Yearly <-
+
+->Avg Trac per Asset: ${(
+      alliance_hourly_committed / alliance_hourly_publishes
+    ).toFixed(2)}
 
 ->Total:
 Publishes: ${hourly_publishes}(${publish_chng}%)
