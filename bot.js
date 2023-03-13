@@ -581,21 +581,19 @@ cron.schedule(process.env.HOURLY, async function () {
     alli_commit_chng = alli_commit_chng * 100
     alli_commit_chng = alli_commit_chng.toFixed(2)
 
-    msg = `-> Hourly <-
+    msg = `Hourly Overview
 
-->Avg Trac per Asset: ${(
+Average TRAC per Asset: ${(
       alliance_hourly_committed / alliance_hourly_publishes
     ).toFixed(2)}
 
-->Total:
-Publishes: ${hourly_publishes}(${publish_chng}%)
-Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+Network:
+Assets: ${hourly_publishes}(${publish_chng}%)
+TRAC Locked: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-->Alliance: 
-Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-      2
-    )}(${alli_commit_chng}%)
+Alliance: 
+Assets: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+TRAC Locked: ${alliance_hourly_committed.toFixed(2)}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -787,32 +785,31 @@ cron.schedule(process.env.DAILY, async function () {
     alli_commit_chng = alli_commit_chng * 100
     alli_commit_chng = alli_commit_chng.toFixed(2)
 
-    msg = `-OriginTrail Node Alliance- 
+    msg = `Daily Overview
 
-->Alliance Ask: ${process.env.ALLIANCE_RANGE}
-->Avg Ask: ${(total_ask / all_nodes).toFixed(3)}
+Alliance Ask: ${process.env.ALLIANCE_RANGE}
+Average Ask: ${(total_ask / all_nodes).toFixed(3)}
 
-->Assets:
+Assets:
 -- Overall --
 Total: ${total_publishes}
-Trac Committed to Epochs: ${trac_committed.toFixed(2)}
-Avg Trac per Asset: ${(trac_committed / total_publishes).toFixed(2)}
+TRAC Locked: ${trac_committed.toFixed(2)}
+Average Trac per Asset: ${(trac_committed / total_publishes).toFixed(2)}
 
 -- Last Day --
-Total: ${hourly_publishes}(${publish_chng}%)
-Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
-Avg Trac per Asset: ${(
+Average Trac per Asset: ${(
       alliance_hourly_committed / alliance_hourly_publishes
     ).toFixed(2)}
 
+Total: ${hourly_publishes}(${publish_chng}%)
+TRAC Locked: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+
 Alliance: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-      2
-    )}(${alli_commit_chng}%)
+TRAC Locked: ${alliance_hourly_committed.toFixed(2)}(${alli_commit_chng}%)
 
 
 
-->Nodes: 
+Nodes: 
 Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
       0
     )}%) | TraceLabs: ${TL_nodes}(${TL_nodes_percent.toFixed(
@@ -821,12 +818,12 @@ Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
       0
     )}%) | Total: ${all_nodes} 
 
-->Avg. Asks:  
+Average Asks:  
 Alliance: ${alliance_ask.toFixed(4)} | TraceLabs: ${TL_ask.toFixed(
       4
     )} | Solo: ${free_ask.toFixed(4)} | All: ${all_ask.toFixed(4)}
     
--> Avg. Stakes: 
+Average Stakes: 
 Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
       2
     )} | Solo: ${free_stake.toFixed(2)} | All: ${all_stake.toFixed(2)}
@@ -1023,21 +1020,19 @@ cron.schedule(process.env.WEEKLY, async function () {
     alli_commit_chng = alli_commit_chng * 100
     alli_commit_chng = alli_commit_chng.toFixed(2)
 
-    msg = `-> Weekly <-
+    msg = `Weekly Overview
 
-->Avg Trac per Asset: ${(
+Average TRAC per Asset: ${(
       alliance_hourly_committed / alliance_hourly_publishes
     ).toFixed(2)}
 
-->Total:
-Publishes: ${hourly_publishes}(${publish_chng}%)
-Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+Network:
+Assets: ${hourly_publishes}(${publish_chng}%)
+TRAC Locked: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-->Alliance: 
-Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-      2
-    )}(${alli_commit_chng}%)
+Alliance: 
+Assets: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+TRAC Locked: ${alliance_hourly_committed.toFixed(2)}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -1157,21 +1152,19 @@ cron.schedule(process.env.MONTHLY, async function () {
     alli_commit_chng = alli_commit_chng * 100
     alli_commit_chng = alli_commit_chng.toFixed(2)
 
-    msg = `-> Monthly <-
+    msg = `Monthly Overview
 
-->Avg Trac per Asset: ${(
+Average TRAC per Asset: ${(
       alliance_hourly_committed / alliance_hourly_publishes
     ).toFixed(2)}
 
-->Total:
-Publishes: ${hourly_publishes}(${publish_chng}%)
-Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+Network:
+Assets: ${hourly_publishes}(${publish_chng}%)
+TRAC Locked: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-->Alliance: 
-Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-      2
-    )}(${alli_commit_chng}%)
+Alliance: 
+Assets: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+TRAC Locked: ${alliance_hourly_committed.toFixed(2)}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
@@ -1291,21 +1284,19 @@ cron.schedule(process.env.YEARLY, async function () {
     alli_commit_chng = alli_commit_chng * 100
     alli_commit_chng = alli_commit_chng.toFixed(2)
 
-    msg = `-> Yearly <-
+    msg = `Yearly Overview
 
-->Avg Trac per Asset: ${(
+Average TRAC per Asset: ${(
       alliance_hourly_committed / alliance_hourly_publishes
     ).toFixed(2)}
 
-->Total:
-Publishes: ${hourly_publishes}(${publish_chng}%)
-Trac Committed to Epochs: ${hourly_committed.toFixed(2)}(${commit_chng}%)
+Network:
+Assets: ${hourly_publishes}(${publish_chng}%)
+TRAC Locked: ${hourly_committed.toFixed(2)}(${commit_chng}%)
 
-->Alliance: 
-Publishes: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
-Trac Committed to Epochs: ${alliance_hourly_committed.toFixed(
-      2
-    )}(${alli_commit_chng}%)
+Alliance: 
+Assets: ${alliance_hourly_publishes.toFixed(0)}(${alli_publish_chng}%)
+TRAC Locked: ${alliance_hourly_committed.toFixed(2)}(${alli_commit_chng}%)
     `
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
