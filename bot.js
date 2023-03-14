@@ -435,7 +435,7 @@ cron.schedule(process.env.TEAM_MONITOR, async function () {
       timestamp = new Date()
       abs_timestamp = Math.abs(timestamp)
 
-      await db
+      await bot_db
         .prepare(
           `${exec_type} INTO node_operators (peer_id, operator, current_ask, previous_ask, date_last_changed) VALUES (?, ?, ?, ?, ?)`
         )
