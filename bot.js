@@ -413,7 +413,6 @@ cron.schedule(process.env.TEAM_MONITOR, async function () {
         operator = 'Trace labs'
         tl_node_count = tl_node_count + 1
         tl_node_ask = tl_node_ask + Number(shard_operator.ask)
-        console.log(`TL node ask: ` + tl_node_ask)
       }
 
       ask_changed = 'no'
