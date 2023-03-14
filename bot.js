@@ -375,7 +375,7 @@ There was no node associated with your account. You are being removed from the A
 
 cron.schedule(process.env.TEAM_MONITOR, async function () {
   console.log(`Running team node monitoring task.`)
-  node_operators = await db
+  node_operators = await bot_db
     .prepare(
       'SELECT peer_id, operator, current_ask, previous_ask, date_last_changed FROM node_operators LIMIT 1000'
     )
@@ -413,6 +413,7 @@ cron.schedule(process.env.TEAM_MONITOR, async function () {
         operator = 'Trace labs'
         tl_node_count = tl_node_count + 1
         tl_node_ask = tl_node_ask + Number(shard_operator.ask)
+        console.log(`TL node ask: ` + tl_node_ask)
       }
 
       ask_changed = 'no'
