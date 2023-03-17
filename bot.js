@@ -777,7 +777,7 @@ cron.schedule(process.env.DAILY, async function () {
       alli_publish_chng = alli_publish_chng.toFixed(2)
     }
 
-    commit_chng = previous_committed / trac_committed
+    commit_chng = hourly_committed / previous_committed
     commit_chng = commit_chng * 100
     commit_chng = commit_chng.toFixed(2)
 
