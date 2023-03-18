@@ -765,7 +765,7 @@ cron.schedule(process.env.DAILY, async function () {
     alliance_hourly_publishes = hourly_publishes * alli_nodes_percent
     alliance_hourly_committed = hourly_committed * alli_nodes_percent
 
-    publish_chng = previous_publishes / total_publishes
+    publish_chng = hourly_publishes / previous_publishes
     publish_chng = publish_chng * 100
     publish_chng = publish_chng.toFixed(2)
 
