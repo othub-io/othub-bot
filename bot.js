@@ -316,7 +316,7 @@ There was no node associated with your account. You are being removed from the A
         await bot.telegram.sendMessage(
           process.env.GROUP,
           `@${tg_member.user.username},
-Node ${node_id} is out of ask range. ${
+Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
             7 - (warnings + 1)
           } days before it is kicked.`
         )
@@ -798,7 +798,7 @@ Average Trac per Asset: ${(trac_committed / total_publishes).toFixed(2)}
 
 -- Last Day --
 Average Trac per Asset: ${(
-      alliance_hourly_committed / alliance_hourly_publishes
+      hourly_committed / hourly_publishes
     ).toFixed(2)}
 
 Total: ${hourly_publishes}(${publish_chng}%)
