@@ -320,6 +320,19 @@ Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
             7 - (warnings + 1)
           } days before it is kicked.`
         )
+
+        bot_id = await alliance_db
+        .prepare('SELECT bot_id FROM member_nodes WHERE node_id = ? COLLATE NOCASE')
+        .all(node_id)
+
+        temp_bot = new Telegraf(bot_id)
+        await temp_bot.telegram.sendMessage(
+          cur_member.member_id.tg_id,
+          `@${tg_member.user.username},
+Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
+            7 - (warnings + 1)
+          } days before it is kicked.`
+        )
       }
 
       if (warnings >= 6) {
