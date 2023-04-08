@@ -325,14 +325,16 @@ Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
         .prepare('SELECT bot_id FROM member_nodes WHERE node_id = ? COLLATE NOCASE')
         .all(node_id)
 
-        temp_bot = new Telegraf(bot_id)
-        await temp_bot.telegram.sendMessage(
-          cur_member.member_id.tg_id,
-          `@${tg_member.user.username},
-Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
-            7 - (warnings + 1)
-          } days before it is kicked.`
-        )
+        if(bot_id != ''){
+          temp_bot = new Telegraf(bot_id)
+            await temp_bot.telegram.sendMessage(
+              cur_member.member_id.tg_id,
+              `@${tg_member.user.username},
+    Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
+                7 - (warnings + 1)
+              } days before it is kicked.`
+            )
+        }
       }
 
       if (warnings >= 6) {
@@ -341,6 +343,19 @@ Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
           `@${tg_member.user.username}, 
 Node ${node_id} is being kicked for not adhering to the ask range.`
         )
+
+        bot_id = await alliance_db
+          .prepare('SELECT bot_id FROM member_nodes WHERE node_id = ? COLLATE NOCASE')
+          .all(node_id)
+
+          if(bot_id != ''){
+            temp_bot = new Telegraf(bot_id)
+              await temp_bot.telegram.sendMessage(
+                cur_member.member_id.tg_id,
+                `@${tg_member.user.username},
+                Node ${node_id} is being kicked for not adhering to the ask range.`
+              )
+          }
 
         nodes = await alliance_db
           .prepare(
@@ -364,6 +379,20 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
             `@${tg_member.user.username}, 
 There was no node associated with your account. You are being removed from the Allaince.`
           )
+
+          bot_id = await alliance_db
+          .prepare('SELECT bot_id FROM member_nodes WHERE node_id = ? COLLATE NOCASE')
+          .all(node_id)
+
+          if(bot_id != ''){
+            temp_bot = new Telegraf(bot_id)
+              await temp_bot.telegram.sendMessage(
+                cur_member.member_id.tg_id,
+                `@${tg_member.user.username},
+                There was no node associated with your account. You are being removed from the Allaince.`
+              )
+          }
+
           await bot.telegram.kickChatMember(
             process.env.GROUP,
             cur_member.member_id.tg_id
