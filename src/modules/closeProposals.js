@@ -145,10 +145,10 @@ module.exports = closeProposals = async (type) => {
 
         total_votes = yes_votes + note_votes
 
-        result = 0 //failed
+        //result = 0 //failed
         //1 = active
         if((yes_votes / total_votes) > 0.75 && yes_votes > winning_votes && (total_votes / total_stake) > 0.75){
-            result = 2 //passed
+            //result = 2 //passed
 
             await alliance_db
                     .prepare(
