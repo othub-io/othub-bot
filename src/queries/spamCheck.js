@@ -1,5 +1,5 @@
 require('dotenv').config()
-const db = require('better-sqlite3')(`${__dirname}/../../database/bot.db`, {
+const db = require('better-sqlite3')(process.env.BOT_DB, {
   verbose: console.log
 })
 
