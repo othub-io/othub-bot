@@ -17,11 +17,18 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin',
+const operationaldb2_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   database: 'operationaldb2'
+})
+
+const otnodedb_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otnodedb'
 })
 
 const team_nodes = [
@@ -99,45 +106,48 @@ module.exports = networkOverview = async (timeFrame) => {
   trac_committed = (trac_committed / 1000000000000000000).toFixed(3)
   trac_committed = Number(trac_committed)
 
-  previous_publishes = await bot_db
-    .prepare(`SELECT ${timeFrame} FROM publish_history`)
-    .all()
+    let previous_publishes;
+    query = `SELECT ${timeFrame} FROM publish_history`
+    await otnodedb_connection.query(query, function (error, results, fields) {
+      if (error) throw error;
+      previous_publishes = results;
+    });
 
-  previous_committed = await bot_db
-    .prepare(`SELECT ${timeFrame} FROM commit_history`)
-    .all()
+    let previous_committed;
+    query = `SELECT ${timeFrame} FROM commit_history`
+    await otnodedb_connection.query(query, function (error, results, fields) {
+      if (error) throw error;
+      previous_committed = results;
+    });
 
   previous_committed = Number(previous_committed[0][timeFrame])
   previous_publishes = Number(previous_publishes[0][timeFrame])
   publishes = total_publishes - previous_publishes
   committed = trac_committed - previous_committed
 
-  await bot_db
-    .prepare(`UPDATE publish_history SET ${timeFrame} = ?`)
-    .run(total_publishes)
+    query = `UPDATE publish_history SET ${timeFrame} = ?`
+    await otnodedb_connection.query(query, [total_publishes],function (error, results, fields) {
+      if (error) throw error;
+    });
 
-  await bot_db
-    .prepare(`UPDATE commit_history SET ${timeFrame} = ?`)
-    .run(trac_committed)
+    query = `UPDATE commit_history SET ${timeFrame} = ?`
+    await otnodedb_connection.query(query, [trac_committed],function (error, results, fields) {
+      if (error) throw error;
+    });
 
-  member_nodes = await alliance_db
-    .prepare('SELECT * FROM member_nodes WHERE verified = ?')
-    .all(1)
+    let member_nodes;
+    query = 'SELECT * FROM member_nodes WHERE verified = ?'
+    await otnodedb_connection.query(query, [1],function (error, results, fields) {
+      if (error) throw error;
+      member_nodes = results;
+    });
 
-  shardTable = []
-  await connection.query(
-    'SELECT * from operationaldb2.shard',
-    function (error, row) {
-      if (error) {
-        throw error
-      } else {
-        setValue(row)
-      }
-    }
-  )
-
-  async function setValue (value) {
-    shard_nodes = value
+    let shard_nodes;
+    query = 'SELECT * from operationaldb2.shard'
+    await operationaldb2_connection.query(query, function (error, results, fields) {
+      if (error) throw error;
+      shard_nodes = results;
+    });
 
     alliance_nodes_percent = member_nodes.length / shard_nodes.length
     alliance_publishes = publishes * alliance_nodes_percent
@@ -302,5 +312,4 @@ Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
     }
 
     await bot.telegram.sendMessage(process.env.GROUP, msg)
-  }
 };

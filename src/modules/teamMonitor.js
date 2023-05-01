@@ -17,11 +17,18 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin',
+const operationaldb2_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   database: 'operationaldb2'
+})
+
+const otnodedb_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otnodedb'
 })
 
 const team_nodes = [
@@ -59,28 +66,23 @@ const team_nodes = [
 
 module.exports = teamMonitor = async () => {
   console.log(`Running team node monitoring task.`)
-  node_operators = await bot_db
-    .prepare(
-      'SELECT peer_id, operator, current_ask, previous_ask, date_last_changed FROM node_operators LIMIT 1000'
-    )
-    .all()
+  
+    let node_operators;
+    query = 'SELECT network_id, operator, current_ask, previous_ask, date_last_changed FROM node_operators LIMIT 1000'
+    await otnodedb_connection.query(query, function (error, results, fields) {
+      if (error) throw error;
+      node_operators = results;
+    });
 
   console.log(node_operators)
 
-  shardTable = []
-  await connection.query(
-    'SELECT * from operationaldb2.shard',
-    function (error, row) {
-      if (error) {
-        throw error
-      } else {
-        setValue(row)
-      }
-    }
-  )
+  let shardTable;
+    query = 'SELECT * from operationaldb2.shard'
+    await operationaldb2_connection.query(query, function (error, results, fields) {
+      if (error) throw error;
+      shardTable = results;
+    });
 
-  async function setValue (value) {
-    shardTable = value
     tl_node_count = 0
     tl_node_ask = 0
     tl_node_change_count = 0
@@ -118,17 +120,11 @@ module.exports = teamMonitor = async () => {
       timestamp = new Date()
       abs_timestamp = Math.abs(timestamp)
 
-      await bot_db
-        .prepare(
-          `${exec_type} INTO node_operators (peer_id, operator, current_ask, previous_ask, date_last_changed) VALUES (?, ?, ?, ?, ?)`
-        )
-        .run(
-          shard_operator.peer_id,
-          operator,
-          shard_operator.ask,
-          previous_ask,
-          abs_timestamp
-        )
+      query = `${exec_type} INTO node_operators (network_id, operator, current_ask, previous_ask, date_last_changed) VALUES (?, ?, ?, ?, ?)`
+        await otnodedb_connection.query(query, [shard_operator.peer_id, operator, shard_operator.ask, previous_ask, abs_timestamp],function (error, results, fields) {
+          if (error) throw error;
+        });
+
 
       console.log(ask_changed)
       if (ask_changed == 'yes' && tl_node_found) {
@@ -144,8 +140,6 @@ module.exports = teamMonitor = async () => {
       )}`
       await tellBot(msg)
     }
-    return
-  }
 
   async function tellBot (msg) {
     bot.telegram.sendMessage(process.env.GROUP, msg)

@@ -1,10 +1,5 @@
 const fs = require("fs");
 require('dotenv').config()
-const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
-const queryTypes = require("../util/queryTypes");
-const bot_db = require('better-sqlite3')(process.env.BOT_DB, {
-  verbose: console.log
-})
 
 const {
   Telegraf,
@@ -17,11 +12,11 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin',
-  database: 'operationaldb2'
+const otnodedb_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otnodedb'
 })
 
 module.exports = askMonitor = async () => {
@@ -34,9 +29,12 @@ module.exports = askMonitor = async () => {
   )
   max = Number(process.env.ALLIANCE_RANGE.split('-').pop())
 
-  member_ids = await alliance_db
-    .prepare('SELECT distinct tg_id FROM member_nodes WHERE verified = ?')
-    .all(1)
+  let member_ids;
+  query = 'SELECT distinct tg_id FROM alliance_members WHERE verified = ?'
+  await connection.query(query,[1], function (error, results, fields) {
+    if (error) throw error;
+    member_ids = results;
+  });
 
   console.log(`MEMBER IDS: ` + JSON.stringify(member_ids))
 
@@ -44,11 +42,12 @@ module.exports = askMonitor = async () => {
   for (i = 0; i < member_ids.length; ++i) {
     member_id = member_ids[i]
 
-    members_node_ids = await alliance_db
-      .prepare(
-        'SELECT node_id FROM member_nodes WHERE verified = ? AND tg_id = ?'
-      )
-      .all(1, member_id.tg_id)
+      let members_node_ids;
+      query = 'SELECT network_id FROM alliance_members WHERE verified = ? AND tg_id = ?'
+      await connection.query(query,[1,member_id.tg_id], function (error, results, fields) {
+        if (error) throw error;
+        members_node_ids = results;
+      });
 
     console.log(i + `--MEMBERS NODE IDS: ` + JSON.stringify(members_node_ids))
 
@@ -83,17 +82,19 @@ There was no node associated with your account. You are being removed from the A
     for (b = 0; b < cur_member.node_ids.length; ++b) {
       node = cur_member.node_ids[b]
 
-      console.log(`NODE ID: ` + JSON.stringify(node.node_id))
-      ask = await alliance_db
-        .prepare(
-          'SELECT ask FROM member_nodes WHERE verified = ? AND node_id = ?'
-        )
-        .all(1, node.node_id)
+      console.log(`NODE ID: ` + JSON.stringify(node.network_id))
+
+        let ask;
+        query = 'SELECT ask FROM alliance_members WHERE verified = ? AND network_id = ?'
+        await connection.query(query,[1,node.network_id], function (error, results, fields) {
+          if (error) throw error;
+          ask = results;
+        });
 
       ask = Number(ask[0].ask)
 
       if (ask < min || ask > max) {
-        noncompliant.push(node.node_id)
+        noncompliant.push(node.network_id)
       }
     }
 
@@ -104,9 +105,10 @@ There was no node associated with your account. You are being removed from the A
       console.log(`Telegram ID: ${cur_member.member_id.tg_id} IS COMPLIANT`)
       compliant = 'yes'
 
-      await bot_db
-        .prepare(`UPDATE node_compliance SET warnings = ? WHERE tg_id = ?`)
-        .run(0, cur_member.member_id.tg_id)
+        query = 'UPDATE node_compliance SET warnings = ? WHERE tg_id = ?'
+        await connection.query(query,[0, cur_member.member_id.tg_id], function (error, results, fields) {
+          if (error) throw error;
+        });
     }
 
     if (compliant == 'no') {
@@ -120,11 +122,12 @@ There was no node associated with your account. You are being removed from the A
     for (c = 0; c < Number(noncompliant.length); ++c) {
       node_id = noncompliant[c]
 
-      row = await bot_db
-        .prepare(
-          'SELECT warnings FROM node_compliance WHERE tg_id = ? AND node_id = ?'
-        )
-        .all(cur_member.member_id.tg_id, node_id)
+        let row;
+        query = 'SELECT warnings FROM node_compliance WHERE tg_id = ? AND network_id = ?'
+        await connection.query(query,[cur_member.member_id.tg_id, node_id], function (error, results, fields) {
+          if (error) throw error;
+          row = results;
+        });
 
       console.log(`WARNINGS: ${JSON.stringify(row)}`)
 
@@ -135,14 +138,10 @@ There was no node associated with your account. You are being removed from the A
       }
 
       if (warnings != 6) {
-        await bot_db
-          .prepare(`REPLACE INTO node_compliance VALUES (?,?,?,?)`)
-          .run(
-            node_id,
-            cur_member.member_id.tg_id,
-            'out_of_range',
-            warnings + 1
-          )
+          query = 'REPLACE INTO node_compliance VALUES (?,?,?,?)'
+          await connection.query(query,[node_id,cur_member.member_id.tg_id,'out_of_range', warnings + 1], function (error, results, fields) {
+            if (error) throw error;
+          });
 
         await bot.telegram.sendMessage(
           process.env.GROUP,
@@ -152,9 +151,12 @@ Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
           } days before it is kicked.`
         )
 
-        bot_id = await alliance_db
-        .prepare('SELECT bot_id FROM member_nodes WHERE node_id = ? COLLATE NOCASE')
-        .all(node_id)
+        let bot_id;
+        query = 'SELECT bot_id FROM alliance_members WHERE network_id = ? COLLATE NOCASE'
+        await connection.query(query,[node_id], function (error, results, fields) {
+          if (error) throw error;
+          bot_id = results;
+        });
 
         if(bot_id != ''){
           temp_bot = new Telegraf(bot_id)
@@ -175,9 +177,12 @@ Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
 Node ${node_id} is being kicked for not adhering to the ask range.`
         )
 
-        bot_id = await alliance_db
-          .prepare('SELECT bot_id FROM member_nodes WHERE node_id = ? COLLATE NOCASE')
-          .all(node_id)
+        let bot_id;
+        query = 'SELECT bot_id FROM alliance_members WHERE network_id = ? COLLATE NOCASE'
+        await connection.query(query,[node_id], function (error, results, fields) {
+          if (error) throw error;
+          bot_id = results;
+        });
 
           if(bot_id != ''){
             temp_bot = new Telegraf(bot_id)
@@ -188,11 +193,12 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
               )
           }
 
-        nodes = await alliance_db
-          .prepare(
-            'SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?'
-          )
-          .all(1, cur_member.member_id.tg_id)
+          let nodes;
+          query = 'SELECT * FROM alliance_members WHERE verified = ? AND tg_id = ?'
+          await connection.query(query,[1, cur_member.member_id.tg_id], function (error, results, fields) {
+            if (error) throw error;
+            bot_id = results;
+          });
 
         console.log(nodes.length)
         last_node = 'no'
@@ -200,9 +206,11 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
           last_node = 'yes'
         }
 
-        await bot_db
-          .prepare(`DELETE FROM node_compliance WHERE node_id = ?`)
-          .run(node_id)
+          query = 'DELETE FROM node_compliance WHERE network_id = ?'
+          await connection.query(query,[node_id], function (error, results, fields) {
+            if (error) throw error;
+            bot_id = results;
+          });
 
         if (last_node == 'yes') {
           await bot.telegram.sendMessage(
@@ -211,9 +219,12 @@ Node ${node_id} is being kicked for not adhering to the ask range.`
 There was no node associated with your account. You are being removed from the Allaince.`
           )
 
-          bot_id = await alliance_db
-          .prepare('SELECT bot_id FROM member_nodes WHERE node_id = ? COLLATE NOCASE')
-          .all(node_id)
+          let bot_id;
+          query = 'SELECT bot_id FROM alliance_members WHERE network_id = ? COLLATE NOCASE'
+          await connection.query(query,[node_id], function (error, results, fields) {
+            if (error) throw error;
+            bot_id = results;
+          });
 
           if(bot_id != ''){
             temp_bot = new Telegraf(bot_id)
@@ -233,11 +244,10 @@ There was no node associated with your account. You are being removed from the A
             cur_member.member_id.tg_id
           )
 
-          await alliance_db
-            .prepare(
-              `DELETE FROM member_nodes WHERE node_id = ? COLLATE NOCASE`
-            )
-            .run(node_id)
+            query = 'DELETE FROM alliance_nodes WHERE network_id = ? COLLATE NOCASE'
+            await connection.query(query,[node_id], function (error, results, fields) {
+              if (error) throw error;
+            });
         }
       }
     }

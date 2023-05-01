@@ -1,10 +1,5 @@
 const fs = require("fs");
 require('dotenv').config()
-const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
-const queryTypes = require("../util/queryTypes");
-const bot_db = require('better-sqlite3')(process.env.BOT_DB, {
-  verbose: console.log
-})
 
 const {
   Telegraf,
@@ -17,35 +12,37 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin',
+const operationaldb2_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   database: 'operationaldb2'
 })
 
+const otnodedb_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otnodedb'
+})
+
+
 module.exports = askReconciliation = async () => {
   console.log(`Running ask reconciliation task.`)
-  members = await alliance_db
-    .prepare('SELECT * FROM member_nodes WHERE verified = ?')
-    .all(1)
 
-  shard_nodes = []
-  await connection.query(
-    `SELECT * from operationaldb2.shard`,
-    async function (error, row) {
-      if (error) {
-        console.log(error)
-        return
-      } else {
-        setValue(row)
-      }
-    }
-  )
+    let members;
+    query = 'SELECT * FROM alliance_members WHERE verified = ?'
+    await otnodedb_connection.query(query,[1], function (error, results, fields) {
+      if (error) throw error;
+      members = results;
+    });
 
-  async function setValue (value) {
-    shard_nodes = value
-    //console.log(shard_nodes)
+  let shard_nodes;
+    query = 'SELECT * from operationaldb2.shard'
+    await operationaldb2_connection.query(query, function (error, results, fields) {
+      if (error) throw error;
+      shard_nodes = results;
+    });
 
     for (i = 0; i < shard_nodes.length; ++i) {
       shard_node = shard_nodes[i]
@@ -54,11 +51,9 @@ module.exports = askReconciliation = async () => {
         return obj.node_id === shard_node.peer_id
       })
 
-      await alliance_db
-        .prepare(
-          `UPDATE member_nodes SET ask = ?, stake = ? WHERE node_id = ? COLLATE NOCASE`
-        )
-        .run(shard_node.ask, shard_node.stake, shard_node.peer_id)
+        query = 'UPDATE alliance_members SET ask = ?, stake = ? WHERE network_id = ? COLLATE NOCASE'
+        await otnodedb_connection.query(query, [shard_node.ask, shard_node.stake, shard_node.peer_id],function (error, results, fields) {
+          if (error) throw error;
+        });
     }
-  }
 };

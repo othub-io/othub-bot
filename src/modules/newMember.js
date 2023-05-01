@@ -1,10 +1,5 @@
 const fs = require("fs");
 require('dotenv').config()
-const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
-const queryTypes = require("../util/queryTypes");
-const bot_db = require('better-sqlite3')(process.env.BOT_DB, {
-  verbose: console.log
-})
 
 const {
   Telegraf,
@@ -17,25 +12,24 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin',
-  database: 'operationaldb2'
+const otnodedb_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otnodedb'
 })
 
 module.exports = newMember = async (ctx) => {
     console.log(`Screening new member.`)
     console.log(ctx.message.new_chat_members)
     telegram_id = JSON.stringify(ctx.message.new_chat_members[0].id)
-    console.log(telegram_id)
 
-    node = await alliance_db
-        .prepare('SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?')
-        .all(1, telegram_id)
-
-    console.log(node)
-    console.log(ctx.message.new_chat_members[0].is_bot)
+        let node;
+        query = 'SELECT * FROM alliance_members WHERE verified = ? AND tg_id = ?'
+        await otnodedb_connection.query(query, [1, telegram_id],function (error, results, fields) {
+          if (error) throw error;
+          node = results;
+        });
 
     if (node == '' && ctx.message.new_chat_members[0].is_bot == false) {
         ctx.banChatMember(telegram_id)

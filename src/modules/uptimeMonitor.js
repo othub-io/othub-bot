@@ -16,36 +16,37 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin',
+const operationaldb2_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   database: 'operationaldb2'
+})
+
+const otnodedb_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otnodedb'
 })
 
 
 module.exports = uptimeMonitor = async () => {
   console.log(`Running uptime monitor task.`)
-  members = await alliance_db
-    .prepare('SELECT * FROM member_nodes WHERE verified = ?')
-    .all(1)
 
-  shard_nodes = []
-  await connection.query(
-    `SELECT * from operationaldb2.shard`,
-    async function (error, row) {
-      if (error) {
-        console.log(error)
-        return
-      } else {
-        setValue(row)
-      }
-    }
-  )
+    let members;
+    query = 'SELECT * FROM alliance_members WHERE verified = ?'
+    await otnodedb_connection.query(query, [1],function (error, results, fields) {
+      if (error) throw error;
+      members = results;
+    });
 
-  async function setValue (value) {
-    shard_nodes = value
-    //console.log(shard_nodes)
+    let shard_nodes;
+    query = 'SELECT * from operationaldb2.shard'
+    await operationaldb2_connection.query(query, function (error, results, fields) {
+      if (error) throw error;
+      shard_nodes = results;
+    });
 
     for (i = 0; i < shard_nodes.length; ++i) {
       shard_node = shard_nodes[i]
@@ -94,5 +95,4 @@ Last dial attempt was on ${shard_node.last_dialed}.`
         }
       }
     }
-  }
 };

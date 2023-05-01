@@ -1,10 +1,5 @@
 const fs = require("fs");
 require('dotenv').config()
-const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
-const queryTypes = require("../util/queryTypes");
-const bot_db = require('better-sqlite3')(process.env.BOT_DB, {
-  verbose: console.log
-})
 
 const {
   Telegraf,
@@ -17,34 +12,38 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin',
+const operationaldb2_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   database: 'operationaldb2'
 })
 
+const otnodedb_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otnodedb'
+})
+
 module.exports = myNodes = async (ctx) => {
-    await connection.query(
-        'SELECT * from operationaldb2.shard',
-        function (error, row) {
-          if (error) {
-            throw error
-          } else {
-            setValue(row)
-          }
-        }
-      )
+  let shard_nodes;
+  query = 'SELECT * from operationaldb2.shard'
+  await operationaldb2_connection.query(query, function (error, results, fields) {
+    if (error) throw error;
+    shard_nodes = results;
+  });
     
-      async function setValue (value) {
-        telegram_id = JSON.stringify(ctx.message.from.id)
-    
-        nodes = await alliance_db
-          .prepare('SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?')
-          .all(1, telegram_id)
+  telegram_id = JSON.stringify(ctx.message.from.id)
+          let nodes;
+          query = 'SELECT * FROM member_nodes WHERE verified = ? AND tg_id = ?'
+          await otnodedb_connection.query(query, [1, telegram_id],function (error, results, fields) {
+            if (error) throw error;
+            nodes = results;
+          });
     
         node_count = Number(nodes.length)
-        all_nodes = Number(value.length)
+        all_nodes = Number(shard_nodes.length)
     
         total_ask = 0
         total_stake = 0
@@ -66,5 +65,4 @@ module.exports = myNodes = async (ctx) => {
     
         await bot.telegram.sendMessage(process.env.GROUP, msg)
         await ctx.deleteMessage()
-      }
 };
