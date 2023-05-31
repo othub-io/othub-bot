@@ -1,4 +1,4 @@
-const fs = require("fs");
+const fs = require('fs')
 require('dotenv').config()
 
 const {
@@ -9,8 +9,8 @@ const {
   BaseScene,
   Stage
 } = require('telegraf')
-const bot = new Telegraf(process.env.BOT_TOKEN)
 
+const keccak256 = require('keccak256')
 const mysql = require('mysql')
 const otnodedb_connection = mysql.createConnection({
   host: process.env.DBHOST,
@@ -19,239 +19,233 @@ const otnodedb_connection = mysql.createConnection({
   database: 'otnodedb'
 })
 
+const otp_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otp'
+})
+
+function executeOTNODEQuery (query, params) {
+  return new Promise((resolve, reject) => {
+    otnodedb_connection.query(query, params, (error, results) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(results)
+      }
+    })
+  })
+}
+
+async function getOTNODEData (query, params) {
+  try {
+    const results = await executeOTNODEQuery(query, params)
+    return results
+  } catch (error) {
+    console.error('Error executing query:', error)
+    throw error
+  }
+}
+
+function executeOTPQuery (query, params) {
+  return new Promise((resolve, reject) => {
+    otp_connection.query(query, params, (error, results) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(results)
+      }
+    })
+  })
+}
+
+async function getOTPData (query, params) {
+  try {
+    const results = await executeOTPQuery(query, params)
+    return results
+  } catch (error) {
+    console.error('Error executing query:', error)
+    throw error
+  }
+}
+
 module.exports = askMonitor = async () => {
-  console.log(`Running ask monitoring task.`)
-  min = Number(
-    process.env.ALLIANCE_RANGE.substring(
-      1,
-      process.env.ALLIANCE_RANGE.indexOf('-')
-    )
-  )
-  max = Number(process.env.ALLIANCE_RANGE.split('-').pop())
+  try {
+    console.log(`Running ask monitoring task.`)
+    min = Number(process.env.ALLIANCE_MIN)
 
-  let member_ids;
-  query = 'SELECT distinct tg_id FROM alliance_members WHERE verified = ?'
-  await connection.query(query,[1], function (error, results, fields) {
-    if (error) throw error;
-    member_ids = results;
-  });
+    query = `SELECT * FROM node_operators WHERE nodeGroup = ?`
+    params = ['Alliance']
+    allianceMembers = await getOTNODEData(query, params)
+      .then(results => {
+        //console.log('Query results:', results);
+        return results
+        // Use the results in your variable or perform further operations
+      })
+      .catch(error => {
+        console.error('Error retrieving data:', error)
+      })
 
-  console.log(`MEMBER IDS: ` + JSON.stringify(member_ids))
+    allNodes = []
+    for (i = 0; i < allianceMembers.length; ++i) {
+      allianceMember = allianceMembers[i]
+      admin_key = allianceMember.adminKey
 
-  members_list = []
-  for (i = 0; i < member_ids.length; ++i) {
-    member_id = member_ids[i]
+      keccak256hash = keccak256(admin_key).toString('hex')
+      keccak256hash = '0x' + keccak256hash
+      like_keccak256hash = '%' + keccak256hash + '%'
 
-      let members_node_ids;
-      query = 'SELECT network_id FROM alliance_members WHERE verified = ? AND tg_id = ?'
-      await connection.query(query,[1,member_id.tg_id], function (error, results, fields) {
-        if (error) throw error;
-        members_node_ids = results;
-      });
+      query = `select nodeId from v_nodes where createProfile_adminWallet=? and (removedWalletsHashes not like ? or removedWalletsHashes is null) UNION select nodeId from v_nodes where addedAdminWalletsHashes like ? and (removedWalletsHashes not like ? or removedWalletsHashes is null)  `
+      params = [
+        admin_key,
+        like_keccak256hash,
+        like_keccak256hash,
+        like_keccak256hash
+      ]
+      nodeIds = await getOTPData(query, params)
+        .then(results => {
+          //console.log('Query results:', results);
+          return results
+          // Use the results in your variable or perform further operations
+        })
+        .catch(error => {
+          console.error('Error retrieving data:', error)
+        })
 
-    console.log(i + `--MEMBERS NODE IDS: ` + JSON.stringify(members_node_ids))
-
-    if (members_node_ids == '') {
-      console.log(`No nodes found for sure. Kicking...`)
-      tg_member = await bot.telegram.getChatMember(process.env.GROUP, member_id)
-      await bot.telegram.sendMessage(
-        process.env.GROUP,
-        `@${tg_member.user.username}, 
-There was no node associated with your account. You are being removed from the Allaince.`
-      )
-      await bot.telegram.kickChatMember(process.env.GROUP, member_id.tg_id)
-      await bot.telegram.unbanChatMember(process.env.GROUP, member_id.tg_id)
-
-      return
-    }
-
-    obj = {
-      member_id: member_id,
-      node_ids: members_node_ids
-    }
-
-    members_list.push(obj)
-  }
-
-  console.log(`MEMBERS LIST: ` + JSON.stringify(members_list))
-
-  for (a = 0; a < Number(members_list.length); ++a) {
-    cur_member = members_list[a]
-
-    noncompliant = []
-    for (b = 0; b < cur_member.node_ids.length; ++b) {
-      node = cur_member.node_ids[b]
-
-      console.log(`NODE ID: ` + JSON.stringify(node.network_id))
-
-        let ask;
-        query = 'SELECT ask FROM alliance_members WHERE verified = ? AND network_id = ?'
-        await connection.query(query,[1,node.network_id], function (error, results, fields) {
-          if (error) throw error;
-          ask = results;
-        });
-
-      ask = Number(ask[0].ask)
-
-      if (ask < min || ask > max) {
-        noncompliant.push(node.network_id)
+      for (x = 0; x < nodeIds.length; ++x) {
+        nodeId = nodeIds[x]
+        node_obj = {
+          node: nodeId,
+          telegramId: allianceMember.telegramID,
+          botToken: allianceMember.botToken
+        }
+        allNodes.push(node_obj)
       }
     }
 
-    noncompliant_str = JSON.stringify(noncompliant)
+    nonCompliant = []
+    for (i = 0; i < allNodes.length; ++i) {
+      thisNode = allNodes[i]
 
-    compliant = 'no'
-    if (noncompliant_str == '[]') {
-      console.log(`Telegram ID: ${cur_member.member_id.tg_id} IS COMPLIANT`)
-      compliant = 'yes'
+      query = `select * from otp.v_nodes_stats as vns
+    where vns.nodeId = ?
+    order by vns.date desc
+    LIMIT 1`
+      params = [thisNode.nodeId]
+      nodeInfo = await getOTPData(query, params)
+        .then(results => {
+          //console.log('Query results:', results);
+          return results
+          // Use the results in your variable or perform further operations
+        })
+        .catch(error => {
+          console.error('Error retrieving data:', error)
+        })
 
-        query = 'UPDATE node_compliance SET warnings = ? WHERE tg_id = ?'
-        await connection.query(query,[0, cur_member.member_id.tg_id], function (error, results, fields) {
-          if (error) throw error;
-        });
+      if (nodeInfo[0].Ask < min) {
+        nonCompliant.push(thisNode)
+      }
     }
 
-    if (compliant == 'no') {
-      tg_member = await bot.telegram.getChatMember(
-        process.env.GROUP,
-        cur_member.member_id.tg_id
-      )
-      console.log(`TG MEMBER: ` + JSON.stringify(tg_member))
-    }
+    for (i = 0; i < nonCompliant.length; ++i) {
+      nonCompliantNode = nonCompliant[i]
+      reachable = 'yes'
 
-    for (c = 0; c < Number(noncompliant.length); ++c) {
-      node_id = noncompliant[c]
-
-        let row;
-        query = 'SELECT warnings FROM node_compliance WHERE tg_id = ? AND network_id = ?'
-        await connection.query(query,[cur_member.member_id.tg_id, node_id], function (error, results, fields) {
-          if (error) throw error;
-          row = results;
-        });
-
-      console.log(`WARNINGS: ${JSON.stringify(row)}`)
-
-      warnings = 0
-
-      if (row != '') {
-        warnings = Number(row[0].warnings)
+      if (
+        nonCompliantNode.botToken == '' ||
+        nonCompliantNode.telegramId == ''
+      ) {
+        reachable = 'no'
       }
 
-      if (warnings != 6) {
-          query = 'REPLACE INTO node_compliance VALUES (?,?,?,?)'
-          await connection.query(query,[node_id,cur_member.member_id.tg_id,'out_of_range', warnings + 1], function (error, results, fields) {
-            if (error) throw error;
-          });
+      alliance_bot = new Telegraf(process.env.ALLIANCE_BOT_TOKEN)
+      members_bot = new Telegraf(nonCompliantNode.botToken)
 
-        await bot.telegram.sendMessage(
-          process.env.GROUP,
-          `@${tg_member.user.username},
-Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
-            7 - (warnings + 1)
-          } days before it is kicked.`
+      telegramInfo = await bot.telegram.getChatMember(
+        process.env.ALLIANCE_CHANNEL,
+        nonCompliantNode.telegramId
+      )
+
+      query = 'SELECT * from compliance where nodeId =?'
+      params = [nonCompliantNode.nodeId]
+      complianceInfo = await getOTPData(query, params)
+        .then(results => {
+          //console.log('Query results:', results);
+          return results
+          // Use the results in your variable or perform further operations
+        })
+        .catch(error => {
+          console.error('Error retrieving data:', error)
+        })
+
+      if (complianceInfo != '') {
+        query = 'INSERT INTO compliance (nodeId,warnings) VALUES (?,?)'
+        await otnodedb_connection.query(
+          query,
+          [nonCompliantNode.nodeId, 1],
+          function (error, results, fields) {
+            if (error) throw error
+          }
         )
 
-        let bot_id;
-        query = 'SELECT bot_id FROM alliance_members WHERE network_id = ? COLLATE NOCASE'
-        await connection.query(query,[node_id], function (error, results, fields) {
-          if (error) throw error;
-          bot_id = results;
-        });
-
-        if(bot_id != ''){
-          temp_bot = new Telegraf(bot_id)
-            await temp_bot.telegram.sendMessage(
-              cur_member.member_id.tg_id,
-              `@${tg_member.user.username},
-    Node ${node_id} is out of the ${process.env.ALLIANCE_RANGE} ask range. ${
-                7 - (warnings + 1)
-              } days before it is kicked.`
-            )
-        }
+        await members_bot.telegram.sendMessage(
+          nonCompliantNode.telegramId,
+          `@${telegramInfo.user.username}, 
+            Node ${nonCompliantNode.nodeId} was found to have an ask lower than the alliance minimum and recieved 1 warning.`
+        )
       }
 
-      if (warnings >= 6) {
-        await bot.telegram.sendMessage(
-          process.env.GROUP,
-          `@${tg_member.user.username}, 
-Node ${node_id} is being kicked for not adhering to the ask range.`
+      if (complianceInfo[0].warnings + 1 >= process.env.WARNING_LIMIT) {
+        query = 'UPDATE node_operators SET nodeGroup =? WHERE telegramID = ?'
+        await otnodedb_connection.query(
+          query,
+          ['Solo', nonCompliantNode.telegramID],
+          function (error, results, fields) {
+            if (error) throw error
+          }
         )
 
-        let bot_id;
-        query = 'SELECT bot_id FROM alliance_members WHERE network_id = ? COLLATE NOCASE'
-        await connection.query(query,[node_id], function (error, results, fields) {
-          if (error) throw error;
-          bot_id = results;
-        });
+        await alliance_bot.telegram.sendMessage(
+          process.env.ALLIANCE_CHANNEL,
+          `@${telegramInfo.user.username}, is being removed from the alliance for having a node that is non compliant.`
+        )
 
-          if(bot_id != ''){
-            temp_bot = new Telegraf(bot_id)
-              await temp_bot.telegram.sendMessage(
-                cur_member.member_id.tg_id,
-                `@${tg_member.user.username},
-                Node ${node_id} is being kicked for not adhering to the ask range.`
-              )
-          }
+        await alliance_bot.telegram.kickChatMember(
+          process.env.ALLIANCE_CHANNEL,
+          nonCompliantNode.telegramId
+        )
 
-          let nodes;
-          query = 'SELECT * FROM alliance_members WHERE verified = ? AND tg_id = ?'
-          await connection.query(query,[1, cur_member.member_id.tg_id], function (error, results, fields) {
-            if (error) throw error;
-            bot_id = results;
-          });
+        await alliance_bot.telegram.unbanChatMember(
+          process.env.ALLIANCE_CHANNEL,
+          nonCompliantNode.telegramId
+        )
 
-        console.log(nodes.length)
-        last_node = 'no'
-        if (nodes.length == 1) {
-          last_node = 'yes'
+        if (reachable == 'yes') {
+          await members_bot.telegram.sendMessage(
+            nonCompliantNode.telegramId,
+            `@${telegramInfo.user.username}, you have been removed from the alliance for having a node that is non compliant. Please ensure all nodes remain equal to or above the alliance minimum ask.`
+          )
         }
-
-          query = 'DELETE FROM node_compliance WHERE network_id = ?'
-          await connection.query(query,[node_id], function (error, results, fields) {
-            if (error) throw error;
-            bot_id = results;
-          });
-
-        if (last_node == 'yes') {
-          await bot.telegram.sendMessage(
-            process.env.GROUP,
-            `@${tg_member.user.username}, 
-There was no node associated with your account. You are being removed from the Allaince.`
-          )
-
-          let bot_id;
-          query = 'SELECT bot_id FROM alliance_members WHERE network_id = ? COLLATE NOCASE'
-          await connection.query(query,[node_id], function (error, results, fields) {
-            if (error) throw error;
-            bot_id = results;
-          });
-
-          if(bot_id != ''){
-            temp_bot = new Telegraf(bot_id)
-              await temp_bot.telegram.sendMessage(
-                cur_member.member_id.tg_id,
-                `@${tg_member.user.username},
-                There was no node associated with your account. You are being removed from the Allaince.`
-              )
+      } else {
+        query = 'UPDATE compliance (nodeId,warnings) VALUES (?,?)'
+        await otnodedb_connection.query(
+          query,
+          [nonCompliantNode.nodeId, complianceInfo[0].warnings + 1],
+          function (error, results, fields) {
+            if (error) throw error
           }
+        )
 
-          await bot.telegram.kickChatMember(
-            process.env.GROUP,
-            cur_member.member_id.tg_id
+        if (reachable == 'yes') {
+          await members_bot.telegram.sendMessage(
+            nonCompliantNode.telegramId,
+            `@${telegramInfo.user.username}, Node ${nonCompliantNode.nodeId} has received a warning for being non compliant. WARNINGS (${complianceInfo[0].warnings}/${process.env.WARNING_LIMIT})`
           )
-          await bot.telegram.unbanChatMember(
-            process.env.GROUP,
-            cur_member.member_id.tg_id
-          )
-
-            query = 'DELETE FROM alliance_nodes WHERE network_id = ? COLLATE NOCASE'
-            await connection.query(query,[node_id], function (error, results, fields) {
-              if (error) throw error;
-            });
         }
       }
     }
-
-    console.log(`END`)
+  } catch (e) {
+    console.log(e)
   }
-};
+}

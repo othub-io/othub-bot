@@ -1,10 +1,5 @@
-const fs = require("fs");
+const fs = require('fs')
 require('dotenv').config()
-const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
-const queryTypes = require("../util/queryTypes");
-const bot_db = require('better-sqlite3')(process.env.BOT_DB, {
-  verbose: console.log
-})
 
 const {
   Telegraf,
@@ -14,15 +9,8 @@ const {
   BaseScene,
   Stage
 } = require('telegraf')
-const bot = new Telegraf(process.env.BOT_TOKEN)
-
+const bot = new Telegraf(process.env.ALLIANCE_BOT_TOKEN)
 const mysql = require('mysql')
-const operationaldb2_connection = mysql.createConnection({
-  host: process.env.DBHOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  database: 'operationaldb2'
-})
 
 const otnodedb_connection = mysql.createConnection({
   host: process.env.DBHOST,
@@ -30,6 +18,57 @@ const otnodedb_connection = mysql.createConnection({
   password: process.env.PASSWORD,
   database: 'otnodedb'
 })
+
+function executeOTNODEQuery (query, params) {
+  return new Promise((resolve, reject) => {
+    otnodedb_connection.query(query, params, (error, results) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(results)
+      }
+    })
+  })
+}
+
+async function getOTNODEData (query, params) {
+  try {
+    const results = await executeOTNODEQuery(query, params)
+    return results
+  } catch (error) {
+    console.error('Error executing query:', error)
+    throw error
+  }
+}
+
+const op2_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'operationaldb2'
+})
+
+function executeOP2Query (query, params) {
+  return new Promise((resolve, reject) => {
+    op2_connection.query(query, params, (error, results) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(results)
+      }
+    })
+  })
+}
+
+async function getOP2Data (query, params) {
+  try {
+    const results = await executeOP2Query(query, params)
+    return results
+  } catch (error) {
+    console.error('Error executing query:', error)
+    throw error
+  }
+}
 
 const team_nodes = [
   'QmZSFcfQ9DesB4ZjkT3qJ3VyCYDLFRYbC5U1VyVPN47dwE',
@@ -66,82 +105,69 @@ const team_nodes = [
 
 module.exports = teamMonitor = async () => {
   console.log(`Running team node monitoring task.`)
-  
-    let node_operators;
-    query = 'SELECT network_id, operator, current_ask, previous_ask, date_last_changed FROM node_operators LIMIT 1000'
-    await otnodedb_connection.query(query, function (error, results, fields) {
-      if (error) throw error;
-      node_operators = results;
-    });
 
-  console.log(node_operators)
+  query = `SELECT * from operationaldb2.shard`
+  params = []
+  operationaldb2 = await getOP2Data(query, params)
+    .then(results => {
+      //console.log('Query results:', results);
+      return results
+      // Use the results in your variable or perform further operations
+    })
+    .catch(error => {
+      console.error('Error retrieving data:', error)
+    })
 
-  let shardTable;
-    query = 'SELECT * from operationaldb2.shard'
-    await operationaldb2_connection.query(query, function (error, results, fields) {
-      if (error) throw error;
-      shardTable = results;
-    });
+  query = `SELECT * from monitor`
+  params = []
+  monitor = await getOTNODEData(query, params)
+    .then(results => {
+      //console.log('Query results:', results);
+      return results
+      // Use the results in your variable or perform further operations
+    })
+    .catch(error => {
+      console.error('Error retrieving data:', error)
+    })
 
-    tl_node_count = 0
-    tl_node_ask = 0
-    tl_node_change_count = 0
+  ask = 0
+  changedNodes = []
+  for (i = 0; i < operationaldb2.length; ++i) {
+    shardNode = operationaldb2[i]
+    found = await team_node.includes(shardNode.peer_id)
 
-    for (i = 0; i < shardTable.length; ++i) {
-      shard_operator = shardTable[i]
+    if (found) {
+      monitor_index = await monitor.findIndex(mon => mon.networkId == team_node)
+      ask = ask + Number(shardNode.ask)
+      monitor_ask = monitor[monitor_index].ask
+      shard_ask = shardNode.ask
 
-      let operator
-      let previous_ask
-      let node_op_index
-
-      tl_node_found = await team_nodes.includes(shard_operator.peer_id)
-      if (tl_node_found) {
-        operator = 'Trace labs'
-        tl_node_count = tl_node_count + 1
-        tl_node_ask = tl_node_ask + Number(shard_operator.ask)
-      }
-
-      ask_changed = 'no'
-      if (node_operators) {
-        node_op_index = await node_operators.findIndex(
-          noop => noop.peer_id == shard_operator.peer_id
+      if (monitor_ask != shard_ask) {
+        query =
+          'INSERT INTO monitor (networkId,ask) VALUES (?,?) ON DUPLICATE KEY UPDATE ask = ?'
+        await otnodedb_connection.query(
+          query,
+          [shardNode.peer_id, shardNode.ask, shardNode.ask],
+          function (error, results, fields) {
+            if (error) throw error
+          }
         )
-      }
 
-      exec_type = 'INSERT'
-      if (node_op_index != -1) {
-        exec_type = 'REPLACE'
-        if (node_operators[node_op_index].current_ask != shard_operator.ask) {
-          previous_ask = node_operators[node_op_index].current_ask
-          ask_changed = 'yes'
-        }
-      }
-
-      timestamp = new Date()
-      abs_timestamp = Math.abs(timestamp)
-
-      query = `${exec_type} INTO node_operators (network_id, operator, current_ask, previous_ask, date_last_changed) VALUES (?, ?, ?, ?, ?)`
-        await otnodedb_connection.query(query, [shard_operator.peer_id, operator, shard_operator.ask, previous_ask, abs_timestamp],function (error, results, fields) {
-          if (error) throw error;
-        });
-
-
-      console.log(ask_changed)
-      if (ask_changed == 'yes' && tl_node_found) {
-        tl_node_change_count = tl_node_change_count + 1
+        changedNodes.push(shardNode)
       }
     }
+  }
 
-    if (tl_node_change_count > 0) {
-      tl_node_avg = tl_node_ask / tl_node_count
-
-      msg = `${tl_node_change_count} Trace Labs hs changed their asks. The average TL node ask is now ${tl_node_avg.toFixed(
-        4
-      )}`
-      await tellBot(msg)
-    }
+  if (changedNodes.length > 0) {
+    msg = `${
+      changedNodes.length
+    } Trace Labs nodes have changed their asks. The average TL node ask is now ${(
+      ask / Number(changedNodes.length)
+    ).toFixed(4)}`
+    await tellBot(msg)
+  }
 
   async function tellBot (msg) {
-    bot.telegram.sendMessage(process.env.GROUP, msg)
+    bot.telegram.sendMessage(process.env.ALLIANCE_CHANNEL, msg)
   }
-};
+}

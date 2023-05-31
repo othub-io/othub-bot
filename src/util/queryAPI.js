@@ -8,9 +8,7 @@ module.exports = queryAPI = async queryOptions => {
   //   });
 
   return await axios({
-    method: 'post',
-    url: queryOptions.path,
-    headers: queryOptions.config.headers,
-    data: queryOptions.config.data
+    method: 'get',
+    url: queryOptions.path
   })
 }

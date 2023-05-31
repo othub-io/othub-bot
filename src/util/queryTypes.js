@@ -1,5 +1,5 @@
 const spamCheck = require('../queries/spamCheck')
-const getSubscan = require('../queries/querySubscan')
+const queryOTNodeAPI = require('../queries/queryOTNodeAPI')
 
 const queryTypes = [
   {
@@ -7,8 +7,8 @@ const queryTypes = [
     getData: () => spamCheck(command, telegram_id)
   },
   {
-    name: 'querySubscan',
-    getData: () => getSubscan(ext, contract_address, address, row, page)
+    name: 'queryOTNodeAPI',
+    getData: () => getOTNode(ext)
   }
 ]
 
@@ -16,7 +16,7 @@ module.exports = {
   spamCheck: function spamCheck () {
     return queryTypes[0]
   },
-  querySubscan: function querySubscan () {
+  queryOTNodeAPI: function queryOTNodeAPI () {
     return queryTypes[1]
   }
 }

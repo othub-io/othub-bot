@@ -1,7 +1,7 @@
-const fs = require("fs");
+const fs = require('fs')
 require('dotenv').config()
 const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
-const queryTypes = require("../util/queryTypes");
+const queryTypes = require('../util/queryTypes')
 const bot_db = require('better-sqlite3')(process.env.BOT_DB, {
   verbose: console.log
 })
@@ -64,7 +64,7 @@ const team_nodes = [
   'QmUUdsHQmRfCPXdd84j3JQCFoJHVGmY3847kCkKSq6n7RN'
 ]
 
-module.exports = networkOverview = async (timeFrame) => {
+module.exports = networkOverview = async timeFrame => {
   console.log(`Running ${timeFrame} network overview.`)
 
   querySubscan = queryTypes.querySubscan()
@@ -106,83 +106,96 @@ module.exports = networkOverview = async (timeFrame) => {
   trac_committed = (trac_committed / 1000000000000000000).toFixed(3)
   trac_committed = Number(trac_committed)
 
-    let previous_publishes;
-    query = `SELECT ${timeFrame} FROM publish_history`
-    await otnodedb_connection.query(query, function (error, results, fields) {
-      if (error) throw error;
-      previous_publishes = results;
-    });
+  let previous_publishes
+  query = `SELECT ${timeFrame} FROM publish_history`
+  await otnodedb_connection.query(query, function (error, results, fields) {
+    if (error) throw error
+    previous_publishes = results
+  })
 
-    let previous_committed;
-    query = `SELECT ${timeFrame} FROM commit_history`
-    await otnodedb_connection.query(query, function (error, results, fields) {
-      if (error) throw error;
-      previous_committed = results;
-    });
+  let previous_committed
+  query = `SELECT ${timeFrame} FROM commit_history`
+  await otnodedb_connection.query(query, function (error, results, fields) {
+    if (error) throw error
+    previous_committed = results
+  })
 
   previous_committed = Number(previous_committed[0][timeFrame])
   previous_publishes = Number(previous_publishes[0][timeFrame])
   publishes = total_publishes - previous_publishes
   committed = trac_committed - previous_committed
 
-    query = `UPDATE publish_history SET ${timeFrame} = ?`
-    await otnodedb_connection.query(query, [total_publishes],function (error, results, fields) {
-      if (error) throw error;
-    });
-
-    query = `UPDATE commit_history SET ${timeFrame} = ?`
-    await otnodedb_connection.query(query, [trac_committed],function (error, results, fields) {
-      if (error) throw error;
-    });
-
-    let member_nodes;
-    query = 'SELECT * FROM member_nodes WHERE verified = ?'
-    await otnodedb_connection.query(query, [1],function (error, results, fields) {
-      if (error) throw error;
-      member_nodes = results;
-    });
-
-    let shard_nodes;
-    query = 'SELECT * from operationaldb2.shard'
-    await operationaldb2_connection.query(query, function (error, results, fields) {
-      if (error) throw error;
-      shard_nodes = results;
-    });
-
-    alliance_nodes_percent = member_nodes.length / shard_nodes.length
-    alliance_publishes = publishes * alliance_nodes_percent
-    alliance_committed = committed * alliance_nodes_percent
-
-    if (publishes === 0) {
-      publish_chng = '0.00'
-    } else {
-      publish_chng = publishes / total_publishes
-      publish_chng = publish_chng * 100
-      publish_chng = publish_chng.toFixed(2)
+  query = `UPDATE publish_history SET ${timeFrame} = ?`
+  await otnodedb_connection.query(
+    query,
+    [total_publishes],
+    function (error, results, fields) {
+      if (error) throw error
     }
+  )
 
-    if (alliance_publishes === 0) {
-      alli_publish_chng = '0.00'
-    } else {
-      alli_publish_chng = alliance_publishes / previous_publishes
-      alli_publish_chng = alli_publish_chng * 100
-      alli_publish_chng = alli_publish_chng.toFixed(2)
+  query = `UPDATE commit_history SET ${timeFrame} = ?`
+  await otnodedb_connection.query(
+    query,
+    [trac_committed],
+    function (error, results, fields) {
+      if (error) throw error
     }
+  )
 
-    commit_chng = committed / trac_committed
-    commit_chng = commit_chng * 100
-    commit_chng = commit_chng.toFixed(2)
+  let member_nodes
+  query = 'SELECT * FROM member_nodes WHERE verified = ?'
+  await otnodedb_connection.query(
+    query,
+    [1],
+    function (error, results, fields) {
+      if (error) throw error
+      member_nodes = results
+    }
+  )
 
-    alli_commit_chng = alliance_committed / previous_committed
-    alli_commit_chng = alli_commit_chng * 100
-    alli_commit_chng = alli_commit_chng.toFixed(2)
+  let shard_nodes
+  query = 'SELECT * from operationaldb2.shard'
+  await operationaldb2_connection.query(
+    query,
+    function (error, results, fields) {
+      if (error) throw error
+      shard_nodes = results
+    }
+  )
 
-    if(timeFrame != 'daily'){
-      msg = `${timeFrame} Overview
+  alliance_nodes_percent = member_nodes.length / shard_nodes.length
+  alliance_publishes = publishes * alliance_nodes_percent
+  alliance_committed = committed * alliance_nodes_percent
 
-Average TRAC per Asset: ${(
-      alliance_committed / alliance_publishes
-    ).toFixed(2)}
+  if (publishes === 0) {
+    publish_chng = '0.00'
+  } else {
+    publish_chng = publishes / total_publishes
+    publish_chng = publish_chng * 100
+    publish_chng = publish_chng.toFixed(2)
+  }
+
+  if (alliance_publishes === 0) {
+    alli_publish_chng = '0.00'
+  } else {
+    alli_publish_chng = alliance_publishes / previous_publishes
+    alli_publish_chng = alli_publish_chng * 100
+    alli_publish_chng = alli_publish_chng.toFixed(2)
+  }
+
+  commit_chng = committed / trac_committed
+  commit_chng = commit_chng * 100
+  commit_chng = commit_chng.toFixed(2)
+
+  alli_commit_chng = alliance_committed / previous_committed
+  alli_commit_chng = alli_commit_chng * 100
+  alli_commit_chng = alli_commit_chng.toFixed(2)
+
+  if (timeFrame != 'daily') {
+    msg = `${timeFrame} Overview
+
+Average TRAC per Asset: ${(alliance_committed / alliance_publishes).toFixed(2)}
 
 Network:
 Assets: ${publishes}(${publish_chng}%)
@@ -192,8 +205,7 @@ Alliance:
 Assets: ${alliance_publishes.toFixed(0)}(${alli_publish_chng}%)
 TRAC Locked: ${alliance_committed.toFixed(2)}(${alli_commit_chng}%)
     `
-    }else{
-
+  } else {
     peer_ids = []
     asks = []
     stakes = []
@@ -266,7 +278,7 @@ TRAC Locked: ${alliance_committed.toFixed(2)}(${alli_commit_chng}%)
     free_stake = total_free_stake / free_nodes
     all_stake = total_stake / total_nodes
 
-      msg = `${timeFrame} Overview
+    msg = `${timeFrame} Overview
 
 Alliance Ask: ${process.env.ALLIANCE_RANGE}
 Average Ask: ${(total_ask / all_nodes).toFixed(3)}
@@ -278,9 +290,7 @@ TRAC Locked: ${trac_committed.toFixed(2)}
 Average Trac per Asset: ${(trac_committed / total_publishes).toFixed(2)}
       
 -- Last Day --
-Average Trac per Asset: ${(
-            committed / publishes
-          ).toFixed(2)}
+Average Trac per Asset: ${(committed / publishes).toFixed(2)}
       
 Total: ${publishes}(${publish_chng}%)
 TRAC Locked: ${committed.toFixed(2)}(${commit_chng}%)
@@ -292,24 +302,24 @@ TRAC Locked: ${alliance_committed.toFixed(2)}(${alli_commit_chng}%)
       
 Nodes: 
 Alliance: ${alliance_nodes}(${alliance_nodes_percent.toFixed(
-            0
+      0
     )}%) | TraceLabs: ${TL_nodes}(${TL_nodes_percent.toFixed(
-            0
+      0
     )}%) | Solo: ${free_nodes}(${free_nodes_percent.toFixed(
-            0
+      0
     )}%) | Total: ${all_nodes} 
       
 Average Asks:  
 Alliance: ${alliance_ask.toFixed(4)} | TraceLabs: ${TL_ask.toFixed(
-            4
+      4
     )} | Solo: ${free_ask.toFixed(4)} | All: ${all_ask.toFixed(4)}
           
 Average Stakes: 
 Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
-            2
+      2
     )} | Solo: ${free_stake.toFixed(2)} | All: ${all_stake.toFixed(2)}
                  `
-    }
+  }
 
-    await bot.telegram.sendMessage(process.env.GROUP, msg)
-};
+  await bot.telegram.sendMessage(process.env.GROUP, msg)
+}

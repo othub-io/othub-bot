@@ -1,10 +1,6 @@
-const fs = require("fs");
+const fs = require('fs')
 require('dotenv').config()
-const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
-const queryTypes = require("../util/queryTypes");
-const bot_db = require('better-sqlite3')(process.env.BOT_DB, {
-  verbose: console.log
-})
+
 const {
   Telegraf,
   session,
@@ -13,16 +9,10 @@ const {
   BaseScene,
   Stage
 } = require('telegraf')
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.ALLIANCE_BOT_TOKEN)
 
+const keccak256 = require('keccak256')
 const mysql = require('mysql')
-const operationaldb2_connection = mysql.createConnection({
-  host: process.env.DBHOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  database: 'operationaldb2'
-})
-
 const otnodedb_connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
@@ -30,69 +20,166 @@ const otnodedb_connection = mysql.createConnection({
   database: 'otnodedb'
 })
 
+const op2_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'operationaldb2'
+})
+
+function executeOTNODEQuery (query, params) {
+  return new Promise((resolve, reject) => {
+    otnodedb_connection.query(query, params, (error, results) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(results)
+      }
+    })
+  })
+}
+
+async function getOTNODEData (query, params) {
+  try {
+    const results = await executeOTNODEQuery(query, params)
+    return results
+  } catch (error) {
+    console.error('Error executing query:', error)
+    throw error
+  }
+}
+
+function executeOP2Query (query, params) {
+  return new Promise((resolve, reject) => {
+    op2_connection.query(query, params, (error, results) => {
+      if (error) {
+        reject(error)
+      } else {
+        resolve(results)
+      }
+    })
+  })
+}
+
+async function getOP2Data (query, params) {
+  try {
+    const results = await executeOP2Query(query, params)
+    return results
+  } catch (error) {
+    console.error('Error executing query:', error)
+    throw error
+  }
+}
 
 module.exports = uptimeMonitor = async () => {
   console.log(`Running uptime monitor task.`)
 
-    let members;
-    query = 'SELECT * FROM alliance_members WHERE verified = ?'
-    await otnodedb_connection.query(query, [1],function (error, results, fields) {
-      if (error) throw error;
-      members = results;
-    });
+  query = `SELECT * FROM node_operators WHERE nodeGroup = ?`
+  params = ['Alliance']
+  allianceMembers = await getOTNODEData(query, params)
+    .then(results => {
+      //console.log('Query results:', results);
+      return results
+      // Use the results in your variable or perform further operations
+    })
+    .catch(error => {
+      console.error('Error retrieving data:', error)
+    })
 
-    let shard_nodes;
-    query = 'SELECT * from operationaldb2.shard'
-    await operationaldb2_connection.query(query, function (error, results, fields) {
-      if (error) throw error;
-      shard_nodes = results;
-    });
+  allNodes = []
+  for (i = 0; i < allianceMembers.length; ++i) {
+    allianceMember = allianceMembers[i]
+    admin_key = allianceMember.adminKey
 
-    for (i = 0; i < shard_nodes.length; ++i) {
-      shard_node = shard_nodes[i]
+    keccak256hash = keccak256(admin_key).toString('hex')
+    keccak256hash = '0x' + keccak256hash
+    like_keccak256hash = '%' + keccak256hash + '%'
 
-      member = members.filter(obj => {
-        return obj.node_id === shard_node.peer_id
+    query = `select networkId from v_nodes where createProfile_adminWallet=? and (removedWalletsHashes not like ? or removedWalletsHashes is null) UNION select nodeId from v_nodes where addedAdminWalletsHashes like ? and (removedWalletsHashes not like ? or removedWalletsHashes is null)  `
+    params = [
+      admin_key,
+      like_keccak256hash,
+      like_keccak256hash,
+      like_keccak256hash
+    ]
+    nodeIds = await getOTPData(query, params)
+      .then(results => {
+        //console.log('Query results:', results);
+        return results
+        // Use the results in your variable or perform further operations
+      })
+      .catch(error => {
+        console.error('Error retrieving data:', error)
       })
 
-      if (member != '') {
-        last_seen = Math.abs(shard_node.last_seen)
-        last_dialed = Math.abs(shard_node.last_dialed)
+    for (x = 0; x < nodeIds.length; ++x) {
+      nodeId = nodeIds[x]
+      node_obj = {
+        networkId: networkId,
+        telegramId: allianceMember.telegramID,
+        botToken: allianceMember.botToken
       }
+      allNodes.push(node_obj)
+    }
+  }
 
-      let is_down
-      if (last_seen) {
-        time_stamp = new Date()
-        time_stamp = Math.abs(time_stamp)
+  query = `SELECT * from operationaldb2.shard`
+  params = []
+  operationaldb2 = await getOP2Data(query, params)
+    .then(results => {
+      //console.log('Query results:', results);
+      return results
+      // Use the results in your variable or perform further operations
+    })
+    .catch(error => {
+      console.error('Error retrieving data:', error)
+    })
 
-        is_down =
-          last_dialed - last_seen > Number(process.env.UPTIME_FREQ)
-            ? 'true'
-            : 'false'
-      }
+  for (i = 0; i < operationaldb2.length; ++i) {
+    shardNode = operationaldb2[i]
 
-      if (is_down == 'true') {
-        tg_member = await bot.telegram.getChatMember(
-          process.env.GROUP,
-          member[0].tg_id
-        )
-        console.log(
-          `TG MEMBER ${JSON.stringify(
-            tg_member.user.username
-          )} has not been seen in over an hour.`
-        )
+    member = allNodes.filter(obj => {
+      return obj.networkId === shardNode.peer_id
+    })
 
-        if (member[0].bot_id) {
-          temp_bot = new Telegraf(member[0].bot_id)
+    if (member != '') {
+      last_seen = Math.abs(shardNode.last_seen)
+      last_dialed = Math.abs(shardNode.last_dialed)
+    }
 
-          msg = `@${tg_member.user.username}, 
-${shard_node.peer_id} has not been seen since ${shard_node.last_seen}.
-Last dial attempt was on ${shard_node.last_dialed}.`
+    let is_down
+    if (last_seen) {
+      time_stamp = new Date()
+      time_stamp = Math.abs(time_stamp)
 
-          await temp_bot.telegram.sendMessage(member[0].tg_id, msg)
-        } else {
-          console.log(`MEMBER DID NOT HAVE BOT TOKEN SET.`)
-        }
+      is_down =
+        last_dialed - last_seen > Number(process.env.UPTIME_FREQ)
+          ? 'true'
+          : 'false'
+    }
+
+    if (is_down == 'true') {
+      telegramInfo = await bot.telegram.getChatMember(
+        process.env.ALLIANCE_CHANNEL,
+        member.telegramId
+      )
+      console.log(
+        `TG MEMBER ${JSON.stringify(
+          telegramInfo.user.username
+        )} has not been seen in over an hour.`
+      )
+
+      if (member.botToken) {
+        member_bot = new Telegraf(member.botToken)
+
+        msg = `@${telegramInfo.user.username}, 
+${shardNode.peer_id} has not been seen since ${shardNode.last_seen}.
+Last dial attempt was on ${shardNode.last_dialed}.`
+
+        await member_bot.telegram.sendMessage(member.telegramId, msg)
+      } else {
+        console.log(`MEMBER DID NOT HAVE BOT TOKEN SET.`)
       }
     }
-};
+  }
+}
