@@ -1,14 +1,13 @@
 require('dotenv').config()
 
 const queryTypes = require('./src/util/queryTypes')
-const networkOverview = require("./src/modules/networkOverview.js");
-const uptimeMonitor = require("./src/modules/uptimeMonitor.js");
-const teamMonitor = require("./src/modules/teamMonitor.js");
-const askMonitor = require("./src/modules/askMonitor.js");
-const askReconciliation = require("./src/modules/askReconciliation.js");
-const myNodes = require("./src/modules/myNodes.js");
-const newMember = require("./src/modules/newMember.js");
-const closeProposals = require("./src/modules/closeProposals.js");
+const networkOverview = require('./src/modules/networkOverview.js')
+const uptimeMonitor = require('./src/modules/uptimeMonitor.js')
+const teamMonitor = require('./src/modules/teamMonitor.js')
+const askMonitor = require('./src/modules/askMonitor.js')
+const myNodes = require('./src/modules/myNodes.js')
+const newMember = require('./src/modules/newMember.js')
+const closeProposals = require('./src/modules/closeProposals.js')
 
 const {
   Telegraf,
@@ -29,7 +28,7 @@ const shell = require('shelljs')
 bot.use(session({ ttl: 10 }))
 
 bot.on('new_chat_members', async ctx => {
-  await newMember(ctx);
+  await newMember(ctx)
 })
 
 bot.command('mynodes', async ctx => {
@@ -49,47 +48,43 @@ bot.command('mynodes', async ctx => {
     return
   }
 
-  await myNodes(ctx);
-})
-
-cron.schedule(process.env.ASK_RECONCILIATION, async function () {
-  await askReconciliation();
+  await myNodes(ctx)
 })
 
 cron.schedule(process.env.ASK_MONITOR, async function () {
-  await askMonitor();
+  await askMonitor()
 })
 
 cron.schedule(process.env.TEAM_MONITOR, async function () {
-  await teamMonitor();
+  await teamMonitor()
 })
 
 cron.schedule(process.env.UPTIME_MONITOR, async function () {
-  await uptimeMonitor();
+  await uptimeMonitor()
 })
 
 cron.schedule(process.env.HOURLY, async function () {
-  await networkOverview(`hourly`);
+  await networkOverview(`hourly`)
 })
 
 cron.schedule(process.env.DAILY, async function () {
-  await networkOverview(`daily`);
+  await networkOverview(`daily`)
 })
 
 cron.schedule(process.env.WEEKLY, async function () {
-  await networkOverview(`weekly`);
+  await networkOverview(`weekly`)
 })
 
 cron.schedule(process.env.MONTHLY, async function () {
-  await networkOverview(`monthly`);
+  await networkOverview(`monthly`)
 })
 
 cron.schedule(process.env.YEARLY, async function () {
-  await networkOverview(`yearly`);
+  await networkOverview(`yearly`)
 })
 
 cron.schedule(process.env.ASK_PROPOSAL, async function () {
-  await closeProposals('ask');
+  await closeProposals('ask')
 })
 
 //-----------------------END---------------------------
