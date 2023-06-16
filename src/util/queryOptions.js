@@ -1,5 +1,5 @@
 require('dotenv').config()
 
 exports.getOTNode = ext => ({
-  path: `https://api.otnode.com/${ext}`
+  path: `https://api.othub.io/${ext}`
 })

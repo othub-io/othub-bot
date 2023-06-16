@@ -83,9 +83,9 @@ cron.schedule(process.env.YEARLY, async function () {
   await networkOverview(`yearly`)
 })
 
-cron.schedule(process.env.ASK_PROPOSAL, async function () {
-  await closeProposals('ask')
-})
+// cron.schedule(process.env.ASK_PROPOSAL, async function () {
+//   await closeProposals('ask')
+// })
 
 //-----------------------END---------------------------
 

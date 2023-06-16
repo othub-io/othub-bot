@@ -1,11 +1,15 @@
 require('dotenv').config()
-const db = require('better-sqlite3')(process.env.BOT_DB, {
-  verbose: console.log
+const mysql = require('mysql')
+const otnodedb_connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: 'otnodedb'
 })
 
 module.exports = spamCheck = async (command, telegram_id) => {
   //check for spam
-  const spam_result = await db
+  const spam_result = await otnodedb_connection
     .prepare('SELECT * FROM command_history WHERE command = ? AND tg_id = ?')
     .get(command, telegram_id)
 

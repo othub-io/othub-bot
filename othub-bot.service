@@ -1,0 +1,11 @@
+[Unit]
+Description=othub-bot
+
+[Service]
+Type=simple
+WorkingDirectory=/root/othub-bot
+ExecStart=/root/othub-bot/othub-bot.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

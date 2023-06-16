@@ -1,10 +1,6 @@
 const fs = require('fs')
 require('dotenv').config()
-const alliance_db = require('better-sqlite3')(process.env.ALLIANCE_DB)
 const queryTypes = require('../util/queryTypes')
-const bot_db = require('better-sqlite3')(process.env.BOT_DB, {
-  verbose: console.log
-})
 
 const {
   Telegraf,
