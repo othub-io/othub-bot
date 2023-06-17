@@ -9,7 +9,7 @@ const {
   BaseScene,
   Stage
 } = require('telegraf')
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.ALLIANCE_BOT_TOKEN)
 
 const keccak256 = require('keccak256')
 const mysql = require('mysql')
@@ -17,7 +17,7 @@ const otnodedb_connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: process.env.BOT_DB
+  database: 'otnodedb'
 })
 
 const op2_connection = mysql.createConnection({
@@ -160,7 +160,7 @@ module.exports = uptimeMonitor = async () => {
 
     if (is_down == 'true') {
       telegramInfo = await bot.telegram.getChatMember(
-        process.env.GROUP,
+        process.env.ALLIANCE_CHANNEL,
         member.telegramId
       )
       console.log(

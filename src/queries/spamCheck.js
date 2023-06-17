@@ -4,60 +4,65 @@ const otnodedb_connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: process.env.BOT_DB
+  database: 'otnodedb'
 })
 
-module.exports = spamCheck = (command, telegram_id) => {
-  return new Promise((resolve, reject) => {
-    otnodedb_connection.query('SELECT * FROM command_history WHERE command = ? AND tg_id = ?', [command, telegram_id], function (error, results, fields) {
-      if (error) {
-        reject(error);
-        return;
-      }
+module.exports = spamCheck = async (command, telegram_id) => {
+  //check for spam
+  const spam_result = await otnodedb_connection
+    .prepare('SELECT * FROM command_history WHERE command = ? AND tg_id = ?')
+    .get(command, telegram_id)
 
-      console.log(results);
+  console.log(spam_result)
 
-      if (!results || results.length === 0) {
-        console.log(`Visitor:${telegram_id} is allowed to ${command}.`)
-        let time_stamp = Date.now()
-        otnodedb_connection.query('INSERT INTO command_history (command, tg_id, date_last_used) VALUES (?,?,?)', [command, telegram_id, time_stamp], function (error, results, fields) {
-          if (error) {
-            reject(error);
-            return;
-          }
+  if (!spam_result) {
+    console.log(`Vistor:${telegram_id} is allow to ${command}.`)
 
-          resolve({ permission: "allow" });
-        });
-      } else {
-        let spam_result = results[0];
-        let expireDate = Number(spam_result.date_last_used)  // Parse to number here
-        console.log(expireDate)
+    //insert a new time stamp
+    time_stamp = new Date()
+    time_stamp = Math.abs(time_stamp)
+    await db
+      .prepare('INSERT INTO command_history VALUES (?,?,?)')
+      .run(command, telegram_id, time_stamp)
 
-        let currentDate = Date.now()  // Use Date.now() to get current time in milliseconds
-        console.log(currentDate)
+    return {
+      permission: `allow`
+    }
+  }
 
-        let timeDif = currentDate - expireDate  // Math.abs() not needed here
-        console.log(timeDif)
+  expireDate = new Date(spam_result.date_last_used)
+  expireDate = Math.abs(expireDate)
+  console.log(expireDate)
 
-        let cooldown = Number(process.env.MILLIMIN_COOLDOWN)
-        console.log(cooldown)
+  currentDate = new Date()
+  currentDate = Math.abs(currentDate)
+  console.log(currentDate)
 
-        if (timeDif > cooldown) {
-          let time_stamp = currentDate
-          otnodedb_connection.query('UPDATE command_history SET date_last_used = ? WHERE tg_id = ? AND command = ?', [time_stamp, telegram_id, command], function (error, results, fields) {
-            if (error) {
-              reject(error);
-              return;
-            }
-            console.log(`Command: ${command} is allowed from member ${telegram_id}`)
-            resolve({ permission: "allow" });
-          });
-        } else {
-          let remaining = cooldown - timeDif
-          console.log(`Command: ${command} was blocked. Time remaining: ${remaining} milliseconds.`)
-          resolve({ permission: "block" });
-        }
-      }
-    });
-  });
+  timeDif = Math.abs(currentDate - expireDate)
+  console.log(timeDif)
+
+  cooldown = Number(process.env.MILLIMIN_COOLDOWN)
+  console.log(cooldown)
+
+  if (timeDif > cooldown) {
+    permission = `allow`
+    console.log(`Command: ${command} is allowed from member ${telegram_id}`)
+
+    //insert a new time stamp
+    time_stamp = new Date()
+    time_stamp = Math.abs(time_stamp)
+    await db
+      .prepare('UPDATE command_history SET date_last_used = ? WHERE tg_id = ?')
+      .run(time_stamp, telegram_id)
+  } else {
+    permission = `block`
+    remaining = cooldown - timeDif
+    console.log(
+      `Command: ${command} was blocked. Time remaining: ${remaining} milliseconds.`
+    )
+  }
+
+  return {
+    permission: permission
+  }
 }
