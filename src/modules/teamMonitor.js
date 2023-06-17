@@ -9,7 +9,7 @@ const {
   BaseScene,
   Stage
 } = require('telegraf')
-const bot = new Telegraf(process.env.ALLIANCE_BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN)
 const mysql = require('mysql')
 
 const otnodedb_connection = mysql.createConnection({
@@ -168,6 +168,6 @@ module.exports = teamMonitor = async () => {
   }
 
   async function tellBot (msg) {
-    bot.telegram.sendMessage(process.env.ALLIANCE_CHANNEL, msg)
+    bot.telegram.sendMessage(process.env.GROUP, msg)
   }
 }

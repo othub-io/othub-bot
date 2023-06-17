@@ -276,7 +276,7 @@ TRAC Locked: ${alliance_committed.toFixed(2)}(${alli_commit_chng}%)
 
     msg = `${timeFrame} Overview
 
-Alliance Ask: ${process.env.ALLIANCE_RANGE}
+Alliance Ask: ${process.env.ALLIANCE_MIN}
 Average Ask: ${(total_ask / all_nodes).toFixed(3)}
       
 Assets:

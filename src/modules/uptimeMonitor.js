@@ -9,7 +9,7 @@ const {
   BaseScene,
   Stage
 } = require('telegraf')
-const bot = new Telegraf(process.env.ALLIANCE_BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const keccak256 = require('keccak256')
 const mysql = require('mysql')
@@ -160,7 +160,7 @@ module.exports = uptimeMonitor = async () => {
 
     if (is_down == 'true') {
       telegramInfo = await bot.telegram.getChatMember(
-        process.env.ALLIANCE_CHANNEL,
+        process.env.GROUP,
         member.telegramId
       )
       console.log(

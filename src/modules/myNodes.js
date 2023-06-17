@@ -9,7 +9,7 @@ const {
   BaseScene,
   Stage
 } = require('telegraf')
-const bot = new Telegraf(process.env.ALLIANCE_BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const keccak256 = require('keccak256')
 const mysql = require('mysql')
@@ -17,14 +17,14 @@ const otnodedb_connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: 'otnodedb'
+  database: process.env.BOT_DB
 })
 
 const otp_connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: 'otp'
+  database: process.env.SYNC_DB
 })
 
 function executeOTNODEQuery (query, params) {
@@ -216,7 +216,7 @@ module.exports = myNodes = async ctx => {
     Overall Performance: ${performance}
         `
 
-    await bot.telegram.sendMessage(process.env.ALLIANCE_CHANNEL, msg)
+    await bot.telegram.sendMessage(process.env.GROUP, msg)
     await ctx.deleteMessage()
   } catch (e) {
     console.log(e)
