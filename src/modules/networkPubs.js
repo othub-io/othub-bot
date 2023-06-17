@@ -52,7 +52,7 @@ async function fetchAndSendHourlyPubs(ctx) {
       const avgEpochs = parseInt(lastHourStats.avgEpochsNumber);
   
       // Generate the formatted message
-      const message = `Total pubs: Hourly stats:\n${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+      const message = `Hourly Stats\nTotal pubs: \n${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
   
       // Send the message as a reply
       ctx.reply(message);
@@ -79,7 +79,7 @@ async function fetchAndSendHourlyPubs(ctx) {
       const avgEpochs = parseInt(last24HourStats.avgEpochsNumber);
   
       // Generate the formatted message
-      const message = `Total pubs: Daily stats:\n${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+      const message = `Daily Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
   
       // Send the message as a reply
       ctx.reply(message);
