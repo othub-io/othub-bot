@@ -24,7 +24,7 @@ const otnodedb_connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: 'otnodedb'
+  database: process.env.BOT_DB
 })
 
 const team_nodes = [
@@ -276,7 +276,7 @@ TRAC Locked: ${alliance_committed.toFixed(2)}(${alli_commit_chng}%)
 
     msg = `${timeFrame} Overview
 
-Alliance Ask: ${process.env.ALLIANCE_RANGE}
+Alliance Ask: ${process.env.ALLIANCE_MIN}
 Average Ask: ${(total_ask / all_nodes).toFixed(3)}
       
 Assets:

@@ -1,11 +1,13 @@
 [Unit]
 Description=othub-bot
+After=network.target
 
 [Service]
-Type=simple
-WorkingDirectory=/root/othub-bot
-ExecStart=/root/othub-bot/othub-bot.sh
-Restart=on-failure
+ExecStart=/usr/bin/node /root/othub-bot/bot.js
+WorkingDirectory=/root/othub-bot/
+User=root
+Environment=NODE_ENV=production
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
