@@ -17,7 +17,7 @@ const otnodedb_connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: 'otnodedb'
+  database: process.env.BOT_DB
 })
 
 const op2_connection = mysql.createConnection({
