@@ -6,7 +6,7 @@ const pool = mysql.createPool({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: 'otp',
+  database: process.env.SYNC_DB,
 });
 
 // Function to retrieve the last row from the v_pubs_stats_last1h table
