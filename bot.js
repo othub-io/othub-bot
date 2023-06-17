@@ -8,6 +8,7 @@ const askMonitor = require('./src/modules/askMonitor.js')
 const myNodes = require('./src/modules/myNodes.js')
 const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
+const networkPubs = require('./src/modules/networkPubs.js');
 
 const {
   Telegraf,
@@ -50,6 +51,47 @@ bot.command('mynodes', async ctx => {
 
   await myNodes(ctx)
 })
+
+bot.command('hourlypubs', async ctx => {
+  command = 'hourlypubs'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  await networkPubs.fetchAndSendHourlyPubs(ctx)
+})
+
+bot.command('dailypubs', async ctx => {
+  command = 'dailypubs'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  await networkPubs.fetchAndSendDailyPubs(ctx)
+})
+
 
 cron.schedule(process.env.ASK_MONITOR, async function () {
   await askMonitor()
