@@ -10,6 +10,7 @@ const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js')
 const { commandsHandler } = require('./src/modules/systemCommands.js')
+const commandList = require('./src/modules/commandList.js')
 
 const {
   Telegraf,
@@ -94,6 +95,16 @@ bot.command('dailypubs', async ctx => {
 })
 
 commandsHandler(bot);
+
+bot.command('commands', (ctx) => {
+  let message = 'Here are the available commands:\n\n';
+
+  for (const [command, description] of Object.entries(commandList)) {
+    message += `/${command} - ${description}\n`;
+  }
+
+  ctx.reply(message);
+});
 
 
 // cron.schedule(process.env.ASK_MONITOR, async function () {
