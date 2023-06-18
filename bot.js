@@ -10,7 +10,8 @@ const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js')
 const { commandsHandler } = require('./src/modules/systemCommands.js')
-const { adminCommands, generalCommands } = require('./src/modules/commandList.js')
+const adminCommandList = require('./src/modules/adminCommandList.js')
+const generalCommandList = require('./src/modules/generalCommandList.js')
 
 const {
   Telegraf,
@@ -97,11 +98,24 @@ bot.command('dailypubs', async ctx => {
 commandsHandler(bot);
 
 bot.command('commands', (ctx) => {
-  let message = 'Here are the available commands:\n\n';
+  let message = 'Here are the general commands:\n\n';
 
-  const commandList = isAdmin(ctx) ? { ...generalCommands, ...adminCommands } : generalCommands;
+  for (const [command, description] of Object.entries(generalCommandList)) {
+    message += `/${command} - ${description}\n`;
+  }
 
-  for (const [command, description] of Object.entries(commandList)) {
+  ctx.reply(message);
+});
+
+bot.command('admincommands', (ctx) => {
+  if (!isAdmin(ctx)) {
+    ctx.reply('You are not authorized to view admin commands.');
+    return;
+  }
+
+  let message = 'Here are the admin commands:\n\n';
+
+  for (const [command, description] of Object.entries(adminCommandList)) {
     message += `/${command} - ${description}\n`;
   }
 
