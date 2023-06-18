@@ -19,7 +19,7 @@ const commands = {
   'othubbotrestart': 'systemctl restart othub-bot',
   'othubbotstop': 'systemctl stop othub-bot',
   'othubbotstart': 'systemctl start othub-bot',
-  'othubbotlogs': 'journalctl -u othub-bot --output cat | tail -n 100',
+  'othubbotlogs': 'journalctl -u othub-bot --output cat -n 100',
   'otpsyncrestart': 'systemctl restart otp-sync',
   'otpsyncstop': 'systemctl stop otp-sync',
   'otpsyncstart': 'systemctl start otp-sync',
