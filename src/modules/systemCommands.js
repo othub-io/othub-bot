@@ -69,20 +69,27 @@ async function commandsHandler(bot) {
 }
 
 function splitLogsIntoMessages(logs) {
+  const lines = logs.split('\n');
+  const last100Lines = lines.slice(-100);
+  const trimmedLogs = last100Lines.join('\n');
+  
   const maxMessageLength = 4096; // Maximum message length allowed by Telegram
-  const trimmedLogs = logs.substr(-100 * maxMessageLength); // Keep only the last 100 entries
   const messages = [];
   let remainingLogs = trimmedLogs;
+  
   while (remainingLogs.length > maxMessageLength) {
     const message = remainingLogs.substr(0, maxMessageLength);
     messages.push(message);
     remainingLogs = remainingLogs.substr(maxMessageLength);
   }
+  
   if (remainingLogs.length > 0) {
     messages.push(remainingLogs);
   }
+  
   return messages;
 }
+
 
 module.exports = {
   commandsHandler,
