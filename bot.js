@@ -122,37 +122,37 @@ bot.command('admincommands', (ctx) => {
   ctx.reply(message);
 });
 
-// cron.schedule(process.env.ASK_MONITOR, async function () {
-//   await askMonitor()
-// })
+cron.schedule(process.env.ASK_MONITOR, async function () {
+  await askMonitor()
+})
 
-// cron.schedule(process.env.TEAM_MONITOR, async function () {
-//   await teamMonitor()
-// })
+cron.schedule(process.env.TEAM_MONITOR, async function () {
+  await teamMonitor()
+})
 
-// cron.schedule(process.env.UPTIME_MONITOR, async function () {
-//   await uptimeMonitor()
-// })
+cron.schedule(process.env.UPTIME_MONITOR, async function () {
+  await uptimeMonitor()
+})
 
-// cron.schedule(process.env.HOURLY, async function () {
-//   await networkOverview(`hourly`)
-// })
+cron.schedule(process.env.HOURLY, async function () {
+  await networkOverview(`hourly`)
+})
 
-// cron.schedule(process.env.DAILY, async function () {
-//   await networkOverview(`daily`)
-// })
+cron.schedule(process.env.DAILY, async function () {
+  await networkOverview(`daily`)
+})
 
-// cron.schedule(process.env.WEEKLY, async function () {
-//   await networkOverview(`weekly`)
-// })
+cron.schedule(process.env.WEEKLY, async function () {
+  await networkOverview(`weekly`)
+})
 
-// cron.schedule(process.env.MONTHLY, async function () {
-//   await networkOverview(`monthly`)
-// })
+cron.schedule(process.env.MONTHLY, async function () {
+  await networkOverview(`monthly`)
+})
 
-// cron.schedule(process.env.YEARLY, async function () {
-//   await networkOverview(`yearly`)
-// })
+cron.schedule(process.env.YEARLY, async function () {
+  await networkOverview(`yearly`)
+})
 
 // cron.schedule(process.env.ASK_PROPOSAL, async function () {
 //   await closeProposals('ask')
