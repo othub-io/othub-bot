@@ -19,7 +19,7 @@ const commands = {
   'othubbotrestart': 'systemctl restart othub-bot',
   'othubbotstop': 'systemctl stop othub-bot',
   'othubbotstart': 'systemctl start othub-bot',
-  'othubbotlogs': 'journalctl -u othub-bot --output cat -n 100',
+  'othubbotlogs': 'journalctl -u othub-bot --output short-iso -n 100',
   'otpsyncrestart': 'systemctl restart otp-sync',
   'otpsyncstop': 'systemctl stop otp-sync',
   'otpsyncstart': 'systemctl start otp-sync',
@@ -44,14 +44,14 @@ async function commandsHandler(bot) {
       if (isAdmin(ctx)) {
         exec(systemCommand, (error, stdout, stderr) => {
           if (error) {
-            ctx.reply(`There was an error executing the command: ${error.message}`);
+            ctx.reply(`error: ${error.message}`);
             return;
           }
           if (stderr) {
             ctx.reply(`There was an error executing the command: ${stderr}`);
             return;
           }
-          ctx.reply(`Command execution successful:\n\n${stdout}`);
+          ctx.reply(`Command execution successful: ${stdout}`);
         });
       } else {
         await ctx.reply('You are not authorized to execute this command.');
@@ -59,7 +59,6 @@ async function commandsHandler(bot) {
     });
   }
 }
-
 
 module.exports = {
   commandsHandler,
