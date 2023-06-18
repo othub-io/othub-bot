@@ -22,7 +22,6 @@ const commands = {
   'othubbotlogs': {
     command: 'journalctl',
     args: ['-u', 'othub-bot','--output', 'cat', '-n', '200'],
-    chunkSize: 2000,
   },
   'otpsyncrestart': 'systemctl restart otp-sync',
   'otpsyncstop': 'systemctl stop otp-sync',
