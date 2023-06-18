@@ -19,7 +19,7 @@ const commands = {
   'othubbotrestart': 'systemctl restart othub-bot',
   'othubbotstop': 'systemctl stop othub-bot',
   'othubbotstart': 'systemctl start othub-bot',
-  'othubbotlogs': 'sh -c "journalctl -u othub-bot --output cat | tail -n 200"',
+  'othubbotlogs': 'journalctl -u othub-bot --output cat -n 100',
   'otpsyncrestart': 'systemctl restart otp-sync',
   'otpsyncstop': 'systemctl stop otp-sync',
   'otpsyncstart': 'systemctl start otp-sync',
@@ -52,8 +52,7 @@ async function commandsHandler(bot) {
             return;
           }
           if (commandName === 'othubbotlogs') {
-            const logs = stdout.trim();
-            ctx.reply(`Latest 200 entries from othub-bot logs:\n\n${logs}`);
+            ctx.replyWithMarkdown('Logs for othub-bot:\n\n' + '```\n' + stdout + '\n```');
           } else {
             ctx.reply(`Command execution successful: ${stdout}`);
           }
@@ -64,6 +63,7 @@ async function commandsHandler(bot) {
     });
   }
 }
+
 
 module.exports = {
   commandsHandler,
