@@ -44,6 +44,10 @@ async function commandsHandler(bot) {
   for (const [commandName, systemCommand] of Object.entries(commands)) {
     bot.command(commandName, async (ctx) => {
       if (isAdmin(ctx)) {
+        if (commandName === 'othubbotrestart' || commandName === 'othubbotstop') {
+          // Reply first before restarting or stopping the service
+          await ctx.reply(`Command ${commandName} is being executed.`);
+        }
         const parts = systemCommand.split(' ');
         const cmd = parts[0];
         const args = parts.slice(1);
@@ -65,7 +69,10 @@ async function commandsHandler(bot) {
             ctx.reply(`Command failed with exit code ${code}: ${stderr}`);
             return;
           }
-          ctx.reply(`Command execution successful: ${stdout}`);
+          // Don't send success message for restart or stop commands as they might have killed the process already
+          if (commandName !== 'othubbotrestart' && commandName !== 'othubbotstop') {
+            ctx.reply(`Command execution successful: ${stdout}`);
+          }
         });
 
         childProcess.on('error', (error) => {
@@ -81,3 +88,4 @@ async function commandsHandler(bot) {
 module.exports = {
   commandsHandler,
 };
+
