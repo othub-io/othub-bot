@@ -32,13 +32,7 @@ Below is the list of essential parameters:
 Set up your MySQL database
 ```
 apt-get install mysql-server -y
-mysql
-CREATE DATABASE botdb;
-CREATE TABLE botdb.command_history (
-    tg_id varchar(255),
-    command varchar(255),
-    date_last_used varchar(255)
-);
+.~/othub-bot/othub-bot-create-db.sh
 ```
 Copy the service file and start the bot
 ```
