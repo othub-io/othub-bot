@@ -43,19 +43,25 @@ const commands = {
 };
 
 async function commandsHandler(bot) {
-  for (const [commandName, systemCommand] of Object.entries(commands)) {
+  for (const [commandName, commandConfig] of Object.entries(commands)) {
     bot.command(commandName, async (ctx) => {
       if (isAdmin(ctx)) {
-        exec(systemCommand, (error, stdout, stderr) => {
-          if (error) {
-            ctx.reply(`error: ${error.message}`);
-            return;
+        const { command, args, chunkSize } = commandConfig;
+        const childProcess = exec(`${command} ${args.join(' ')}`);
+
+        let output = '';
+        childProcess.stdout.on('data', (data) => {
+          output += data;
+          if (output.length >= chunkSize) {
+            ctx.reply(output);
+            output = '';
           }
-          if (stderr) {
-            ctx.reply(`There was an error executing the command: ${stderr}`);
-            return;
+        });
+
+        childProcess.on('close', () => {
+          if (output.length > 0) {
+            ctx.reply(output);
           }
-          ctx.reply(`Command execution successful: ${stdout}`);
         });
       } else {
         await ctx.reply('You are not authorized to execute this command.');
@@ -63,6 +69,7 @@ async function commandsHandler(bot) {
     });
   }
 }
+
 
 module.exports = {
   commandsHandler,
