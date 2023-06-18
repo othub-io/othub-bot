@@ -10,7 +10,7 @@ const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js')
 const { commandsHandler } = require('./src/modules/systemCommands.js')
-const commandList = require('./src/modules/commandList.js')
+const { adminCommands, generalCommands } = require('./src/modules/commandList.js')
 
 const {
   Telegraf,
@@ -97,10 +97,21 @@ bot.command('dailypubs', async ctx => {
 commandsHandler(bot);
 
 bot.command('commands', (ctx) => {
-  let message = 'Here are the available commands:\n\n';
+  let message = '';
 
-  for (const [command, description] of Object.entries(commandList)) {
+  // General commands
+  message += 'General Commands:\n\n';
+  for (const [command, description] of Object.entries(generalCommands)) {
     message += `/${command} - ${description}\n`;
+  }
+
+  // Check if the user is an admin
+  if (isAdmin(ctx)) {
+    // Admin commands
+    message += '\nAdmin Commands:\n\n';
+    for (const [command, description] of Object.entries(adminCommands)) {
+      message += `/${command} - ${description}\n`;
+    }
   }
 
   ctx.reply(message);

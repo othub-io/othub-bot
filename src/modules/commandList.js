@@ -1,4 +1,4 @@
-module.exports = {
+  exports.adminCommands = {
     'otnoderestart': 'Restart the otnode service',
     'otnodestop': 'Stop the otnode service',
     'otnodestart': 'Start the otnode service',
@@ -27,5 +27,11 @@ module.exports = {
     'otnodeappstop': 'Stop the otnode-app service',
     'otnodeappstart': 'Start the otnode-app service',
     'otnodeapplogs': 'Show the last 100 entries of the otnode-app service logs',
+  };
+  
+  exports.generalCommands = {
+    'dailypubs': 'Show network stats for the last day',
+    'hourlypubs': 'Show network stats for the last hour',
+    'mynodes' : 'Show your node stats'
   };
   
