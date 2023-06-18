@@ -44,14 +44,14 @@ async function commandsHandler(bot) {
       if (isAdmin(ctx)) {
         exec(systemCommand, (error, stdout, stderr) => {
           if (error) {
-            ctx.reply(`error: ${error.message}`);
+            ctx.reply(`There was an error executing the command: ${error.message}`);
             return;
           }
           if (stderr) {
             ctx.reply(`There was an error executing the command: ${stderr}`);
             return;
           }
-          ctx.reply(`Command execution successful: ${stdout}`);
+          ctx.reply(`Command execution successful:\n\n${stdout}`);
         });
       } else {
         await ctx.reply('You are not authorized to execute this command.');
@@ -59,6 +59,7 @@ async function commandsHandler(bot) {
     });
   }
 }
+
 
 module.exports = {
   commandsHandler,
