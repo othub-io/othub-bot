@@ -9,6 +9,7 @@ const myNodes = require('./src/modules/myNodes.js')
 const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js');
+const systemCommands = require('./src/modules/systemCommands.js');
 
 const {
   Telegraf,
@@ -92,6 +93,7 @@ bot.command('dailypubs', async ctx => {
   await networkPubs.fetchAndSendDailyPubs(ctx)
 })
 
+systemCommands.commandsHandler(bot);
 
 cron.schedule(process.env.ASK_MONITOR, async function () {
   await askMonitor()
