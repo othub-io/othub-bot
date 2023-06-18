@@ -93,7 +93,24 @@ bot.command('dailypubs', async ctx => {
   await networkPubs.fetchAndSendDailyPubs(ctx)
 })
 
-systemCommands.commandsHandler(bot);
+const commandsPattern = /^\/(otnode-restart|otnode-stop|otnode-start|otnode-logs|otnode-config|otnode-restart2|otnode-stop2|otnode-start2|otnode-logs2|otnode-config2|othub-bot-restart|othub-bot-stop|othub-bot-start|othub-bot-logs|othub-bot-config|otp-sync-restart|otp-sync-stop|otp-sync-start|otp-sync-logs|otp-sync2-restart|otp-sync2-stop|otp-sync2-start|otp-sync2-logs|otnode-api-restart|otnode-api-stop|otnode-api-start|otnode-api-logs|otnode-app-restart|otnode-app-stop|otnode-app-start|otnode-app-logs)$/
+
+bot.hears(commandsPattern, async (ctx) => {
+  const chatId = ctx.message.chat.id;
+  const senderId = ctx.message.from.id;
+  if(await isAdmin(chatId, senderId)){
+    const commandText = ctx.message.text;
+    const command = commandText.slice(1); // remove the '/' at the start
+    if(commands[command]) {
+      await handleCommand(commands[command]);
+      ctx.reply(`Executed ${commandText}`);
+    } else {
+      ctx.reply('Command not found');
+    }
+  }
+});
+
+
 
 cron.schedule(process.env.ASK_MONITOR, async function () {
   await askMonitor()
