@@ -19,7 +19,7 @@ const commands = {
   'othubbotrestart': 'systemctl restart othub-bot',
   'othubbotstop': 'systemctl stop othub-bot',
   'othubbotstart': 'systemctl start othub-bot',
-  'othubbotlogs': 'journalctl -u othub-bot --output short-iso -n 100',
+  'othubbotlogs': 'sh -c "journalctl -u othub-bot --output cat | tail -n 200"',
   'otpsyncrestart': 'systemctl restart otp-sync',
   'otpsyncstop': 'systemctl stop otp-sync',
   'otpsyncstart': 'systemctl start otp-sync',
@@ -51,7 +51,12 @@ async function commandsHandler(bot) {
             ctx.reply(`There was an error executing the command: ${stderr}`);
             return;
           }
-          ctx.reply(`Command execution successful:\n\n${stdout}`);
+          if (commandName === 'othubbotlogs') {
+            const logs = stdout.trim();
+            ctx.reply(`Latest 200 entries from othub-bot logs:\n\n${logs}`);
+          } else {
+            ctx.reply(`Command execution successful: ${stdout}`);
+          }
         });
       } else {
         await ctx.reply('You are not authorized to execute this command.');
@@ -59,7 +64,6 @@ async function commandsHandler(bot) {
     });
   }
 }
-
 
 module.exports = {
   commandsHandler,
