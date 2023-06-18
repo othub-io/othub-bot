@@ -22,7 +22,7 @@ const commands = {
   'othubbotlogs': {
     command: 'journalctl',
     args: ['-u', 'othub-bot', '--output', 'cat'],
-    chunkSize: 2000, // Maximum size of each chunk in characters
+    chunkSize: 1000,
   },
   'otpsyncrestart': 'systemctl restart otp-sync',
   'otpsyncstop': 'systemctl stop otp-sync',
