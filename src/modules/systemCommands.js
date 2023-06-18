@@ -92,5 +92,6 @@ async function commandsHandler(bot) {
 
 module.exports = {
   commandsHandler,
+  isAdmin,
 };
 
