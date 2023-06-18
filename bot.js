@@ -93,7 +93,7 @@ bot.command('dailypubs', async ctx => {
   await networkPubs.fetchAndSendDailyPubs(ctx)
 })
 
-const commandsPattern = /^\/(otnode-restart|otnode-stop|otnode-start|otnode-logs|otnode-restart2|otnode-stop2|otnode-start2|otnode-logs2|othub-bot-restart|othub-bot-stop|othub-bot-start|othub-bot-logs|otp-sync-restart|otp-sync-stop|otp-sync-start|otp-sync-logs|otp-sync2-restart|otp-sync2-stop|otp-sync2-start|otp-sync2-logs|otnode-api-restart|otnode-api-stop|otnode-api-start|otnode-api-logs|otnode-app-restart|otnode-app-stop|otnode-app-start|otnode-app-logs)$/;
+const commandsPattern = /^\/(otnode-restart|otnode-stop|otnode-start|otnode-logs|otnode-restart2|otnode-stop2|otnode-start2|otnode-logs2|othubbotrestart|othubbotstop|othubbotstart|othubbotlogs|otp-sync-restart|otp-sync-stop|otp-sync-start|otp-sync-logs|otp-sync2-restart|otp-sync2-stop|otp-sync2-start|otp-sync2-logs|otnode-api-restart|otnode-api-stop|otnode-api-start|otnode-api-logs|otnode-app-restart|otnode-app-stop|otnode-app-start|otnode-app-logs)$/;
 
 bot.hears(commandsPattern, async (ctx) => {
   const chatId = ctx.message.chat.id;
