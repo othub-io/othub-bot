@@ -33,31 +33,23 @@ module.exports = spamCheck = async (command, telegram_id) => {
   query = 'SELECT * FROM command_history WHERE command = ? AND tg_id = ?'
   params = [command, telegram_id]
   commandRecord = await getOTNODEData(query, params)
-    .then(results => {
-      //console.log('Query results:', results);
-      return results
-      // Use the results in your variable or perform further operations
-    })
     .catch(error => {
       console.error('Error retrieving data:', error)
     })
 
-  console.log(commandRecord)
-  if (commandRecord == '') {
-    console.log(`Vistor:${telegram_id} is allowed to ${command}.`)
+  if (!commandRecord.length) {
+    console.log(`Visitor:${telegram_id} is allowed to ${command}.`)
 
     //insert a new time stamp
     time_stamp = new Date()
     time_stamp = Math.abs(time_stamp)
 
-    query = 'INSERT INTO command_history VALUES (?,?,?)'
-    await otnodedb_connection.query(
-      query,
-      [telegram_id, command, time_stamp],
-      function (error, results, fields) {
-        if (error) throw error
-      }
-    )
+    query = 'INSERT INTO command_history (tg_id, command, date_last_used) VALUES (?,?,?)'
+    params = [telegram_id, command, time_stamp]
+    await executeOTNODEQuery(query, params)
+      .catch(error => {
+        console.error('Error inserting data:', error)
+      })
 
     return {
       permission: `allow`
@@ -66,7 +58,6 @@ module.exports = spamCheck = async (command, telegram_id) => {
 
   expireDate = commandRecord[0].date_last_used
   currentDate = Math.abs(new Date())
-
   timeDif = Math.abs(currentDate - expireDate)
   cooldown = Number(process.env.COOLDOWN)
 
@@ -82,16 +73,11 @@ module.exports = spamCheck = async (command, telegram_id) => {
     time_stamp = new Date()
     time_stamp = Math.abs(time_stamp)
 
-    query = 'UPDATE command_history SET date_last_used = ? WHERE tg_id = ?'
-    params = [time_stamp, telegram_id]
-    commandRecord = await getOTNODEData(query, params)
-      .then(results => {
-        //console.log('Query results:', results);
-        return results
-        // Use the results in your variable or perform further operations
-      })
+    query = 'UPDATE command_history SET date_last_used = ? WHERE tg_id = ? AND command = ?'
+    params = [time_stamp, telegram_id, command]
+    await executeOTNODEQuery(query, params)
       .catch(error => {
-        console.error('Error retrieving data:', error)
+        console.error('Error updating data:', error)
       })
   }
 
@@ -101,3 +87,4 @@ module.exports = spamCheck = async (command, telegram_id) => {
     permission: permission
   }
 }
+
