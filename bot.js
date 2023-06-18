@@ -9,7 +9,7 @@ const myNodes = require('./src/modules/myNodes.js')
 const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js')
-const { commandsHandler } = require('./src/modules/systemCommands.js')
+const { isAdmin , commandsHandler } = require('./src/modules/systemCommands.js')
 const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
 
