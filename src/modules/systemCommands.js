@@ -52,7 +52,7 @@ async function commandsHandler(bot) {
             return;
           }
           if (commandName === 'othubbotlogs') {
-            ctx.replyWithMarkdown('Logs for othub-bot:\n\n' + '```\n' + stdout + '\n```');
+            ctx.replyWithCode('Logs for othub-bot:\n\n' + stdout);
           } else {
             ctx.reply(`Command execution successful: ${stdout}`);
           }
@@ -63,7 +63,6 @@ async function commandsHandler(bot) {
     });
   }
 }
-
 
 module.exports = {
   commandsHandler,
