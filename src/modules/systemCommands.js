@@ -1,4 +1,11 @@
-const exec = require('child_process').exec;
+const { exec } = require('child_process');
+
+const admins = process.env.ADMIN_GROUP.split(',');
+
+function isAdmin(ctx) {
+  const userId = ctx.message.from.id.toString();
+  return admins.includes(userId);
+}
 
 const commands = {
   'otnode-restart': 'systemctl restart otnode.service',
@@ -31,26 +38,29 @@ const commands = {
   'otnode-app-logs': 'journalctl -u otnode-app --output cat -n 100',
 };
 
-const handleCommand = (command) => {
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.warn(error);
-        reject(error);
+async function commandsHandler(bot) {
+  for (const [commandName, systemCommand] of Object.entries(commands)) {
+    bot.command(commandName, async (ctx) => {
+      if (isAdmin(ctx)) {
+        exec(systemCommand, (error, stdout, stderr) => {
+          if (error) {
+            ctx.reply(`error: ${error.message}`);
+            return;
+          }
+          if (stderr) {
+            ctx.reply(`stderr: ${stderr}`);
+            return;
+          }
+          ctx.reply(`stdout: ${stdout}`);
+        });
+      } else {
+        await ctx.reply('You are not authorized to execute this command.');
       }
-      resolve(stdout? stdout : stderr);
     });
-  });
-};
-
-async function isAdmin(ctx) {
-  const admins = process.env.ADMIN_GROUP.split(',');
-  const userId = ctx.message.from.id.toString();
-  return admins.includes(userId);
+  }
 }
 
 module.exports = {
-  commands,
-  handleCommand,
-  isAdmin
+  isAdmin,
+  commandsHandler,
 };
