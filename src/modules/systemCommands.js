@@ -19,7 +19,7 @@ const commands = {
   'othubbotrestart': 'systemctl restart othub-bot',
   'othubbotstop': 'systemctl stop othub-bot',
   'othubbotstart': 'systemctl start othub-bot',
-  'othubbotlogs': 'journalctl -u othub-bot --output cat -n 100',
+  'othubbotlogs': 'journalctl -u othub-bot --output cat -n 20',
   'otpsyncrestart': 'systemctl restart otp-sync',
   'otpsyncstop': 'systemctl stop otp-sync',
   'otpsyncstart': 'systemctl start otp-sync',
@@ -42,24 +42,32 @@ async function commandsHandler(bot) {
   for (const [commandName, systemCommand] of Object.entries(commands)) {
     bot.command(commandName, async (ctx) => {
       if (isAdmin(ctx)) {
-        const process = exec(systemCommand);
+        const parts = systemCommand.split(' ');
+        const cmd = parts[0];
+        const args = parts.slice(1);
+        const childProcess = spawn(cmd, args);
 
-        let logs = '';
-        process.stdout.on('data', (data) => {
-          logs += data;
+        let stdout = '';
+        let stderr = '';
+
+        childProcess.stdout.on('data', (data) => {
+          stdout += data;
         });
 
-        process.stderr.on('data', (data) => {
-          logs += data;
+        childProcess.stderr.on('data', (data) => {
+          stderr += data;
         });
 
-        process.on('close', () => {
-          const logMessages = splitLogsIntoMessages(logs);
-          logMessages.forEach((message, index) => {
-            setTimeout(() => {
-              ctx.reply(message);
-            }, index * 1000); // Delay each message to avoid flooding the chat
-          });
+        childProcess.on('close', (code) => {
+          if (code !== 0) {
+            ctx.reply(`Command failed with exit code ${code}: ${stderr}`);
+            return;
+          }
+          ctx.reply(`Command execution successful: ${stdout}`);
+        });
+
+        childProcess.on('error', (error) => {
+          ctx.reply(`Command failed with error: ${error.message}`);
         });
       } else {
         await ctx.reply('You are not authorized to execute this command.');
@@ -67,29 +75,6 @@ async function commandsHandler(bot) {
     });
   }
 }
-
-function splitLogsIntoMessages(logs) {
-  const lines = logs.split('\n');
-  const last100Lines = lines.slice(-100);
-  const trimmedLogs = last100Lines.join('\n');
-  
-  const maxMessageLength = 4096; // Maximum message length allowed by Telegram
-  const messages = [];
-  let remainingLogs = trimmedLogs;
-  
-  while (remainingLogs.length > maxMessageLength) {
-    const message = remainingLogs.substr(0, maxMessageLength);
-    messages.push(message);
-    remainingLogs = remainingLogs.substr(maxMessageLength);
-  }
-  
-  if (remainingLogs.length > 0) {
-    messages.push(remainingLogs);
-  }
-  
-  return messages;
-}
-
 
 module.exports = {
   commandsHandler,
