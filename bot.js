@@ -97,21 +97,12 @@ bot.command('dailypubs', async ctx => {
 commandsHandler(bot);
 
 bot.command('commands', (ctx) => {
-  let message = '';
+  let message = 'Here are the available commands:\n\n';
 
-  // General commands
-  message += 'General Commands:\n\n';
-  for (const [command, description] of Object.entries(generalCommands)) {
+  const commandList = isAdmin(ctx) ? { ...generalCommands, ...adminCommands } : generalCommands;
+
+  for (const [command, description] of Object.entries(commandList)) {
     message += `/${command} - ${description}\n`;
-  }
-
-  // Check if the user is an admin
-  if (isAdmin(ctx)) {
-    // Admin commands
-    message += '\nAdmin Commands:\n\n';
-    for (const [command, description] of Object.entries(adminCommands)) {
-      message += `/${command} - ${description}\n`;
-    }
   }
 
   ctx.reply(message);
