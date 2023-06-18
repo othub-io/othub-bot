@@ -63,7 +63,7 @@ module.exports = spamCheck = async (command, telegram_id) => {
 
   permission = `block`
   remaining = cooldown - timeDif
-  log_msg = `Command: ${command} was blocked. Time remaining: ${remaining} milliseconds.`
+  log_msg = `Command: ${command} was blocked for member ${telegram_id}. Time remaining: ${remaining} milliseconds.`
 
   if (timeDif > cooldown) {
     permission = `allow`
