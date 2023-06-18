@@ -61,6 +61,5 @@ async function commandsHandler(bot) {
 }
 
 module.exports = {
-  isAdmin,
   commandsHandler,
 };
