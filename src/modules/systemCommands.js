@@ -42,26 +42,44 @@ async function commandsHandler(bot) {
   for (const [commandName, systemCommand] of Object.entries(commands)) {
     bot.command(commandName, async (ctx) => {
       if (isAdmin(ctx)) {
-        exec(systemCommand, (error, stdout, stderr) => {
-          if (error) {
-            ctx.reply(`There was an error executing the command: ${error.message}`);
-            return;
-          }
-          if (stderr) {
-            ctx.reply(`There was an error executing the command: ${stderr}`);
-            return;
-          }
-          if (commandName === 'othubbotlogs') {
-            ctx.replyWithCode('Logs for othub-bot:\n\n' + stdout);
-          } else {
-            ctx.reply(`Command execution successful: ${stdout}`);
-          }
+        const process = exec(systemCommand);
+
+        let logs = '';
+        process.stdout.on('data', (data) => {
+          logs += data;
+        });
+
+        process.stderr.on('data', (data) => {
+          logs += data;
+        });
+
+        process.on('close', () => {
+          const logMessages = splitLogsIntoMessages(logs);
+          logMessages.forEach((message, index) => {
+            setTimeout(() => {
+              ctx.reply(message);
+            }, index * 1000); // Delay each message to avoid flooding the chat
+          });
         });
       } else {
         await ctx.reply('You are not authorized to execute this command.');
       }
     });
   }
+}
+
+function splitLogsIntoMessages(logs) {
+  const maxMessageLength = 4096; // Maximum message length allowed by Telegram
+  const messages = [];
+  while (logs.length > maxMessageLength) {
+    const message = logs.substr(0, maxMessageLength);
+    messages.push(message);
+    logs = logs.substr(maxMessageLength);
+  }
+  if (logs.length > 0) {
+    messages.push(logs);
+  }
+  return messages;
 }
 
 module.exports = {
