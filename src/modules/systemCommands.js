@@ -48,6 +48,7 @@ async function commandsHandler(bot) {
           // Reply first before restarting or stopping the service
           await ctx.reply(`Command ${commandName} is being executed.`);
         }
+        
         const parts = systemCommand.split(' ');
         const cmd = parts[0];
         const args = parts.slice(1);
@@ -66,6 +67,10 @@ async function commandsHandler(bot) {
 
         childProcess.on('close', (code) => {
           if (code !== 0) {
+            // If the command is othubbotrestart or othubbotstop and the exit code is null, ignore the error
+            if ((commandName === 'othubbotrestart' || commandName === 'othubbotstop') && code === null) {
+              return;
+            }
             ctx.reply(`Command failed with exit code ${code}: ${stderr}`);
             return;
           }
