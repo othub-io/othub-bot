@@ -9,7 +9,7 @@ const myNodes = require('./src/modules/myNodes.js')
 const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js')
-const { isAdmin , commandsHandler } = require('./src/modules/systemCommands.js')
+const { isAdmin , adminCommand } = require('./src/modules/systemCommands.js')
 const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
@@ -157,7 +157,7 @@ bot.command('dailypubs', async ctx => {
   }
 })
 
-commandsHandler(bot);
+adminCommand(bot);
 
 bot.command('commands', (ctx) => {
   let message = 'Here are the general commands:\n\n';
@@ -167,6 +167,16 @@ bot.command('commands', (ctx) => {
   }
 
   ctx.reply(message);
+
+  if (message) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
 });
 
 bot.command('admincommands', (ctx) => {
@@ -182,6 +192,16 @@ bot.command('admincommands', (ctx) => {
   }
 
   ctx.reply(message);
+
+  if (message) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
 });
 
 cron.schedule(process.env.ASK_MONITOR, async function () {

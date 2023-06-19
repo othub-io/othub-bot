@@ -9,7 +9,7 @@ function isAdmin(ctx) {
   return admins.includes(userId);
 }
 
-async function commandsHandler(bot) {
+async function adminCommand(bot) {
   for (const [commandName, commandDetails] of Object.entries(commands)) {
     bot.command(commandName, async (ctx) => {
       if (isAdmin(ctx)) {
@@ -60,6 +60,6 @@ async function commandsHandler(bot) {
 }
 
 module.exports = {
-  commandsHandler,
+  adminCommand,
   isAdmin,
 };
