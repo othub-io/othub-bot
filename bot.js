@@ -71,6 +71,10 @@ bot.command('dailypubs', async ctx => {
   await handleCommand(ctx, networkPubs.fetchAndSendDailyPubs)
 })
 
+bot.command('networkstats', async ctx => {
+  await handleCommand(ctx, networkStats)
+})
+
 commandsHandler(bot)
 
 bot.command('commands', (ctx) => {
