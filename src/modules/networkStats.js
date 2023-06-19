@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
     database: process.env.SYNC_DB,
 });
 
-async function networkStats(ctx) {
+async function fetchNetworkStatistics(ctx) {
   try {
     await ctx.deleteMessage();
 
@@ -35,5 +35,5 @@ async function networkStats(ctx) {
 }
 
 module.exports = {
-  networkStats
+  fetchNetworkStatistics
 };

@@ -83,7 +83,7 @@ bot.command('networkstats', async ctx => {
     return
   }
 
-  const message = await networkStats(ctx)
+  const message = await networkStats.fetchNetworkStatistics(ctx)
 
   if (message) {
     setTimeout(async () => {
