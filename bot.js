@@ -9,7 +9,7 @@ const myNodes = require('./src/modules/myNodes.js')
 const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js')
-const { isAdmin  , commandsHandler } = require('./src/modules/systemCommands.js')
+const { isAdmin , commandsHandler } = require('./src/modules/systemCommands.js')
 const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
@@ -18,12 +18,10 @@ const {
   Telegraf,
   session,
   Scenes,
-  Scenes,
   Markup,
   BaseScene,
   Stage
 } = require('telegraf')
-const bot = new Telegraf(process.env.BOT_TOKEN)
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const os = require('os')
@@ -56,6 +54,36 @@ bot.command('mynodes', async ctx => {
   }
 
   const message = await myNodes(ctx)
+
+  if (message) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
+})
+
+bot.command('networkstats', async ctx => {
+  command = 'networkstats'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const message = await networkStats(ctx)
 
   if (message) {
     setTimeout(async () => {
