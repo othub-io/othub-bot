@@ -52,7 +52,17 @@ bot.command('mynodes', async ctx => {
     return
   }
 
-  await myNodes(ctx)
+  const message = await myNodes(ctx)
+
+  if (message) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
 })
 
 bot.command('hourlypubs', async ctx => {
@@ -72,8 +82,19 @@ bot.command('hourlypubs', async ctx => {
     return
   }
 
-  await networkPubs.fetchAndSendHourlyPubs(ctx)
+  const message = await networkPubs.fetchAndSendHourlyPubs(ctx)
+
+  if (message) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
 })
+
 
 bot.command('dailypubs', async ctx => {
   command = 'dailypubs'
@@ -92,7 +113,17 @@ bot.command('dailypubs', async ctx => {
     return
   }
 
-  await networkPubs.fetchAndSendDailyPubs(ctx)
+  const message = await networkPubs.fetchAndSendDailyPubs(ctx)
+
+  if (message) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
 })
 
 commandsHandler(bot);
