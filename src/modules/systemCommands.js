@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 const { spawn } = require('child_process');
-const commands = require('./src/modules/adminCommandList.js');
+const commands = require('./adminCommandList.js');
 
 const admins = process.env.ADMIN_GROUP.split(',');
 
