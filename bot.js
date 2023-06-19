@@ -72,7 +72,12 @@ bot.command('hourlypubs', async ctx => {
     return
   }
 
-  await networkPubs.fetchAndSendHourlyPubs(ctx)
+  const message = await networkPubs.fetchAndSendHourlyPubs(ctx)
+
+  // Delete the message after 30 seconds
+  setTimeout(async () => {
+    await ctx.deleteMessage(message.message_id)
+  }, 10000)
 })
 
 bot.command('dailypubs', async ctx => {
@@ -92,7 +97,12 @@ bot.command('dailypubs', async ctx => {
     return
   }
 
-  await networkPubs.fetchAndSendDailyPubs(ctx)
+  const message = await networkPubs.fetchAndSendDailyPubs(ctx)
+
+  // Delete the message after 30 seconds
+  setTimeout(async () => {
+    await ctx.deleteMessage(message.message_id)
+  }, 10000)
 })
 
 commandsHandler(bot);
