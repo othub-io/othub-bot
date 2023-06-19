@@ -12,6 +12,7 @@ const networkPubs = require('./src/modules/networkPubs.js')
 const { isAdmin, commandsHandler } = require('./src/modules/systemCommands.js')
 const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
+const networkStats = require('./src/modules/networkStats.js')
 
 const {
   Telegraf,
