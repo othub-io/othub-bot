@@ -82,17 +82,18 @@ bot.command('hourlypubs', async ctx => {
     return
   }
 
-  const messageText = await networkPubs.fetchAndSendHourlyPubs(ctx) // Assuming this returns the message text
-  const message = await ctx.reply(messageText)
+  const message = await networkPubs.fetchAndSendHourlyPubs(ctx)
 
-  // Delete the message after 30 seconds
-  setTimeout(async () => {
-    try {
-      await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
-    } catch (error) {
-      console.error('Error deleting message:', error)
-    }
-  }, 10000)
+  if (message) { // Makes sure the message object exists before trying to delete it
+    // Delete the message after 10 seconds
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, 10000)
+  }
 })
 
 
@@ -113,13 +114,18 @@ bot.command('dailypubs', async ctx => {
     return
   }
 
-  const messageText = await networkPubs.fetchAndSendDailyPubs(ctx)
-  const message = await ctx.reply(messageText)
+  const message = await networkPubs.fetchAndSendDailyPubs(ctx)
 
-  // Delete the message after 30 seconds
-  setTimeout(async () => {
-    await ctx.deleteMessage(message.message_id)
-  }, 10000)
+  if (message) { // Makes sure the message object exists before trying to delete it
+    // Delete the message after 10 seconds
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, 10000)
+  }
 })
 
 commandsHandler(bot);
