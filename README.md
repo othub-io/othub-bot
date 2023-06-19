@@ -32,7 +32,7 @@ Below is the list of essential parameters:
 Set up your MySQL database
 ```
 apt-get install mysql-server -y
-.~/othub-bot/othub-bot-create-db.sh
+node ~/othub-bot/create-db.js
 ```
 Copy the service file and start the bot
 ```
