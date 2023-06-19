@@ -52,7 +52,17 @@ bot.command('mynodes', async ctx => {
     return
   }
 
-  await myNodes(ctx)
+  const messageText = await myNodes(ctx)
+  const message = await ctx.reply(messageText)
+
+  // Delete the message after 30 seconds
+  setTimeout(async () => {
+    try {
+      await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+    } catch (error) {
+      console.error('Error deleting message:', error)
+    }
+  }, 10000)
 })
 
 bot.command('hourlypubs', async ctx => {
@@ -72,12 +82,15 @@ bot.command('hourlypubs', async ctx => {
     return
   }
 
-  const messageText = await networkPubs.fetchAndSendHourlyPubs(ctx)
-  const message = await ctx.reply(messageText)
+  const message = await networkPubs.fetchAndSendHourlyPubs(ctx)
 
   // Delete the message after 30 seconds
   setTimeout(async () => {
-    await ctx.deleteMessage(message.message_id)
+    try {
+      await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+    } catch (error) {
+      console.error('Error deleting message:', error)
+    }
   }, 10000)
 })
 
