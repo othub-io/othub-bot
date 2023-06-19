@@ -8,8 +8,10 @@ const connection = mysql.createConnection({
     database: process.env.SYNC_DB,
 });
 
-module.exports = networkStats = async (ctx) => {
+async function networkStats(ctx) {
   try {
+    await ctx.deleteMessage();
+
     connection.query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, AVG(avgPubPrice) AS avgPubPrice FROM v_pubs_stats', function (err, pubStats, fields) {
       if (err) throw err;
 
@@ -22,13 +24,16 @@ module.exports = networkStats = async (ctx) => {
         const totalNodeStake = Number(nodeStats[0].totalNodeStake).toFixed(0);
 
         const message = `Network stats\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
-
-        ctx.reply(message);
       });
     });
-
+    return await ctx.reply(message);
   } catch (error) {
-    console.log(error);
-    ctx.reply('An error occurred while retrieving network stats.');
+    console.error('An error occurred:', error);
+    await ctx.reply('An error occurred while retrieving hourly pubs statistics.');
+    return null;
   }
 }
+
+module.exports = {
+  networkStats
+};
