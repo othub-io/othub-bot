@@ -177,8 +177,8 @@ bot.command('admincommands', (ctx) => {
 
   let message = 'Here are the admin commands:\n\n';
 
-  for (const [command, description] of Object.entries(adminCommandList)) {
-    message += `/${command} - ${description}\n`;
+  for (const [commandName, commandDetails] of Object.entries(adminCommandList)) {
+    message += `/${commandName} - ${commandDetails.description}\n`;
   }
 
   ctx.reply(message);
