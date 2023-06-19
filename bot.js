@@ -167,16 +167,6 @@ bot.command('commands', (ctx) => {
   }
 
   ctx.reply(message);
-
-  if (message) {
-    setTimeout(async () => {
-      try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
-      } catch (error) {
-        console.error('Error deleting message:', error)
-      }
-    }, process.env.DELETE_TIMER)
-  }
 });
 
 bot.command('admincommands', (ctx) => {
@@ -192,16 +182,6 @@ bot.command('admincommands', (ctx) => {
   }
 
   ctx.reply(message);
-
-  if (message) {
-    setTimeout(async () => {
-      try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
-      } catch (error) {
-        console.error('Error deleting message:', error)
-      }
-    }, process.env.DELETE_TIMER)
-  }
 });
 
 cron.schedule(process.env.ASK_MONITOR, async function () {

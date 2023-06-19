@@ -52,18 +52,8 @@ async function adminCommand(bot) {
         childProcess.on('error', (error) => {
           ctx.reply(`Command failed with error: ${error.message}`);
         });
-        await ctx.deleteMessage();
       } else {
         await ctx.reply('You are not authorized to execute this command.');
-      }
-      if (message) {
-        setTimeout(async () => {
-          try {
-            await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
-          } catch (error) {
-            console.error('Error deleting message:', error)
-          }
-        }, process.env.DELETE_TIMER)
       }
     });
   }
