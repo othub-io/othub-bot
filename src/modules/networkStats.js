@@ -21,13 +21,7 @@ module.exports = networkStats = async (ctx) => {
         const avgPubPrice = Number(pubStats[0].avgPubPrice).toFixed(3);
         const totalNodeStake = Number(nodeStats[0].totalNodeStake).toFixed(0);
 
-        const message = `
-          Network stats
-          Total Pubs: ${totalPubs}
-          Total Stake: ${totalNodeStake}
-          Total TRAC Spent: ${totalTracSpent}
-          Average Pub Price: ${avgPubPrice}
-        `;
+        const message = `Network stats\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
 
         ctx.reply(message);
       });
