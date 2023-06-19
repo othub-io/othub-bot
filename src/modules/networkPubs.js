@@ -59,7 +59,7 @@ async function fetchAndSendHourlyPubs(ctx) {
   } catch (error) {
     console.error('An error occurred:', error);
     await ctx.reply('An error occurred while retrieving hourly pubs statistics.');
-    return null; // Returns null if an error occurs so we don't attempt to delete an undefined message later
+    return null;
   }
 }
 
@@ -87,10 +87,9 @@ async function fetchAndSendHourlyPubs(ctx) {
     } catch (error) {
       console.error('An error occurred:', error);
       await ctx.reply('An error occurred while retrieving daily pubs statistics.');
-      return null; // Returns null if an error occurs so we don't attempt to delete an undefined message later
+      return null;
     }
   }
-  
 
 module.exports = {
   fetchAndSendHourlyPubs,
