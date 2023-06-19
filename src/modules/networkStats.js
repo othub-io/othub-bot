@@ -16,13 +16,13 @@ module.exports = networkStats = async (ctx) => {
       connection.query('SELECT SUM(nodeStake) AS totalNodeStake FROM v_nodes', function (err, nodeStats, fields) {
         if (err) throw err;
 
-        const totalTracSpent = pubStats[0].totalTracSpent;
-        const totalPubs = pubStats[0].totalPubs;
-        const avgPubPrice = pubStats[0].avgPubPrice;
-        const totalNodeStake = nodeStats[0].totalNodeStake;
+        const totalTracSpent = Number(pubStats[0].totalTracSpent).toFixed(0);
+        const totalPubs = Number(pubStats[0].totalPubs).toFixed(0);
+        const avgPubPrice = Number(pubStats[0].avgPubPrice).toFixed(3);
+        const totalNodeStake = Number(nodeStats[0].totalNodeStake).toFixed(0);
 
         const message = `
-          Network stats:
+          Network stats
           Total Pubs: ${totalPubs}
           Total Stake: ${totalNodeStake}
           Total TRAC Spent: ${totalTracSpent}
