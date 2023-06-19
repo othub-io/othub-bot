@@ -24,12 +24,13 @@ async function fetchNetworkStatistics(ctx) {
         const totalNodeStake = Number(nodeStats[0].totalNodeStake).toFixed(0);
 
         const message = `Network stats\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
+
+        ctx.reply(message);
       });
     });
-    return await ctx.reply(message);
   } catch (error) {
     console.error('An error occurred:', error);
-    await ctx.reply('An error occurred while retrieving hourly pubs statistics.');
+    await ctx.reply('An error occurred while retrieving network statistics.');
     return null;
   }
 }
