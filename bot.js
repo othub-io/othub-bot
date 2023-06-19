@@ -72,7 +72,8 @@ bot.command('hourlypubs', async ctx => {
     return
   }
 
-  const message = await networkPubs.fetchAndSendHourlyPubs(ctx)
+  const messageText = await networkPubs.fetchAndSendHourlyPubs(ctx)
+  const message = await ctx.reply(messageText)
 
   // Delete the message after 30 seconds
   setTimeout(async () => {
@@ -97,7 +98,8 @@ bot.command('dailypubs', async ctx => {
     return
   }
 
-  const message = await networkPubs.fetchAndSendDailyPubs(ctx)
+  const messageText = await networkPubs.fetchAndSendDailyPubs(ctx)
+  const message = await ctx.reply(messageText)
 
   // Delete the message after 30 seconds
   setTimeout(async () => {
