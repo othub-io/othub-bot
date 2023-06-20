@@ -51,7 +51,7 @@ async function fetchNetworkStatistics(ctx) {
     const totalTracSpent = Number(pubStats[0].totalTracSpent).toFixed(0);
     const totalPubs = Number(pubStats[0].totalPubs).toFixed(0);
     const avgPubPrice = Number(pubStats[0].avgPubPriceLast30Days).toFixed(3);
-    const totalNodes = Number(nodeStats[0],totalNodes).toFixed(0);
+    const totalNodes = Number(nodeStats[0].totalNodes).toFixed(0);
     const totalNodeStake = Number(nodeStats[0].totalNodeStake).toFixed(0);
 
     const startDate = new Date("2022-12-14");
