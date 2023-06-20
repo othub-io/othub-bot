@@ -13,7 +13,7 @@ async function fetchNetworkStatistics(ctx) {
     await ctx.deleteMessage();
 
     const pubStats = await new Promise((resolve, reject) => {
-      connection.query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, AVG(avgPubPrice) AS avgPubPrice FROM v_pubs_stats', function (err, results, fields) {
+      connection.query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, AVG(avgPubPrice) AS avgPubPrice FROM v_pubs_stats WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)', function (err, pubStats, fields) {
         if (err) reject(err);
         resolve(results);
       });
