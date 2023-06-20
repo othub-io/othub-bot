@@ -160,6 +160,22 @@ bot.command('dailypubs', async ctx => {
 adminCommand(bot);
 
 bot.command('commands', async (ctx) => {
+  command = 'commands'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
   let message = 'Here are the general commands:\n\n';
 
   for (const [command, description] of Object.entries(generalCommandList)) {
@@ -180,6 +196,22 @@ bot.command('commands', async (ctx) => {
 });
 
 bot.command('admincommands', async (ctx) => {
+  command = 'admincommands'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+  
   if (!isAdmin(ctx)) {
     ctx.reply('You are not authorized to view admin commands.');
     return;
