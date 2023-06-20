@@ -8,27 +8,25 @@ const connection = mysql.createConnection({
     database: process.env.SYNC_DB,
 });
 
+function query(sql, args) {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, args, (error, rows) => {
+      if (error) return reject(error);
+      resolve(rows);
+    });
+  });
+}
+
 async function fetchNetworkStatistics(ctx) {
   try {
     await ctx.deleteMessage();
 
-    const pubStats = await new Promise((resolve, reject) => {
-      connection.query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, AVG(avgPubPrice) AS avgPubPrice FROM v_pubs_stats WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)', function (err, pubStats, fields) {
-        if (err) reject(err);
-        resolve(results);
-      });
-    });
-
-    const nodeStats = await new Promise((resolve, reject) => {
-      connection.query('SELECT SUM(nodeStake) AS totalNodeStake FROM v_nodes', function (err, results, fields) {
-        if (err) reject(err);
-        resolve(results);
-      });
-    });
+    const pubStats = await query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, (SELECT AVG(avgPubPrice) FROM v_pubs_stats WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)) AS avgPubPriceLast30Days FROM v_pubs_stats');
+    const nodeStats = await query('SELECT SUM(nodeStake) AS totalNodeStake FROM v_nodes');
 
     const totalTracSpent = Number(pubStats[0].totalTracSpent).toFixed(0);
     const totalPubs = Number(pubStats[0].totalPubs).toFixed(0);
-    const avgPubPrice = Number(pubStats[0].avgPubPrice).toFixed(3);
+    const avgPubPrice = Number(pubStats[0].avgPubPriceLast30Days).toFixed(3);
     const totalNodeStake = Number(nodeStats[0].totalNodeStake).toFixed(0);
 
     const message = `Network stats\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
@@ -48,7 +46,6 @@ async function fetchNetworkStatistics(ctx) {
   } catch (error) {
     console.error('An error occurred:', error);
     await ctx.reply('An error occurred while retrieving network statistics.');
-    return null;
   }
 }
 
