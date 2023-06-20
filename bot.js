@@ -159,14 +159,14 @@ bot.command('dailypubs', async ctx => {
 
 adminCommand(bot);
 
-bot.command('commands', (ctx) => {
+bot.command('commands', async (ctx) => {
   let message = 'Here are the general commands:\n\n';
 
   for (const [command, description] of Object.entries(generalCommandList)) {
     message += `/${command} - ${description}\n`;
   }
 
-  const commandlist = ctx.reply(message);
+  const commandlist = await ctx.reply(message);
 
   if (commandlist) {
     setTimeout(async () => {
@@ -179,7 +179,7 @@ bot.command('commands', (ctx) => {
   }
 });
 
-bot.command('admincommands', (ctx) => {
+bot.command('admincommands', async (ctx) => {
   if (!isAdmin(ctx)) {
     ctx.reply('You are not authorized to view admin commands.');
     return;
@@ -191,7 +191,7 @@ bot.command('admincommands', (ctx) => {
     message += `/${commandName} - ${commandDetails.description}\n`;
   }
 
-  const commandlist = ctx.reply(message);
+  const commandlist = await ctx.reply(message);
 
   if (commandlist) {
     setTimeout(async () => {
