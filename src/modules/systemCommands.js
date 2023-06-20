@@ -42,23 +42,44 @@ async function adminCommand(bot) {
           stderr += data;
         });
 
-        childProcess.on('close', (code) => {
+        childProcess.on('close', async (code) => {
+          let botmessage;
           if (code !== 0) {
             // If the command is othubbotrestart or othubbotstop and the exit code is null, ignore the error
             if ((commandName === 'othubbotrestart' || commandName === 'othubbotstop') && code === null) {
               return;
             }
-            ctx.reply(`Command failed with exit code ${code}: ${stderr}`);
-            return;
+            botmessage = await ctx.reply(`Command failed with exit code ${code}: ${stderr}`);
+          } else {
+            // Don't send success message for restart or stop commands as they might have killed the process already
+            if (commandName !== 'othubbotrestart' && commandName !== 'othubbotstop') {
+              botmessage = await ctx.reply(`Command execution successful: ${stdout}`);
+            }
           }
-          // Don't send success message for restart or stop commands as they might have killed the process already
-          if (commandName !== 'othubbotrestart' && commandName !== 'othubbotstop') {
-            ctx.reply(`Command execution successful: ${stdout}`);
+          
+          if (botmessage) {
+            setTimeout(async () => {
+              try {
+                await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+              } catch (error) {
+                console.error('Error deleting message:', error)
+              }
+            }, process.env.DELETE_TIMER);
           }
         });
 
-        childProcess.on('error', (error) => {
-          ctx.reply(`Command failed with error: ${error.message}`);
+        childProcess.on('error', async (error) => {
+          const botmessage = await ctx.reply(`Command failed with error: ${error.message}`);
+          
+          if (botmessage) {
+            setTimeout(async () => {
+              try {
+                await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+              } catch (error) {
+                console.error('Error deleting message:', error)
+              }
+            }, process.env.DELETE_TIMER);
+          }
         });
 
         await ctx.deleteMessage()
