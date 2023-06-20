@@ -9,9 +9,10 @@ const myNodes = require('./src/modules/myNodes.js')
 const newMember = require('./src/modules/newMember.js')
 const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js')
-const { isAdmin , commandsHandler } = require('./src/modules/systemCommands.js')
+const { isAdmin , adminCommand } = require('./src/modules/systemCommands.js')
 const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
+const networkStats = require('./src/modules/networkStats.js')
 
 const {
   Telegraf,
@@ -52,12 +53,42 @@ bot.command('mynodes', async ctx => {
     return
   }
 
-  const message = await myNodes(ctx)
+  const botmessage = await myNodes(ctx)
 
-  if (message) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
+})
+
+bot.command('networkstats', async ctx => {
+  command = 'networkstats'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const botmessage = await networkStats.fetchNetworkStatistics(ctx)
+
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
@@ -82,12 +113,12 @@ bot.command('hourlypubs', async ctx => {
     return
   }
 
-  const message = await networkPubs.fetchAndSendHourlyPubs(ctx)
+  const botmessage = await networkPubs.fetchAndSendHourlyPubs(ctx)
 
-  if (message) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
@@ -113,12 +144,12 @@ bot.command('dailypubs', async ctx => {
     return
   }
 
-  const message = await networkPubs.fetchAndSendDailyPubs(ctx)
+  const botmessage = await networkPubs.fetchAndSendDailyPubs(ctx)
 
-  if (message) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
@@ -126,31 +157,95 @@ bot.command('dailypubs', async ctx => {
   }
 })
 
-commandsHandler(bot);
+adminCommand(bot);
 
-bot.command('commands', (ctx) => {
+bot.command('commands', async (ctx) => {
+  command = 'commands'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  await ctx.deleteMessage()
+
   let message = 'Here are the general commands:\n\n';
 
   for (const [command, description] of Object.entries(generalCommandList)) {
     message += `/${command} - ${description}\n`;
   }
 
-  ctx.reply(message);
+  const botmessage = await ctx.reply(message);
+
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
 });
 
-bot.command('admincommands', (ctx) => {
-  if (!isAdmin(ctx)) {
-    ctx.reply('You are not authorized to view admin commands.');
-    return;
+bot.command('admincommands', async (ctx) => {
+  command = 'admincommands'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
   }
+  
+  if (!isAdmin(ctx)) {
+    const botmessage = await ctx.reply('You are not authorized to execute this command.');
+    if (botmessage) {
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+        } catch (error) {
+          console.error('Error deleting message:', error)
+        }
+      }, process.env.DELETE_TIMER)
+    }    return;
+  }
+
+  await ctx.deleteMessage()
 
   let message = 'Here are the admin commands:\n\n';
 
-  for (const [command, description] of Object.entries(adminCommandList)) {
-    message += `/${command} - ${description}\n`;
+  for (const [commandName, commandDetails] of Object.entries(adminCommandList)) {
+    message += `/${commandName} - ${commandDetails.description}\n`;
   }
 
-  ctx.reply(message);
+  const botmessage = await ctx.reply(message);
+
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
 });
 
 cron.schedule(process.env.ASK_MONITOR, async function () {
