@@ -1,3 +1,13 @@
+require('dotenv').config();
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: process.env.DBHOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.SYNC_DB,
+});
+
 async function fetchNetworkStatistics(ctx) {
   try {
     await ctx.deleteMessage();
