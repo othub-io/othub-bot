@@ -15,14 +15,14 @@ async function fetchNetworkStatistics(ctx) {
     const pubStats = await new Promise((resolve, reject) => {
       connection.query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, AVG(avgPubPrice) AS avgPubPrice FROM v_pubs_stats WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)', function (err, pubStats, fields) {
         if (err) reject(err);
-        resolve(results);
+        resolve(pubStats);
       });
     });
 
     const nodeStats = await new Promise((resolve, reject) => {
-      connection.query('SELECT SUM(nodeStake) AS totalNodeStake FROM v_nodes', function (err, results, fields) {
+      connection.query('SELECT SUM(nodeStake) AS totalNodeStake FROM v_nodes', function (err, nodeStats, fields) {
         if (err) reject(err);
-        resolve(results);
+        resolve(nodeStats);
       });
     });
 
