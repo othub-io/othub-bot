@@ -12,20 +12,6 @@ function isAdmin(ctx) {
 async function adminCommand(bot) {
   for (const [commandName, commandDetails] of Object.entries(commands)) {
     bot.command(commandName, async (ctx) => {
-      spamCheck = await queryTypes.spamCheck()
-      telegram_id = ctx.message.from.id
-    
-      permission = await spamCheck
-        .getData(commandName, telegram_id)
-        .then(async ({ permission }) => {
-          return permission
-        })
-        .catch(error => console.log(`Error : ${error}`))
-    
-      if (permission != `allow`) {
-        await ctx.deleteMessage()
-        return
-      }
       if (isAdmin(ctx)) {
         if (commandName === 'othubbotrestart' || commandName === 'othubbotstop') {
           const botmessage = await ctx.reply(`Command ${commandName} is being executed.`);

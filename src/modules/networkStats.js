@@ -17,6 +17,30 @@ function query(sql, args) {
   });
 }
 
+function getReadableTime(days) {
+  let remainingDays = days;
+
+  const years = Math.floor(remainingDays / 365);
+  remainingDays -= years * 365;
+
+  const months = Math.floor(remainingDays / 30);
+  remainingDays -= months * 30;
+
+  let result = '';
+
+  if (years > 0) {
+    result += `${years} year${years === 1 ? '' : 's'}, `;
+  }
+  if (months > 0) {
+    result += `${months} month${months === 1 ? '' : 's'}, `;
+  }
+  if (remainingDays > 0) {
+    result += `${remainingDays} day${remainingDays === 1 ? '' : 's'}`;
+  }
+
+  return result;
+}
+
 async function fetchNetworkStatistics(ctx) {
   try {
     await ctx.deleteMessage();
@@ -29,7 +53,13 @@ async function fetchNetworkStatistics(ctx) {
     const avgPubPrice = Number(pubStats[0].avgPubPriceLast30Days).toFixed(3);
     const totalNodeStake = Number(nodeStats[0].totalNodeStake).toFixed(0);
 
-    const message = `Network stats\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
+    const startDate = new Date("2022-12-14");
+    const currentDate = new Date();
+    const diffTime = Math.abs(currentDate - startDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const timeSinceStartDate = getReadableTime(diffDays);
+
+    const message = `Network stats\nDuration: ${timeSinceStartDate}\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
 
     const botmessage = await ctx.reply(message);
 
