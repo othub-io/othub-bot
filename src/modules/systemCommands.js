@@ -12,10 +12,32 @@ function isAdmin(ctx) {
 async function adminCommand(bot) {
   for (const [commandName, commandDetails] of Object.entries(commands)) {
     bot.command(commandName, async (ctx) => {
+      spamCheck = await queryTypes.spamCheck()
+      telegram_id = ctx.message.from.id
+    
+      permission = await spamCheck
+        .getData(commandName, telegram_id)
+        .then(async ({ permission }) => {
+          return permission
+        })
+        .catch(error => console.log(`Error : ${error}`))
+    
+      if (permission != `allow`) {
+        await ctx.deleteMessage()
+        return
+      }
       if (isAdmin(ctx)) {
         if (commandName === 'othubbotrestart' || commandName === 'othubbotstop') {
-          // Reply first before restarting or stopping the service
-          await ctx.reply(`Command ${commandName} is being executed.`);
+          const botmessage = await ctx.reply(`Command ${commandName} is being executed.`);
+          if (botmessage) {
+            setTimeout(async () => {
+              try {
+                await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+              } catch (error) {
+                console.error('Error deleting message:', error)
+              }
+            }, process.env.DELETE_TIMER)
+          }
         }
         
         const parts = commandDetails.action.split(' ');
@@ -52,8 +74,20 @@ async function adminCommand(bot) {
         childProcess.on('error', (error) => {
           ctx.reply(`Command failed with error: ${error.message}`);
         });
+
+        await ctx.deleteMessage()
+        
       } else {
-        await ctx.reply('You are not authorized to execute this command.');
+        const botmessage = await ctx.reply('You are not authorized to execute this command.');
+        if (botmessage) {
+          setTimeout(async () => {
+            try {
+              await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+            } catch (error) {
+              console.error('Error deleting message:', error)
+            }
+          }, process.env.DELETE_TIMER)
+        }
       }
     });
   }

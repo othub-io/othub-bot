@@ -53,12 +53,12 @@ bot.command('mynodes', async ctx => {
     return
   }
 
-  const message = await myNodes(ctx)
+  const botmessage = await myNodes(ctx)
 
-  if (message) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
@@ -83,12 +83,12 @@ bot.command('networkstats', async ctx => {
     return
   }
 
-  const message = await networkStats.fetchNetworkStatistics(ctx)
+  const botmessage = await networkStats.fetchNetworkStatistics(ctx)
 
-  if (message) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
@@ -113,12 +113,12 @@ bot.command('hourlypubs', async ctx => {
     return
   }
 
-  const message = await networkPubs.fetchAndSendHourlyPubs(ctx)
+  const botmessage = await networkPubs.fetchAndSendHourlyPubs(ctx)
 
-  if (message) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
@@ -144,12 +144,12 @@ bot.command('dailypubs', async ctx => {
     return
   }
 
-  const message = await networkPubs.fetchAndSendDailyPubs(ctx)
+  const botmessage = await networkPubs.fetchAndSendDailyPubs(ctx)
 
-  if (message) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, message.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
@@ -176,18 +176,20 @@ bot.command('commands', async (ctx) => {
     return
   }
 
+  await ctx.deleteMessage()
+
   let message = 'Here are the general commands:\n\n';
 
   for (const [command, description] of Object.entries(generalCommandList)) {
     message += `/${command} - ${description}\n`;
   }
 
-  const commandlist = await ctx.reply(message);
+  const botmessage = await ctx.reply(message);
 
-  if (commandlist) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, commandlist.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
@@ -213,9 +215,19 @@ bot.command('admincommands', async (ctx) => {
   }
   
   if (!isAdmin(ctx)) {
-    ctx.reply('You are not authorized to view admin commands.');
-    return;
+    const botmessage = await ctx.reply('You are not authorized to execute this command.');
+    if (botmessage) {
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+        } catch (error) {
+          console.error('Error deleting message:', error)
+        }
+      }, process.env.DELETE_TIMER)
+    }    return;
   }
+
+  await ctx.deleteMessage()
 
   let message = 'Here are the admin commands:\n\n';
 
@@ -223,12 +235,12 @@ bot.command('admincommands', async (ctx) => {
     message += `/${commandName} - ${commandDetails.description}\n`;
   }
 
-  const commandlist = await ctx.reply(message);
+  const botmessage = await ctx.reply(message);
 
-  if (commandlist) {
+  if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, commandlist.message_id)
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
         console.error('Error deleting message:', error)
       }
