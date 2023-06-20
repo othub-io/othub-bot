@@ -59,7 +59,7 @@ async function fetchNetworkStatistics(ctx) {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     const timeSinceStartDate = getReadableTime(diffDays);
 
-    const message = `Network stats\nTotal Time: ${timeSinceStartDate}\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
+    const message = `Network stats\nDuration: ${timeSinceStartDate}\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
 
     const botmessage = await ctx.reply(message);
 
