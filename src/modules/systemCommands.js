@@ -1,6 +1,7 @@
 const { exec } = require('child_process');
 const { spawn } = require('child_process');
 const commands = require('./adminCommandList.js');
+const queryTypes = require('../util/queryTypes.js');
 
 const admins = process.env.ADMIN_GROUP.split(',');
 
