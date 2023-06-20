@@ -33,17 +33,7 @@ async function fetchNetworkStatistics(ctx) {
 
     const message = `Network stats\nTotal Pubs: ${totalPubs}\nTotal Stake: ${totalNodeStake}\nTotal TRAC Spent: ${totalTracSpent}\nAverage Pub Price: ${avgPubPrice}`;
 
-    const botmessage = await ctx.reply(message);
-
-    if (botmessage) {
-      setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
-        } catch (error) {
-          console.error('Error deleting message:', error)
-        }
-      }, process.env.DELETE_TIMER)
-    }
+    await ctx.reply(message);
 
   } catch (error) {
     console.error('An error occurred:', error);
