@@ -11,16 +11,16 @@ const {
 } = require('telegraf')
 
 const mysql = require('mysql')
-const otnodedb_connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: 'otnodedb'
+  database: process.env.OTHUB_DB
 })
 
 function executeOTNODEQuery (query, params) {
   return new Promise((resolve, reject) => {
-    otnodedb_connection.query(query, params, (error, results) => {
+    connection.query(query, params, (error, results) => {
       if (error) {
         reject(error)
       } else {

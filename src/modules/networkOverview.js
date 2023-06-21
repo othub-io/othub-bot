@@ -20,11 +20,11 @@ const operationaldb2_connection = mysql.createConnection({
   database: 'operationaldb2'
 })
 
-const otnodedb_connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: process.env.BOT_DB
+  database: process.env.OTHUB_DB
 })
 
 const team_nodes = [
@@ -104,14 +104,14 @@ module.exports = networkOverview = async timeFrame => {
 
   let previous_publishes
   query = `SELECT ${timeFrame} FROM publish_history`
-  await otnodedb_connection.query(query, function (error, results, fields) {
+  await connection.query(query, function (error, results, fields) {
     if (error) throw error
     previous_publishes = results
   })
 
   let previous_committed
   query = `SELECT ${timeFrame} FROM commit_history`
-  await otnodedb_connection.query(query, function (error, results, fields) {
+  await connection.query(query, function (error, results, fields) {
     if (error) throw error
     previous_committed = results
   })
@@ -122,7 +122,7 @@ module.exports = networkOverview = async timeFrame => {
   committed = trac_committed - previous_committed
 
   query = `UPDATE publish_history SET ${timeFrame} = ?`
-  await otnodedb_connection.query(
+  await connection.query(
     query,
     [total_publishes],
     function (error, results, fields) {
@@ -131,7 +131,7 @@ module.exports = networkOverview = async timeFrame => {
   )
 
   query = `UPDATE commit_history SET ${timeFrame} = ?`
-  await otnodedb_connection.query(
+  await connection.query(
     query,
     [trac_committed],
     function (error, results, fields) {
@@ -141,7 +141,7 @@ module.exports = networkOverview = async timeFrame => {
 
   let member_nodes
   query = 'SELECT * FROM member_nodes WHERE verified = ?'
-  await otnodedb_connection.query(
+  await connection.query(
     query,
     [1],
     function (error, results, fields) {

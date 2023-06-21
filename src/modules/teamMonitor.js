@@ -12,16 +12,16 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const mysql = require('mysql')
 
-const otnodedb_connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: process.env.BOT_DB
+  database: process.env.OTHUB_DB
 })
 
 function executeOTNODEQuery (query, params) {
   return new Promise((resolve, reject) => {
-    otnodedb_connection.query(query, params, (error, results) => {
+    connection.query(query, params, (error, results) => {
       if (error) {
         reject(error)
       } else {
@@ -145,7 +145,7 @@ module.exports = teamMonitor = async () => {
       if (monitor_ask != shard_ask) {
         query =
           'INSERT INTO monitor (networkId,ask) VALUES (?,?) ON DUPLICATE KEY UPDATE ask = ?'
-        await otnodedb_connection.query(
+        await connection.query(
           query,
           [shardNode.peer_id, shardNode.ask, shardNode.ask],
           function (error, results, fields) {

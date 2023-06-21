@@ -25,7 +25,7 @@ Below is the list of essential parameters:
 | DBHOST            | Hostname of the database server             |
 | USER              | Username for accessing the database         |
 | PASSWORD          | Password for accessing the database         |
-| BOT_DB            | Bot database name                  |
+| OTHUB_DB            | Bot database name                  |
 | SYNC_DB           | Sync database, refer to [otp-sync](https://github.com/othub-io/otp-sync) for details               |
 | MILLIMIN_COOLDOWN | Minimum cooldown for query spam check     |
 

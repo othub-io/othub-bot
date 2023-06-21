@@ -12,11 +12,11 @@ const {
 
 const keccak256 = require('keccak256')
 const mysql = require('mysql')
-const otnodedb_connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: 'otnodedb'
+  database: process.env.OTHUB_DB
 })
 
 const otp_connection = mysql.createConnection({
@@ -28,7 +28,7 @@ const otp_connection = mysql.createConnection({
 
 function executeOTNODEQuery (query, params) {
   return new Promise((resolve, reject) => {
-    otnodedb_connection.query(query, params, (error, results) => {
+    connection.query(query, params, (error, results) => {
       if (error) {
         reject(error)
       } else {
@@ -181,7 +181,7 @@ module.exports = askMonitor = async () => {
 
       if (complianceInfo != '') {
         query = 'INSERT INTO compliance (nodeId,warnings) VALUES (?,?)'
-        await otnodedb_connection.query(
+        await connection.query(
           query,
           [nonCompliantNode.nodeId, 1],
           function (error, results, fields) {
@@ -198,7 +198,7 @@ module.exports = askMonitor = async () => {
 
       if (complianceInfo[0].warnings + 1 >= process.env.WARNING_LIMIT) {
         query = 'UPDATE node_operators SET nodeGroup =? WHERE telegramID = ?'
-        await otnodedb_connection.query(
+        await connection.query(
           query,
           ['Solo', nonCompliantNode.telegramID],
           function (error, results, fields) {
@@ -229,7 +229,7 @@ module.exports = askMonitor = async () => {
         }
       } else {
         query = 'UPDATE compliance (nodeId,warnings) VALUES (?,?)'
-        await otnodedb_connection.query(
+        await connection.query(
           query,
           [nonCompliantNode.nodeId, complianceInfo[0].warnings + 1],
           function (error, results, fields) {
