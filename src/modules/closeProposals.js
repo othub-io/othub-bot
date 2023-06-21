@@ -13,18 +13,18 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
-const connection = mysql.createConnection({
+const operationaldb2_connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'admin',
   database: 'operationaldb2'
 })
 
-const otnodedb_connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: 'otnodedb'
+  database: process.env.BOT_DB
 })
 
 const DKGClient = require('dkg.js')
@@ -39,7 +39,7 @@ const node_options = {
 const dkg = new DKGClient(node_options)
 
 module.exports = closeProposals = async type => {
-  proposals = await otnodedb_connection
+  proposals = await connection
     .prepare(
       `SELECT * FROM proposal_header WHERE active = ? AND proposal_type = ?`
     )
@@ -51,7 +51,7 @@ module.exports = closeProposals = async type => {
       winning_votes = 0
       proposal = proposals[i]
 
-      ballots = await otnodedb_connection
+      ballots = await connection
         .prepare(`SELECT vote_ual FROM vote_header WHERE = ?`)
         .all(proposal.proposal_ual)
 
