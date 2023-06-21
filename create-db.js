@@ -13,8 +13,8 @@ async function createDatabaseAndTables() {
   try {
     const connection = await mysql.createConnection(connectionConfig);
 
-    await connection.query(`CREATE DATABASE ${process.env.BOT_DB}`);
-    await connection.query(`USE ${process.env.BOT_DB}`);
+    await connection.query(`CREATE DATABASE ${process.env.OTHUB_DB}`);
+    await connection.query(`USE ${process.env.OTHUB_DB}`);
 
     await connection.query(`CREATE TABLE alliance_members (
       adminKey VARCHAR(255),

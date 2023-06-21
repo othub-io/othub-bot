@@ -4,7 +4,7 @@ const connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: process.env.BOT_DB,
+  database: process.env.OTHUB_DB,
 })
 
 function executeOTNODEQuery (query, params) {
