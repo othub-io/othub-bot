@@ -36,50 +36,126 @@ bot.on('new_chat_members', async ctx => {
   await newMember(ctx)
 })
 
-async function spamCheckAndExecuteCommand(ctx, command, commandFunction) {
-  const spamCheck = await queryTypes.spamCheck();
-  const telegram_id = ctx.message.from.id;
+bot.command('mynodes', async ctx => {
+  command = 'mynodes'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
 
-  const permission = await spamCheck
+  permission = await spamCheck
     .getData(command, telegram_id)
     .then(async ({ permission }) => {
-      return permission;
+      return permission
     })
-    .catch(error => console.error(`Error: ${error}`));
+    .catch(error => console.log(`Error : ${error}`))
 
   if (permission != `allow`) {
-    await ctx.deleteMessage();
-    return;
+    await ctx.deleteMessage()
+    return
   }
 
-  const botmessage = await commandFunction(ctx);
+  const botmessage = await myNodes(ctx)
 
   if (botmessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id);
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
       } catch (error) {
-        console.error('Error deleting message:', error);
+        console.error('Error deleting message:', error)
       }
-    }, process.env.DELETE_TIMER);
+    }, process.env.DELETE_TIMER)
   }
-}
-
-bot.command('mynodes', async ctx => {
-  spamCheckAndExecuteCommand(ctx, 'mynodes', myNodes);
-});
+})
 
 bot.command('networkstats', async ctx => {
-  spamCheckAndExecuteCommand(ctx, 'networkstats', networkStats.fetchNetworkStatistics);
-});
+  command = 'networkstats'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const botmessage = await networkStats.fetchNetworkStatistics(ctx)
+
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
+})
 
 bot.command('hourlypubs', async ctx => {
-  spamCheckAndExecuteCommand(ctx, 'hourlypubs', networkPubs.fetchAndSendHourlyPubs);
-});
+  command = 'hourlypubs'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const botmessage = await networkPubs.fetchAndSendHourlyPubs(ctx)
+
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
+})
+
 
 bot.command('dailypubs', async ctx => {
-  spamCheckAndExecuteCommand(ctx, 'dailypubs', networkPubs.fetchAndSendDailyPubs);
-});
+  command = 'dailypubs'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const botmessage = await networkPubs.fetchAndSendDailyPubs(ctx)
+
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
+})
 
 adminCommand(bot);
 
