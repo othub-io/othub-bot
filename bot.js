@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const queryTypes = require('./src/util/queryTypes')
+const { spamCheck } = require('./src/util/queryTypes')
 const networkOverview = require('./src/modules/networkOverview.js')
 const uptimeMonitor = require('./src/modules/uptimeMonitor.js')
 const teamMonitor = require('./src/modules/teamMonitor.js')
@@ -16,29 +16,19 @@ const networkStats = require('./src/modules/networkStats.js')
 
 const {
   Telegraf,
-  session,
-  Scenes,
-  Markup,
-  BaseScene,
-  Stage
+  session
 } = require('telegraf')
-
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-const os = require('os')
-const fs = require('fs')
 const cron = require('node-cron')
-const express = require('express')
-const shell = require('shelljs')
+
+bot.use(session({ ttl: 10 }))
 
 const checkPermission = async (ctx, next) => {
   const command = ctx.message.text.split(' ')[0].substring(1);
   const telegram_id = ctx.message.from.id;
-  const spamCheck = await queryTypes.spamCheck;
-
-  const { permission } = await spamCheck.getData(command, telegram_id)
+  const { permission } = await spamCheck().getData(command, telegram_id)
     .catch(error => console.log(`Error : ${error}`));
-
   if (permission !== 'allow') {
     await ctx.deleteMessage();
     return;
@@ -46,90 +36,78 @@ const checkPermission = async (ctx, next) => {
   await next();
 };
 
-const deleteMessageAfterDelay = async (ctx, botmessage) => {
-  if (botmessage) {
+bot.on('new_chat_members', newMember);
+
+const commandHandler = commandAction => async (ctx, next) => {
+  const botMessage = await commandAction(ctx);
+  if (botMessage) {
     setTimeout(async () => {
       try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id);
+        await ctx.telegram.deleteMessage(ctx.chat.id, botMessage.message_id)
       } catch (error) {
-        console.error('Error deleting message:', error);
+        console.error('Error deleting message:', error)
       }
-    }, process.env.DELETE_TIMER);
+    }, process.env.DELETE_TIMER)
   }
 };
 
-bot.use(checkPermission);
-bot.use(session({ ttl: 10 }));
-
-bot.on('new_chat_members', async ctx => {
-  await newMember(ctx)
-})
-
-bot.command('mynodes', async ctx => {
-  const botmessage = await myNodes(ctx);
-  deleteMessageAfterDelay(ctx, botmessage);
-})
-
-bot.command('networkstats', async ctx => {
-  const botmessage = await networkStats.fetchNetworkStatistics(ctx);
-  deleteMessageAfterDelay(ctx, botmessage);
-})
-
-bot.command('hourlypubs', async ctx => {
-  const botmessage = await networkPubs.fetchAndSendHourlyPubs(ctx);
-  deleteMessageAfterDelay(ctx, botmessage);
-})
-
-bot.command('dailypubs', async ctx => {
-  const botmessage = await networkPubs.fetchAndSendDailyPubs(ctx);
-  deleteMessageAfterDelay(ctx, botmessage);
-})
+bot.command('mynodes', checkPermission, commandHandler(myNodes));
+bot.command('networkstats', checkPermission, commandHandler(networkStats.fetchNetworkStatistics));
+bot.command('hourlypubs', checkPermission, commandHandler(networkPubs.fetchAndSendHourlyPubs));
+bot.command('dailypubs', checkPermission, commandHandler(networkPubs.fetchAndSendDailyPubs));
 
 adminCommand(bot);
 
-bot.command('commands', async (ctx) => {
-  await ctx.deleteMessage()
-
+bot.command('commands', checkPermission, commandHandler(async ctx => {
   let message = 'Here are the general commands:\n\n';
-
   for (const [command, description] of Object.entries(generalCommandList)) {
     message += `/${command} - ${description}\n`;
   }
-
-  const botmessage = await ctx.reply(message);
-  deleteMessageAfterDelay(ctx, botmessage);
-});
-
-bot.command('admincommands', async (ctx) => {
-  if (!isAdmin(ctx)) {
-    const botmessage = await ctx.reply('You are not authorized to execute this command.');
-    deleteMessageAfterDelay(ctx, botmessage);
-    return;
+  if (await isAdmin(ctx.message.from.id)) {
+    message += '\n\nHere are the admin commands:\n\n';
+    for (const [command, description] of Object.entries(adminCommandList)) {
+      message += `/${command} - ${description}\n`;
+    }
   }
+  return await ctx.reply(message);
+}));
 
-  await ctx.deleteMessage()
+bot.launch()
+console.log('Bot is running...')
 
-  let message = 'Here are the admin commands:\n\n';
+cron.schedule('0 0 * * *', () => {
+  closeProposals(bot)
+}, {
+  scheduled: true,
+  timezone: "Europe/London"
+})
 
-  for (const [commandName, commandDetails] of Object.entries(adminCommandList)) {
-    message += `/${commandName} - ${commandDetails.description}\n`;
-  }
+cron.schedule('0 * * * *', () => {
+  networkOverview(bot)
+}, {
+  scheduled: true,
+  timezone: "Europe/London"
+})
 
-  const botmessage = await ctx.reply(message);
-  deleteMessageAfterDelay(ctx, botmessage);
-});
+cron.schedule('0 0 * * *', () => {
+  uptimeMonitor(bot)
+}, {
+  scheduled: true,
+  timezone: "Europe/London"
+})
 
-cron.schedule(process.env.ASK_MONITOR, askMonitor);
-cron.schedule(process.env.TEAM_MONITOR, teamMonitor);
-cron.schedule(process.env.UPTIME_MONITOR, uptimeMonitor);
-cron.schedule(process.env.HOURLY, () => networkOverview(`hourly`));
-cron.schedule(process.env.DAILY, () => networkOverview(`daily`));
-cron.schedule(process.env.WEEKLY, () => networkOverview(`weekly`));
-cron.schedule(process.env.MONTHLY, () => networkOverview(`monthly`));
-cron.schedule(process.env.YEARLY, () => networkOverview(`yearly`));
+cron.schedule('0 0 * * *', () => {
+  teamMonitor(bot)
+}, {
+  scheduled: true,
+  timezone: "Europe/London"
+})
 
-bot.launch();
+cron.schedule('0 0 * * *', () => {
+  askMonitor(bot)
+}, {
+  scheduled: true,
+  timezone: "Europe/London"
+})
 
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.on('SIGINT', () => { console.log("Bye bye!"); process.exit(); });
