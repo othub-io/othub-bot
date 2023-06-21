@@ -34,7 +34,7 @@ const shell = require('shelljs')
 const checkPermission = async (ctx, next) => {
   const command = ctx.message.text.split(' ')[0].substring(1);
   const telegram_id = ctx.message.from.id;
-  const spamCheck = await queryTypes.spamCheck();
+  const spamCheck = await queryTypes.spamCheck;
 
   const { permission } = await spamCheck.getData(command, telegram_id)
     .catch(error => console.log(`Error : ${error}`));
