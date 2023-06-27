@@ -46,7 +46,7 @@ async function fetchNetworkStatistics(ctx) {
     await ctx.deleteMessage();
 
     const pubStats = await query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, (SELECT AVG(avgPubPrice) FROM v_pubs_stats WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)) AS avgPubPriceLast30Days FROM v_pubs_stats');
-    const nodeStats = await query('SELECT SUM(nodeStake) AS totalNodeStake, COUNT(*) FROM v_nodes WHERE nodeStake >= 50000');
+    const nodeStats = await query('SELECT SUM(nodeStake) AS totalNodeStake, COUNT(*) AS totalNodes FROM v_nodes WHERE nodeStake >= 50000');
 
     const totalTracSpent = Number(pubStats[0].totalTracSpent).toFixed(0);
     const totalPubs = Number(pubStats[0].totalPubs).toFixed(0);
