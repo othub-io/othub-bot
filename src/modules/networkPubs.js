@@ -100,7 +100,7 @@ async function fetchAndSendWeeklyPubs(ctx) {
     const avgBid = parseFloat(lastWeekStats.avgBid).toFixed(3);
     const avgEpochs = parseInt(lastWeekStats.avgEpochsNumber);
 
-    const message = `Daily Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+    const message = `Weekly Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
