@@ -168,6 +168,6 @@ module.exports = teamMonitor = async () => {
   }
 
   async function tellBot (msg) {
-    bot.telegram.sendMessage(process.env.GROUP, msg)
+    bot.telegram.sendMessage(process.env.ALLIANCE_ID, msg)
   }
 }

@@ -33,8 +33,12 @@ const shell = require('shelljs')
 bot.use(session({ ttl: 10 }))
 
 bot.on('new_chat_members', async ctx => {
-  await newMember(ctx)
-})
+  const specificChannelId = process.env.ALLIANCE_ID;
+  if (ctx.chat && ctx.chat.id == specificChannelId) {
+    await newMember(ctx);
+  }
+});
+
 
 bot.command('mynodes', async ctx => {
   command = 'mynodes'
