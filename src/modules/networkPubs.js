@@ -95,7 +95,16 @@ async function fetchAndSendDailyPubs(ctx) {
     return await ctx.reply(message);
   } catch (error) {
     console.error('An error occurred:', error);
-    await ctx.reply('An error occurred while retrieving daily pubs statistics.');
+    const botmessage = await ctx.reply('An error occurred while retrieving daily pubs statistics.');
+    if (botmessage) {
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+        } catch (error) {
+          console.error('Error deleting message:', error)
+        }
+      }, process.env.DELETE_TIMER)
+    }
     return null;
   }
 }
@@ -117,7 +126,16 @@ async function fetchAndSendWeeklyPubs(ctx) {
     return await ctx.reply(message);
   } catch (error) {
     console.error('An error occurred:', error);
-    await ctx.reply('An error occurred while retrieving weekly pubs statistics.');
+    const botmessage = await ctx.reply('An error occurred while retrieving weekly pubs statistics.');
+    if (botmessage) {
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+        } catch (error) {
+          console.error('Error deleting message:', error)
+        }
+      }, process.env.DELETE_TIMER)
+    }
     return null;
   }
 }
@@ -139,7 +157,16 @@ async function fetchAndSendMonthlyPubs(ctx) {
     return await ctx.reply(message);
   } catch (error) {
     console.error('An error occurred:', error);
-    await ctx.reply('An error occurred while retrieving monthly pubs statistics.');
+    const botmessage = await ctx.reply('An error occurred while retrieving monthly pubs statistics.');
+    if (botmessage) {
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+        } catch (error) {
+          console.error('Error deleting message:', error)
+        }
+      }, process.env.DELETE_TIMER)
+    }
     return null;
   }
 }
