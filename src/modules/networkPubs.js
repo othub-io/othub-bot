@@ -100,7 +100,7 @@ async function fetchAndSendWeeklyPubs(ctx) {
     const avgBid = parseFloat(lastWeekStats.avgBid).toFixed(3);
     const avgEpochs = parseInt(lastWeekStats.avgEpochsNumber);
 
-    const message = `Daily Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+    const message = `Weekly Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
@@ -110,8 +110,31 @@ async function fetchAndSendWeeklyPubs(ctx) {
   }
 }
 
+async function fetchAndSendMonthlyPubs(ctx) {
+  try {
+    await ctx.deleteMessage();
+
+    const lastMonthStats = await getLastMonthStats();
+
+    const totalPubs = lastMonthStats.totalPubs;
+    const totalTracSpent = parseInt(lastMonthStats.totalTracSpent);
+    const avgPubPrice = parseFloat(lastMonthStats.avgPubPrice).toFixed(2);
+    const avgBid = parseFloat(lastMonthStats.avgBid).toFixed(3);
+    const avgEpochs = parseInt(lastMonthStats.avgEpochsNumber);
+
+    const message = `Monthly Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+
+    return await ctx.reply(message);
+  } catch (error) {
+    console.error('An error occurred:', error);
+    await ctx.reply('An error occurred while retrieving monthly pubs statistics.');
+    return null;
+  }
+}
+
 module.exports = {
   fetchAndSendHourlyPubs,
   fetchAndSendDailyPubs,
-  fetchAndSendWeeklyPubs
+  fetchAndSendWeeklyPubs,
+  fetchAndSendMonthlyPubs
 };
