@@ -44,6 +44,18 @@ function getLastWeekStats() {
   });
 }
 
+function getLastMonthStats() {
+  return new Promise((resolve, reject) => {
+    pool.query('SELECT * FROM v_pubs_stats_lastmonth', (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+}
+
 async function fetchAndSendHourlyPubs(ctx) {
   try {
     await ctx.deleteMessage();
