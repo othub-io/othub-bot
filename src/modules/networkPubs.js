@@ -9,6 +9,7 @@ const pool = mysql.createPool({
   database: process.env.SYNC_DB,
 });
 
+// Function to retrieve the last row from the v_pubs_stats_last1h table
 function getLastHourStats() {
   return new Promise((resolve, reject) => {
     pool.query('SELECT * FROM v_pubs_stats_last1h', (error, results) => {
@@ -21,6 +22,7 @@ function getLastHourStats() {
   });
 }
 
+// Function to retrieve the last row from the v_pubs_stats_last24h table
 function getLast24HourStats() {
   return new Promise((resolve, reject) => {
     pool.query('SELECT * FROM v_pubs_stats_last24h', (error, results) => {
@@ -33,32 +35,26 @@ function getLast24HourStats() {
   });
 }
 
-function getLastWeekStats() {
-  return new Promise((resolve, reject) => {
-    pool.query('SELECT * FROM v_pubs_stats_last7d', (error, results) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(results[0]);
-      }
-    });
-  });
-}
-
+// Function to fetch and send hourly pubs data
 async function fetchAndSendHourlyPubs(ctx) {
   try {
+    // Delete the command message
     await ctx.deleteMessage();
 
+    // Retrieve the last row from the v_pubs_stats_last1h table
     const lastHourStats = await getLastHourStats();
 
+    // Extract the desired fields from the last row
     const totalPubs = lastHourStats.totalPubs;
     const totalTracSpent = parseInt(lastHourStats.totalTracSpent);
     const avgPubPrice = parseFloat(lastHourStats.avgPubPrice).toFixed(2);
     const avgBid = parseFloat(lastHourStats.avgBid).toFixed(3);
     const avgEpochs = parseInt(lastHourStats.avgEpochsNumber);
 
+    // Generate the formatted message
     const message = `Hourly Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
 
+    // Send the message as a reply and return the message object
     return await ctx.reply(message);
   } catch (error) {
     console.error('An error occurred:', error);
@@ -67,52 +63,35 @@ async function fetchAndSendHourlyPubs(ctx) {
   }
 }
 
-async function fetchAndSendDailyPubs(ctx) {
-  try {
-    await ctx.deleteMessage();
-
-    const last24HourStats = await getLast24HourStats();
-
-    const totalPubs = last24HourStats.totalPubs;
-    const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
-    const avgPubPrice = parseFloat(last24HourStats.avgPubPrice).toFixed(2);
-    const avgBid = parseFloat(last24HourStats.avgBid).toFixed(3);
-    const avgEpochs = parseInt(last24HourStats.avgEpochsNumber);
-
-    const message = `Daily Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
-
-    return await ctx.reply(message);
-  } catch (error) {
-    console.error('An error occurred:', error);
-    await ctx.reply('An error occurred while retrieving daily pubs statistics.');
-    return null;
+  // Function to fetch and send daily pubs data
+  async function fetchAndSendDailyPubs(ctx) {
+    try {
+      // Delete the command message
+      await ctx.deleteMessage();
+  
+      // Retrieve the last row from the v_pubs_stats_last24h table
+      const last24HourStats = await getLast24HourStats();
+  
+      // Extract the desired fields from the last row
+      const totalPubs = last24HourStats.totalPubs;
+      const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
+      const avgPubPrice = parseFloat(last24HourStats.avgPubPrice).toFixed(2);
+      const avgBid = parseFloat(last24HourStats.avgBid).toFixed(3);
+      const avgEpochs = parseInt(last24HourStats.avgEpochsNumber);
+  
+      // Generate the formatted message
+      const message = `Daily Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+  
+      // Send the message as a reply and return the message object
+      return await ctx.reply(message);
+    } catch (error) {
+      console.error('An error occurred:', error);
+      await ctx.reply('An error occurred while retrieving daily pubs statistics.');
+      return null;
+    }
   }
-}
-
-async function fetchAndSendWeeklyPubs(ctx) {
-  try {
-    await ctx.deleteMessage();
-
-    const lastWeekStats = await getLastWeekStats();
-
-    const totalPubs = lastWeekStats.totalPubs;
-    const totalTracSpent = parseInt(lastWeekStats.totalTracSpent);
-    const avgPubPrice = parseFloat(lastWeekStats.avgPubPrice).toFixed(2);
-    const avgBid = parseFloat(lastWeekStats.avgBid).toFixed(3);
-    const avgEpochs = parseInt(lastWeekStats.avgEpochsNumber);
-
-    const message = `Weekly Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
-
-    return await ctx.reply(message);
-  } catch (error) {
-    console.error('An error occurred:', error);
-    await ctx.reply('An error occurred while retrieving weekly pubs statistics.');
-    return null;
-  }
-}
 
 module.exports = {
   fetchAndSendHourlyPubs,
   fetchAndSendDailyPubs,
-  fetchAndSendWeeklyPubs
 };
