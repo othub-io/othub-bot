@@ -46,7 +46,7 @@ function getLastWeekStats() {
 
 function getLastMonthStats() {
   return new Promise((resolve, reject) => {
-    pool.query('SELECT * FROM v_pubs_stats_lastmonth', (error, results) => {
+    pool.query('SELECT * FROM v_pubs_stats_last30d', (error, results) => {
       if (error) {
         reject(error);
       } else {
