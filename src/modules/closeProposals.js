@@ -14,9 +14,9 @@ const bot = new Telegraf(process.env.BOT_TOKEN)
 
 const mysql = require('mysql')
 const operationaldb2_connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'admin',
+  host: process.env.DBHOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
   database: 'operationaldb2'
 })
 
