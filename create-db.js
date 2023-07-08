@@ -5,8 +5,8 @@ dotenv.config();
 
 const connectionConfig = {
   host: process.env.DBHOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
+  user: process.env.DBUSER,
+  password: process.env.DBPASSWORD,
 };
 
 async function createDatabaseAndTables() {

@@ -3,8 +3,8 @@ const mysql = require('mysql');
 
 const pool = mysql.createPool({
   host: process.env.DBHOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
+  user: process.env.DBUSER,
+  password: process.env.DBPASSWORD,
   database: process.env.SYNC_DB,
 });
 

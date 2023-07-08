@@ -14,8 +14,8 @@ const mysql = require('mysql')
 
 const connection = mysql.createConnection({
   host: process.env.DBHOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
+  user: process.env.DBUSER,
+  password: process.env.DBPASSWORD,
   database: process.env.OTHUB_DB
 })
 
@@ -43,8 +43,8 @@ async function getOTNODEData (query, params) {
 
 const op2_connection = mysql.createConnection({
   host: process.env.DBHOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
+  user: process.env.DBUSER,
+  password: process.env.DBPASSWORD,
   database: 'operationaldb2'
 })
 
