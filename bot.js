@@ -320,11 +320,12 @@ bot.command('admincommands', async (ctx) => {
 
 //nodeStats
 bot.command('nodestatslasthour', async ctx => {
-  command = 'nodestatslasthour';
-  spamCheck = await queryTypes.spamCheck();
-  telegram_id = ctx.message.from.id;
+  const tokenSymbol = ctx.message.text.split(' ')[1];
+  const command = 'nodestatslasthour' + tokenSymbol;
+  const telegram_id = ctx.message.from.id;
 
-  permission = await spamCheck
+  // Pass the modified command name to the spam check
+  const permission = await queryTypes.spamCheck()
     .getData(command, telegram_id)
     .then(({ permission }) => {
       return permission;
@@ -335,8 +336,6 @@ bot.command('nodestatslasthour', async ctx => {
     await ctx.deleteMessage();
     return;
   }
-
-  const tokenSymbol = ctx.message.text.split(' ')[1];
 
   nodeStats.lastHourNodeStats(tokenSymbol, async (err, result) => {
     if (err) {
@@ -361,6 +360,7 @@ bot.command('nodestatslasthour', async ctx => {
     }
   });
 });
+
 
 // Similarly for nodestatslastday, nodestatslastweek, nodestatslastmonth
 
