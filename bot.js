@@ -338,7 +338,7 @@ bot.command('nodestatslasthour', async ctx => {
 
   const tokenSymbol = ctx.message.text.split(' ')[1];
 
-  stats.lastHourNodeStats(tokenSymbol, async (err, result) => {
+  nodeStats.lastHourNodeStats(tokenSymbol, async (err, result) => {
     if (err) {
       console.error(err);
       return;
