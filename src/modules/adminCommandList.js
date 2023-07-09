@@ -15,19 +15,19 @@ module.exports = {
     action: 'journalctl -u otnode --output cat -n 100', 
     description: 'Show the last 100 entries of the otnode service logs'
   },
-  'otnoderestart2': { 
+  'otnode2restart': { 
     action: 'systemctl restart otnode2.service', 
     description: 'Restart the otnode2 service'
   },
-  'otnodestop2': { 
+  'otnode2stop': { 
     action: 'systemctl stop otnode2.service', 
     description: 'Stop the otnode2 service'
   },
-  'otnodestart2': { 
+  'otnode2start': { 
     action: 'systemctl start otnode2.service', 
     description: 'Start the otnode2 service'
   },
-  'otnodelogs2': { 
+  'otnode2logs': { 
     action: 'journalctl -u otnode2 --output cat -n 100', 
     description: 'Show the last 100 entries of the otnode2 service logs'
   },
@@ -47,68 +47,68 @@ module.exports = {
     action: 'journalctl -u othub-bot --output cat -n 20', 
     description: 'Show the last 20 entries of the othub-bot service logs'
   },
-  'otpsyncrestart': { 
-    action: 'systemctl restart otp-sync', 
-    description: 'Restart the otp-sync service'
+  'otpsyncrpcrestart': { 
+    action: 'systemctl restart otp-sync-rpc', 
+    description: 'Restart the otp-sync-rpc service'
   },
-  'otpsyncstop': { 
-    action: 'systemctl stop otp-sync', 
-    description: 'Stop the otp-sync service'
+  'otpsyncrpcstop': { 
+    action: 'systemctl stop otp-sync-rpc', 
+    description: 'Stop the otp-sync-rpc service'
   },
-  'otpsyncstart': { 
-    action: 'systemctl start otp-sync', 
-    description: 'Start the otp-sync service'
+  'otpsyncrpcstart': { 
+    action: 'systemctl start otp-sync-rpc', 
+    description: 'Start the otp-sync-rpc service'
   },
-  'otpsynclogs': { 
-    action: 'journalctl -u otp-sync --output cat -n 100', 
-    description: 'Show the last 100 entries of the otp-sync service logs'
+  'otpsyncrpclogs': { 
+    action: 'journalctl -u otp-sync-rpc --output cat -n 100', 
+    description: 'Show the last 100 entries of the otp-sync-rpc service logs'
   },
-  'otpsync2restart': { 
-    action: 'systemctl restart otp-sync2', 
-    description: 'Restart the otp-sync2 service'
+  'othubapirestart': { 
+    action: 'systemctl restart othub-api', 
+    description: 'Restart the othub-api service'
   },
-  'otpsync2stop': { 
-    action: 'systemctl stop otp-sync2', 
-    description: 'Stop the otp-sync2 service'
+  'othubapistop': { 
+    action: 'systemctl stop othub-api', 
+    description: 'Stop the othub-api service'
   },
-  'otpsync2start': { 
-    action: 'systemctl start otp-sync2', 
-    description: 'Start the otp-sync2 service'
+  'othubapistart': { 
+    action: 'systemctl start othub-api', 
+    description: 'Start the othub-api service'
   },
-  'otpsync2logs': { 
-    action: 'journalctl -u otp-sync2 --output cat -n 100', 
-    description: 'Show the last 100 entries of the otp-sync2 service logs'
+  'othubapilogs': { 
+    action: 'journalctl -u othub-api --output cat -n 100', 
+    description: 'Show the last 100 entries of the othub-api service logs'
   },
-  'otnodeapirestart': { 
-    action: 'systemctl restart otnode-api', 
-    description: 'Restart the otnode-api service'
+  'othubreactrestart': { 
+    action: 'systemctl restart othub-react', 
+    description: 'Restart the othub-react service'
   },
-  'otnodeapistop': { 
-    action: 'systemctl stop otnode-api', 
-    description: 'Stop the otnode-api service'
+  'othubreactstop': { 
+    action: 'systemctl stop othub-react', 
+    description: 'Stop the othub-react service'
   },
-  'otnodeapistart': { 
-    action: 'systemctl start otnode-api', 
-    description: 'Start the otnode-api service'
+  'othubreactstart': { 
+    action: 'systemctl start othub-react', 
+    description: 'Start the othub-react service'
   },
-  'otnodeapilogs': { 
-    action: 'journalctl -u otnode-api --output cat -n 100', 
-    description: 'Show the last 100 entries of the otnode-api service logs'
+  'othubreactlogs': { 
+    action: 'journalctl -u othub-react --output cat -n 100', 
+    description: 'Show the last 100 entries of the othub-react service logs'
   },
-  'otnodeapprestart': { 
-    action: 'systemctl restart otnode-app', 
-    description: 'Restart the otnode-app service'
+  'othubruntimerestart': { 
+    action: 'systemctl restart othub-runtime', 
+    description: 'Restart the othub-runtime service'
   },
-  'otnodeappstop': { 
-    action: 'systemctl stop otnode-app', 
-    description: 'Stop the otnode-app service'
+  'othubruntimestop': { 
+    action: 'systemctl stop othub-runtime', 
+    description: 'Stop the othub-runtime service'
   },
-  'otnodeappstart': { 
-    action: 'systemctl start otnode-app', 
-    description: 'Start the otnode-app service'
+  'othubruntimestart': { 
+    action: 'systemctl start othub-runtime', 
+    description: 'Start the othub-runtime service'
   },
-  'otnodeapplogs': { 
-    action: 'journalctl -u otnode-app --output cat -n 100', 
-    description: 'Show the last 100 entries of the otnode-app service logs'
+  'othubruntimelogs': { 
+    action: 'journalctl -u othub-runtime --output cat -n 100', 
+    description: 'Show the last 100 entries of the othub-runtime service logs'
   },
 };
