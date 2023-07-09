@@ -18,7 +18,7 @@ exports.lastHourNodeStats = (tokenSymbol, callback) => {
         if (results.length > 0) {
           let res = results[0];
           let stats = `
-            Last hour stats:
+            Last Hour Stats:
 nodeId: ${res.nodeId}
 tokenSymbol: ${res.tokenSymbol}
 nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
@@ -46,15 +46,14 @@ exports.lastDayNodeStats = (tokenSymbol, callback) => {
         if (results.length > 0) {
           let res = results[0];
           let stats = `
-            Last day stats:
-            nodeId: ${res.nodeId}
-            tokenSymbol: ${res.tokenSymbol}
-            nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
-            nodeAsk: ${parseFloat(res.nodeAsk).toFixed(2)}
-            nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-            estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
-            newPubs: ${res.pubsCommited1stEpochOnly}
-          `;
+            Last Day Stats:
+nodeId: ${res.nodeId}
+tokenSymbol: ${res.tokenSymbol}
+nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
+nodeAsk: ${parseFloat(res.nodeAsk).toFixed(2)}
+nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
+estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
+newPubs: ${res.pubsCommited1stEpochOnly}`;
           return callback(null, stats);
         } else {
           return callback();
@@ -75,15 +74,14 @@ exports.lastWeekNodeStats = (tokenSymbol, callback) => {
       if (results.length > 0) {
         let res = results[0];
         let stats = `
-          Last week stats:
-          nodeId: ${res.nodeId}
-          tokenSymbol: ${res.tokenSymbol}
-          nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
-          nodeAsk: ${parseFloat(res.nodeAsk).toFixed(2)}
-          nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-          estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
-          newPubs: ${res.pubsCommited1stEpochOnly}
-        `;
+          Last 7 Days Stats:
+nodeId: ${res.nodeId}
+tokenSymbol: ${res.tokenSymbol}
+nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
+nodeAsk: ${parseFloat(res.nodeAsk).toFixed(2)}
+nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
+estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
+newPubs: ${res.pubsCommited1stEpochOnly}`;
         return callback(null, stats);
       } else {
         return callback();
@@ -104,15 +102,14 @@ exports.lastMonthNodeStats = (tokenSymbol, callback) => {
       if (results.length > 0) {
         let res = results[0];
         let stats = `
-          Last month stats:
-          nodeId: ${res.nodeId}
-          tokenSymbol: ${res.tokenSymbol}
-          nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
-          nodeAsk: ${parseFloat(res.nodeAsk).toFixed(2)}
-          nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-          estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
-          newPubs: ${res.pubsCommited1stEpochOnly}
-        `;
+          Last 30 Days Stats:
+nodeId: ${res.nodeId}
+tokenSymbol: ${res.tokenSymbol}
+nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
+nodeAsk: ${parseFloat(res.nodeAsk).toFixed(2)}
+nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
+estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
+newPubs: ${res.pubsCommited1stEpochOnly}`;
         return callback(null, stats);
       } else {
         return callback();

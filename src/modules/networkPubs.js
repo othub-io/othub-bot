@@ -71,10 +71,10 @@ async function fetchAndSendHourlyPubs(ctx) {
     const totalPubs = lastHourStats.totalPubs;
     const totalTracSpent = parseInt(lastHourStats.totalTracSpent);
     const avgPubPrice = parseFloat(lastHourStats.avgPubPrice).toFixed(2);
-    const avgBid = parseFloat(lastHourStats.avgBid).toFixed(3);
+    const avgBid = parseFloat(lastHourStats.avgBid).toFixed(2);
     const avgEpochs = parseInt(lastHourStats.avgEpochsNumber);
 
-    const message = `Hourly Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+    const message = `Last Hour Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
@@ -99,10 +99,10 @@ async function fetchAndSendDailyPubs(ctx) {
     const totalPubs = last24HourStats.totalPubs;
     const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
     const avgPubPrice = parseFloat(last24HourStats.avgPubPrice).toFixed(2);
-    const avgBid = parseFloat(last24HourStats.avgBid).toFixed(3);
+    const avgBid = parseFloat(last24HourStats.avgBid).toFixed(2);
     const avgEpochs = parseInt(last24HourStats.avgEpochsNumber);
 
-    const message = `Daily Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+    const message = `Last Day Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
@@ -136,10 +136,10 @@ async function fetchAndSendWeeklyPubs(ctx) {
     const totalPubs = lastWeekStats.totalPubs;
     const totalTracSpent = parseInt(lastWeekStats.totalTracSpent);
     const avgPubPrice = parseFloat(lastWeekStats.avgPubPrice).toFixed(2);
-    const avgBid = parseFloat(lastWeekStats.avgBid).toFixed(3);
+    const avgBid = parseFloat(lastWeekStats.avgBid).toFixed(2);
     const avgEpochs = parseInt(lastWeekStats.avgEpochsNumber);
 
-    const message = `Weekly Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+    const message = `Last 7 Days Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
@@ -173,10 +173,10 @@ async function fetchAndSendMonthlyPubs(ctx) {
     const totalPubs = lastMonthStats.totalPubs;
     const totalTracSpent = parseInt(lastMonthStats.totalTracSpent);
     const avgPubPrice = parseFloat(lastMonthStats.avgPubPrice).toFixed(2);
-    const avgBid = parseFloat(lastMonthStats.avgBid).toFixed(3);
+    const avgBid = parseFloat(lastMonthStats.avgBid).toFixed(2);
     const avgEpochs = parseInt(lastMonthStats.avgEpochsNumber);
 
-    const message = `Monthly Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
+    const message = `Last 30 Days Stats\nTotal pubs: ${totalPubs}\nTRAC spent: ${totalTracSpent}\nPub price: ${avgPubPrice}\nBid: ${avgBid}\nEpochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
