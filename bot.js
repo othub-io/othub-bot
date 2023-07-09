@@ -13,6 +13,7 @@ const { isAdmin , adminCommand } = require('./src/modules/systemCommands.js')
 const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
+const nodeStats = require('./src/modules/nodeStats.js')
 
 const {
   Telegraf,
@@ -70,6 +71,7 @@ bot.command('mynodes', async ctx => {
   }
 })
 
+//networkStats
 bot.command('networkstats', async ctx => {
   command = 'networkstats'
   spamCheck = await queryTypes.spamCheck()
@@ -100,6 +102,7 @@ bot.command('networkstats', async ctx => {
   }
 })
 
+//networkPubs
 bot.command('hourlypubs', async ctx => {
   command = 'hourlypubs'
   spamCheck = await queryTypes.spamCheck()
@@ -221,6 +224,7 @@ bot.command('monthlypubs', async ctx => {
   }
 })
 
+//systemCommands
 adminCommand(bot);
 
 bot.command('commands', async (ctx) => {
@@ -260,6 +264,7 @@ bot.command('commands', async (ctx) => {
     }, process.env.DELETE_TIMER)
   }
 });
+
 
 bot.command('admincommands', async (ctx) => {
   command = 'admincommands'
@@ -310,6 +315,65 @@ bot.command('admincommands', async (ctx) => {
       }
     }, process.env.DELETE_TIMER)
   }
+});
+
+
+//nodeStats
+bot.command('nodestatslasthour', async ctx => {
+  command = 'nodestatslasthour';
+  spamCheck = await queryTypes.spamCheck();
+  telegram_id = ctx.message.from.id;
+
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(({ permission }) => {
+      return permission;
+    })
+    .catch(error => console.log(`Error : ${error}`));
+
+  if (permission != 'allow') {
+    await ctx.deleteMessage();
+    return;
+  }
+
+  const tokenSymbol = ctx.message.text.split(' ')[1];
+
+  stats.lastHourNodeStats(tokenSymbol, async (err, result) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    if (result) {
+      const botmessage = await ctx.reply(result);
+
+      if (botmessage) {
+        setTimeout(async () => {
+          try {
+            await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id);
+          } catch (error) {
+            console.error('Error deleting message:', error);
+          }
+        }, process.env.DELETE_TIMER);
+      }
+    } else {
+      await ctx.reply('No results found');
+    }
+  });
+});
+
+// Similarly for nodestatslastday, nodestatslastweek, nodestatslastmonth
+
+bot.onText(/\/nodestatslastday (.+)/, (msg, match) => {
+  // ... similar code here
+});
+
+bot.onText(/\/nodestatslastweek (.+)/, (msg, match) => {
+  // ... similar code here
+});
+
+bot.onText(/\/nodestatslastmonth (.+)/, (msg, match) => {
+  // ... similar code here
 });
 
 cron.schedule(process.env.ASK_MONITOR, async function () {
