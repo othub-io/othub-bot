@@ -12,8 +12,8 @@ module.exports = {
     description: 'Start the otnode service'
   },
   'otnodelogs': { 
-    action: 'journalctl -u otnode --output cat -n 100', 
-    description: 'Show the last 100 entries of the otnode service logs'
+    action: 'journalctl -u otnode --output cat -n 20', 
+    description: 'Show the last 20 entries of the otnode service logs'
   },
   'otnode2restart': { 
     action: 'systemctl restart otnode2.service', 
@@ -28,8 +28,8 @@ module.exports = {
     description: 'Start the otnode2 service'
   },
   'otnode2logs': { 
-    action: 'journalctl -u otnode2 --output cat -n 100', 
-    description: 'Show the last 100 entries of the otnode2 service logs'
+    action: 'journalctl -u otnode2 --output cat -n 20', 
+    description: 'Show the last 20 entries of the otnode2 service logs'
   },
   'othubbotrestart': { 
     action: 'systemctl restart othub-bot', 
@@ -60,8 +60,8 @@ module.exports = {
     description: 'Start the otp-sync-rpc service'
   },
   'otpsyncrpclogs': { 
-    action: 'journalctl -u otp-sync-rpc --output cat -n 100', 
-    description: 'Show the last 100 entries of the otp-sync-rpc service logs'
+    action: 'journalctl -u otp-sync-rpc --output cat -n 20', 
+    description: 'Show the last 20 entries of the otp-sync-rpc service logs'
   },
   'othubapirestart': { 
     action: 'systemctl restart othub-api', 
@@ -76,8 +76,8 @@ module.exports = {
     description: 'Start the othub-api service'
   },
   'othubapilogs': { 
-    action: 'journalctl -u othub-api --output cat -n 100', 
-    description: 'Show the last 100 entries of the othub-api service logs'
+    action: 'journalctl -u othub-api --output cat -n 20', 
+    description: 'Show the last 20 entries of the othub-api service logs'
   },
   'othubreactrestart': { 
     action: 'systemctl restart othub-react', 
@@ -92,8 +92,8 @@ module.exports = {
     description: 'Start the othub-react service'
   },
   'othubreactlogs': { 
-    action: 'journalctl -u othub-react --output cat -n 100', 
-    description: 'Show the last 100 entries of the othub-react service logs'
+    action: 'journalctl -u othub-react --output cat -n 20', 
+    description: 'Show the last 20 entries of the othub-react service logs'
   },
   'othubruntimerestart': { 
     action: 'systemctl restart othub-runtime', 
@@ -108,7 +108,7 @@ module.exports = {
     description: 'Start the othub-runtime service'
   },
   'othubruntimelogs': { 
-    action: 'journalctl -u othub-runtime --output cat -n 100', 
-    description: 'Show the last 100 entries of the othub-runtime service logs'
+    action: 'journalctl -u othub-runtime --output cat -n 20', 
+    description: 'Show the last 20 entries of the othub-runtime service logs'
   },
 };
