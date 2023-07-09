@@ -43,7 +43,13 @@ function getReadableTime(days) {
 
 async function fetchNetworkStatistics(ctx) {
   try {
-    await ctx.deleteMessage();
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
 
     const pubStats = await query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, (SELECT AVG(avgPubPrice) FROM v_pubs_stats WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)) AS avgPubPriceLast30Days FROM v_pubs_stats');
     const nodeStats = await query('SELECT SUM(nodeStake) AS totalNodeStake, COUNT(*) AS totalNodes FROM v_nodes WHERE nodeStake >= 50000');
