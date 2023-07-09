@@ -58,7 +58,13 @@ function getLastMonthStats() {
 
 async function fetchAndSendHourlyPubs(ctx) {
   try {
-    await ctx.deleteMessage();
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
 
     const lastHourStats = await getLastHourStats();
 
@@ -80,7 +86,13 @@ async function fetchAndSendHourlyPubs(ctx) {
 
 async function fetchAndSendDailyPubs(ctx) {
   try {
-    await ctx.deleteMessage();
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
 
     const last24HourStats = await getLast24HourStats();
 
@@ -111,7 +123,13 @@ async function fetchAndSendDailyPubs(ctx) {
 
 async function fetchAndSendWeeklyPubs(ctx) {
   try {
-    await ctx.deleteMessage();
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
 
     const lastWeekStats = await getLastWeekStats();
 
@@ -142,7 +160,13 @@ async function fetchAndSendWeeklyPubs(ctx) {
 
 async function fetchAndSendMonthlyPubs(ctx) {
   try {
-    await ctx.deleteMessage();
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
 
     const lastMonthStats = await getLastMonthStats();
 
