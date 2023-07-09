@@ -364,18 +364,6 @@ bot.command('nodestatslasthour', async ctx => {
 
 // Similarly for nodestatslastday, nodestatslastweek, nodestatslastmonth
 
-bot.onText(/\/nodestatslastday (.+)/, (msg, match) => {
-  // ... similar code here
-});
-
-bot.onText(/\/nodestatslastweek (.+)/, (msg, match) => {
-  // ... similar code here
-});
-
-bot.onText(/\/nodestatslastmonth (.+)/, (msg, match) => {
-  // ... similar code here
-});
-
 cron.schedule(process.env.ASK_MONITOR, async function () {
   await askMonitor()
 })
