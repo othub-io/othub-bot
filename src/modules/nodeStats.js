@@ -18,7 +18,7 @@ exports.lastHourNodeStats = (tokenSymbol, callback) => {
         if (results.length > 0) {
           let res = results[0];
           let stats = `
-            Last Hour Stats:
+            Last Hour Node Stats
 nodeId: ${res.nodeId}
 tokenSymbol: ${res.tokenSymbol}
 nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
@@ -46,7 +46,7 @@ exports.lastDayNodeStats = (tokenSymbol, callback) => {
         if (results.length > 0) {
           let res = results[0];
           let stats = `
-            Last Day Stats:
+            Last Day Node Stats
 nodeId: ${res.nodeId}
 tokenSymbol: ${res.tokenSymbol}
 nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
@@ -74,7 +74,7 @@ exports.lastWeekNodeStats = (tokenSymbol, callback) => {
       if (results.length > 0) {
         let res = results[0];
         let stats = `
-          Last 7 Days Stats:
+          Last 7 Days Node Stats
 nodeId: ${res.nodeId}
 tokenSymbol: ${res.tokenSymbol}
 nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
@@ -102,7 +102,7 @@ exports.lastMonthNodeStats = (tokenSymbol, callback) => {
       if (results.length > 0) {
         let res = results[0];
         let stats = `
-          Last 30 Days Stats:
+          Last 30 Days Node Stats
 nodeId: ${res.nodeId}
 tokenSymbol: ${res.tokenSymbol}
 nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
