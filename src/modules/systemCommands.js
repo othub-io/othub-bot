@@ -53,7 +53,7 @@ async function adminCommand(bot) {
           } else {
             // Don't send success message for restart or stop commands as they might have killed the process already
             if (commandName !== 'othubbotrestart' && commandName !== 'othubbotstop') {
-              botmessage = await ctx.reply(`Command execution successful: ${stdout}`);
+              botmessage = await ctx.reply(`Command execution successful\n${stdout}`);
             }
           }
           
@@ -69,7 +69,7 @@ async function adminCommand(bot) {
         });
 
         childProcess.on('error', async (error) => {
-          const botmessage = await ctx.reply(`Command failed with error: ${error.message}`);
+          const botmessage = await ctx.reply(`Command failed with error\n${error.message}`);
           
           if (botmessage) {
             setTimeout(async () => {
