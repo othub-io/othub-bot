@@ -431,7 +431,14 @@ bot.command('nodestatslasthour', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('No results found');
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
     }
   });
 });
@@ -488,7 +495,14 @@ bot.command('nodestatslastday', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('No results found');
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
     }
   });
 });
@@ -545,7 +559,14 @@ bot.command('nodestatslastweek', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('No results found');
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
     }
   });
 });
@@ -602,7 +623,14 @@ bot.command('nodestatslastmonth', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('No results found');
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
     }
   });
 });
