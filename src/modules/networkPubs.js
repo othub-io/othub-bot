@@ -83,7 +83,7 @@ ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-📏Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
@@ -120,7 +120,7 @@ ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-📏Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
@@ -166,7 +166,7 @@ ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-📏Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
@@ -212,7 +212,7 @@ ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-📏Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}`;
 
     return await ctx.reply(message);
   } catch (error) {
