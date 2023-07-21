@@ -34,7 +34,13 @@ const shell = require('shelljs')
 
 bot.use(session({ ttl: 10 }))
 
-setInterval(() => checkForNewPublishers(callback), 5 * 60 * 1000);
+const chatId = process.env.ALLIANCE_ID;
+
+function notifyTelegram(publisher) {
+  bot.sendMessage(chatId, `New publisher: ${publisher}`);
+}
+
+setInterval(() => checkForNewPublishers(notifyTelegram), 1 * 60 * 1000);
 
 bot.on('new_chat_members', async ctx => {
   const specificChannelId = process.env.ALLIANCE_ID;
