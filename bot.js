@@ -14,6 +14,7 @@ const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
+const { checkForNewPublishers } = require('./src/modules/eventMonitor.js')
 
 const {
   Telegraf,
@@ -32,6 +33,14 @@ const express = require('express')
 const shell = require('shelljs')
 
 bot.use(session({ ttl: 10 }))
+
+const chatId = process.env.ALLIANCE_ID;
+
+function notifyTelegram(publisher) {
+  bot.sendMessage(chatId, `New publisher: ${publisher}`);
+}
+
+setInterval(() => checkForNewPublishers(notifyTelegram), 1 * 60 * 1000);
 
 bot.on('new_chat_members', async ctx => {
   const specificChannelId = process.env.ALLIANCE_ID;
