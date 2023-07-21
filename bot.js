@@ -37,7 +37,7 @@ bot.use(session({ ttl: 10 }))
 const chatId = process.env.ALLIANCE_ID;
 
 function notifyTelegram(publisher) {
-  bot.sendMessage(chatId, `New publisher: ${publisher}`);
+  bot.telegram.sendMessage(chatId, `New publisher: ${publisher}`);
 }
 
 setInterval(() => checkForNewPublishers(notifyTelegram), 1 * 60 * 1000);
