@@ -83,7 +83,7 @@ async function fetchAndSendHourlyPubs(ctx) {
     const message = `== Last Hour \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
-${avgPubSizeEmoji}Size: ${avgPubSize}kb
+${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
 ⏰Epochs: ${avgEpochs}`;
@@ -124,7 +124,7 @@ async function fetchAndSendDailyPubs(ctx) {
     const message = `== Last Day \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
-${avgPubSizeEmoji}Size: ${avgPubSize}kb
+${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
 ⏰Epochs: ${avgEpochs}`;
@@ -173,7 +173,7 @@ async function fetchAndSendWeeklyPubs(ctx) {
     const message = `== Last Week \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
-${avgPubSizeEmoji}Size: ${avgPubSize}kb
+${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
 ⏰Epochs: ${avgEpochs}`;
@@ -222,7 +222,7 @@ async function fetchAndSendMonthlyPubs(ctx) {
     const message = `== Last Month \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
-${avgPubSizeEmoji}Size: ${avgPubSize}kb
+${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
 ⏰Epochs: ${avgEpochs}`;
