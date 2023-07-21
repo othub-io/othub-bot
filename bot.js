@@ -41,7 +41,9 @@ function notifyTelegram(newPublishers) {
   bot.telegram.sendMessage(chatId, message);
 }
 
-setInterval(() => checkForNewPublishers(notifyTelegram), 1 * 60 * 1000);
+cron.schedule(process.env.HOURLY, function() {
+  checkForNewPublishers(notifyTelegram);
+});
 
 bot.on('new_chat_members', async ctx => {
   const specificChannelId = process.env.ALLIANCE_ID;
