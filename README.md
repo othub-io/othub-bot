@@ -1,27 +1,15 @@
 # OTHub Bot
 
-OTHub bot is a community managed multi purpose bot allowing social media platforms to interact directly with the DKG. 
+OTHub bot is a community managed multi purpose bot allowing social media platforms to view DKG network statistics and seamlessly get, update, publish knowledge assets. 
 
 ### OTHub bot will be designed with a few functionalities in mind:
 - Provide an interactive and simple way for Telegram and Discord users to query the DKG network statistics and to publish knowledge assets;
 - Provide a simple way for Twitter users to query the DKG and to turn Tweets into knowledge assets, making them verifiable, immutable and traceable by simply tagging @othubbot with a command;
-- Provide a network monitor for [OTHub](othub.io) Alliance node runners;
-- Provide a tool that reports significant network activities such as new record daily publishing amount, new high stake node detected and publishes them on social media and chat platforms;
-- Flexibility to adapt to any trending chat or social media platforms.
+- Provide a tool that reports significant network activities such as new record daily publishing amount, new high stake node detected and publishes them on social media and chat platforms to gather discussion and interest towards the ecosystem;
 
-### Timeline
-- Q3 2023 - Chat platform bot integration with basic network statistics
-- Q4 2023 - Network monitor for [OTHub](othub.io) Alliance node runners
-- Q1 2024 - Chat platform bot integration with full functionality (querying DKG, asset publishing)
-- Q2 2024 - Significant network activities reporting
-- Q3 2024 - Twitter integration with full functionality
-- Q4 2024 - Further integration with other platforms
+OTHub bot aims to fill the void between the retail user and the technical skills required to fully utilize the DKG infrastructure, fulfilling one of the core pillars of OriginTrail, usability. The lack of user-friendly front end to publish knowledge assets to the DKG across social media or chat platforms is a potential hindrance to retail adoption. The exposure to popular platforms such as Telegram, Discord and Twitter and allowing users to publish knowledge assets with just a few clicks should have a positive impact on the networking effects of the DKG. The primary goal of this project is to make viewing the DKG network and publishing assets extremely user-friendly and accessible. 
 
-
-### Expected Impact
-OTHub bot aims to fill the void between the retail user and the technical skills required to fully utilize the DKG infrastructure, fulfilling one of the core pillars of OriginTrail, usability. The lack of user-friendly frontend to publish knowledge assets to the DKG across social media or chat platforms is a potential obstacle to retail adoption and appreciation. The exposure to popular platforms such as Telegram, Discord and Twitter and allowing users to publish knowledge assets with just a few clicks should have a positive impact on the networking effects of the DKG. The primary goal of this project is to make viewing the DKG network and publishing assets extremely user-friendly. As a bot, the scalability, compatibility and reusability of the project is high, and the expected impact on network activity is very high as well. 
-
-An early version of the OTHub bot has been released to the public on OriginTrail's Community channel on June 2023 and reception has been overwhelmingly positive. OTHub bot Telegram handle is [@othubbot](t.me/othubbot). Anyone can add @othubbot to their Telegram channel and use it right away (given admin rights with ability to delete messages).
+An early version of the OTHub bot has been released to the public on OriginTrail's Community channel on June 2023 and reception has been overwhelmingly positive. The OTHub bot Telegram handle is [@othubbot](t.me/othubbot) and is available for everyone.
 
 ### Instructions
 > **Warning**
@@ -54,7 +42,6 @@ Below is the list of essential parameters:
 Set up your MySQL database
 ```
 apt-get install mysql-server -y
-node ~/othub-bot/create-db.js
 ```
 Copy the service file and start the bot
 ```
