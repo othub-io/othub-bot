@@ -52,13 +52,14 @@ async function fetchNetworkStatistics(ctx) {
     }, process.env.DELETE_TIMER);
 
     const pubStats = await query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, (SELECT AVG(avgPubPrice) FROM v_pubs_stats WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)) AS avgPubPriceLast30Days FROM v_pubs_stats');
-    const nodeStats = await query('SELECT SUM(nodeStake) AS totalNodeStake, COUNT(*) AS totalNodes FROM v_nodes WHERE nodeStake >= 50000');
+    const nodeStats = await query('SELECT AVG(nodeAsk) AS avgNodeAsk, SUM(nodeStake) AS totalNodeStake, COUNT(*) AS totalNodes FROM v_nodes WHERE nodeStake >= 50000');
 
     const totalTracSpent = Number(pubStats[0].totalTracSpent).toLocaleString('en-US', {maximumFractionDigits: 0});
     const totalPubs = Number(pubStats[0].totalPubs).toLocaleString('en-US', {maximumFractionDigits: 0});
     const avgPubPrice = Number(pubStats[0].avgPubPriceLast30Days).toFixed(2);
     const totalNodes = Number(nodeStats[0].totalNodes).toLocaleString('en-US', {maximumFractionDigits: 0});
     const totalNodeStake = Number(nodeStats[0].totalNodeStake).toLocaleString('en-US', {maximumFractionDigits: 0});
+    const avgNodeAsk = Number(nodeStats[0].avgNodeAsk).toLocaleString('en-US', {maximumFractionDigits: 0});
 
     const startDate = new Date("2022-12-14");
     const currentDate = new Date();
@@ -72,7 +73,8 @@ async function fetchNetworkStatistics(ctx) {
 💻Total Nodes: ${totalNodes}
 🥩Total Stake: ${totalNodeStake}
 💰Total TRAC Spent: ${totalTracSpent}
-⚖️Average Pub Price: ${avgPubPrice}`;
+⚖️Avg Pub Price: ${avgPubPrice}
+🫴Avg Node Ask: ${avgNodeAsk}`;
 
     const botmessage = await ctx.reply(message);
 
