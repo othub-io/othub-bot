@@ -45,8 +45,11 @@ function notifyTelegramContractsChange(contractsChange) {
   });
 }
 function notifyTelegramNewPublisher(newPublishers) {
-  const message = `🪪New Publisher Detected:\n${newPublishers.join(', ')}`;
-  bot.telegram.sendMessage(chatId, message);
+  const message = `🪪New Publisher Detected:\n${newPublishers.map(publisher =>
+    `<a href="https://origintrail.subscan.io/account/${publisher}">${publisher}</a>`
+  ).join('\n')}`;
+
+  bot.telegram.sendMessage(chatId, message, { parse_mode: 'HTML' });
 }
 
 cron.schedule(process.env.DAILY, function() {
