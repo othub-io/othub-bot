@@ -41,7 +41,7 @@ function notifyTelegram(newPublishers) {
   bot.telegram.sendMessage(chatId, message);
 }
 
-cron.schedule(process.env.HOURLY, function() {
+cron.schedule(process.env.DAILY, function() {
   checkForNewPublishers(notifyTelegram);
 });
 
