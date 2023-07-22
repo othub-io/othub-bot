@@ -36,13 +36,16 @@ bot.use(session({ ttl: 10 }))
 
 const chatId = process.env.ALLIANCE_ID;
 
-function notifyTelegramNewPublisher(newPublishers) {
-  const message = `🪪New Publisher Detected:\n${newPublishers.join(', ')}`;
-  bot.telegram.sendMessage(chatId, message);
-}
+const adminGroup = process.env.ADMIN_GROUP.split(',');
 
 function notifyTelegramContractsChange(contractsChange) {
   const message = `📜DKG V6 Contracts Change Detected!`;
+  adminGroup.forEach(adminId => {
+    bot.telegram.sendMessage(adminId, message);
+  });
+}
+function notifyTelegramNewPublisher(newPublishers) {
+  const message = `🪪New Publisher Detected:\n${newPublishers.join(', ')}`;
   bot.telegram.sendMessage(chatId, message);
 }
 
