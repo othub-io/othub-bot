@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
   database: process.env.SYNC_DB,
 });
 
-function checkForNewPublishers(callback) {
+function NewPublishers(callback) {
     const query = `
     SELECT newPublisher
     FROM (
@@ -31,5 +31,20 @@ function checkForNewPublishers(callback) {
       callback(newPublishers);
     });
   }
+
+  function contractsChange(callback) {
+    const query = "SELECT * FROM v_sys_notif_contracts_change";
   
-  module.exports = { checkForNewPublishers };
+    connection.query(query, (error, results) => {
+      if (error) {
+        console.error('Failed to execute query: ', error);
+        return;
+      }
+  
+      if (results.length > 0) {
+        callback(results);
+      }
+    });
+  }
+  
+  module.exports = { NewPublishers, contractsChange };
