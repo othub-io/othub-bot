@@ -37,7 +37,7 @@ bot.use(session({ ttl: 10 }))
 const chatId = process.env.ALLIANCE_ID;
 
 function notifyTelegram(newPublishers) {
-  let message = 'New publishers:\n' + newPublishers.join('\n');
+  const message = `New Publishers: ${newPublishers.join(', ')}`;
   bot.telegram.sendMessage(chatId, message);
 }
 
