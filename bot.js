@@ -44,13 +44,19 @@ function notifyTelegramContractsChange(contractsChange) {
     bot.telegram.sendMessage(adminId, message);
   });
 }
-function notifyTelegramNewPublisher(newPublishers) {
-  const message = `🪪New Publisher Detected:\n${newPublishers.map(publisher =>
-    `<a href="https://origintrail.subscan.io/account/${publisher}">${publisher}</a>`
-  ).join('\n')}`;
 
+function notifyTelegramNewPublisher(newPublishers) {
+  if (!newPublishers.length) {
+    console.log('No new publishers found.');
+    return;
+  }
+  const messages = newPublishers.map(publisher => 
+    `<a href="https://origintrail.subscan.io/account/${publisher}">${publisher}</a>`
+  );
+  const message = `🪪New Publisher Detected:\n${messages.join('\n')}`;
   bot.telegram.sendMessage(chatId, message, { parse_mode: 'HTML' });
 }
+
 
 cron.schedule(process.env.DAILY, function() {
   NewPublishers(notifyTelegramNewPublisher);
