@@ -216,7 +216,7 @@ module.exports = myNodes = async ctx => {
     Overall Performance: ${performance}
         `
     
-    const messageSent = await bot.telegram.sendMessage(process.env.ALLIANCE_ID, msg);
+    const messageSent = await bot.telegram.sendMessage(process.env.OTHUB_ID, msg);
     await ctx.deleteMessage();
     return messageSent;
   } catch (e) {

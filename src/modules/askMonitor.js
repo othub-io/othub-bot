@@ -163,7 +163,7 @@ module.exports = askMonitor = async () => {
       members_bot = new Telegraf(nonCompliantNode.botToken)
 
       telegramInfo = await bot.telegram.getChatMember(
-        process.env.ALLIANCE_ID,
+        process.env.OTHUB_ID,
         nonCompliantNode.telegramId
       )
 
@@ -207,17 +207,17 @@ module.exports = askMonitor = async () => {
         )
 
         await alliance_bot.telegram.sendMessage(
-          process.env.ALLIANCE_ID,
+          process.env.OTHUB_ID,
           `@${telegramInfo.user.username}, is being removed from the alliance for having a node that is non compliant.`
         )
 
         await alliance_bot.telegram.kickChatMember(
-          process.env.ALLIANCE_ID,
+          process.env.OTHUB_ID,
           nonCompliantNode.telegramId
         )
 
         await alliance_bot.telegram.unbanChatMember(
-          process.env.ALLIANCE_ID,
+          process.env.OTHUB_ID,
           nonCompliantNode.telegramId
         )
 
