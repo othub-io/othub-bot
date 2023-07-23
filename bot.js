@@ -26,16 +26,16 @@ bot.on('new_chat_members', (ctx) => {
   if (ctx.chat.id == chatId) {
     const firstName = ctx.message.new_chat_member.first_name;
 
-    const welcomeMessage = `Hello, ${firstName}! 👋\n\nWelcome to the OTHub Official Channel!\n
-Before you start, please take a moment to review the rules of this channel:\n
+    const welcomeMessage = `Hello, ${firstName}! 👋\n\nWelcome to the Official OTHub Channel!\n
+Before you start, please take a moment to review the rules:\n
 1️⃣ Be respectful: Each member of this community is expected to maintain a respectful and considerate tone when communicating with others.
 2️⃣ Keep it professional: This is a professional community focused on OTHub's development. Please keep discussions focused on development topics and refrain from unrelated or inappropriate content.
 3️⃣ No spam or self-promotion: Spamming and self-promotion are not allowed. Please do not share irrelevant links or promote personal projects.
-4️⃣ Seek to contribute: Aim to contribute positively to the discussions. Your insights and experiences can be of great value to others!\n
+4️⃣ Seek to contribute: Aim to contribute positively to the discussions. Your insights and experiences can be of great value to others!
 
 Remember, violation of these rules may result in your removal from the community. By remaining in this community, you agree to abide by these rules.
 
-Useful links:\n
+Useful links:
 1️⃣ [OTHub Official Website](https://othub.io)
 2️⃣ [OTHub GitHub](https://github.com/othub-io)
 3️⃣ [OriginTrail Official Website](https://origintrail.io)
@@ -45,11 +45,13 @@ Useful links:\n
 7️⃣ [OriginTrail DeepDive](https://deepdive.origintrail.club)
 8️⃣ [TracVerse](https://tracverse.com)
 
+For more interactions with @othubbot, please type: /commands
+
 If you agree to these rules, please press the 'I Accept the Rules' button.`;
 
     ctx.reply(welcomeMessage, Markup.inlineKeyboard([
-        Markup.button.callback('I Accept the Rules', 'accept_rules')
-      ]).extra()).catch(console.error);
+      Markup.button.callback('I Accept the Rules', 'accept_rules')
+    ])).catch(console.error);
 
   bot.action('accept_rules', (ctx) => {
     ctx.reply('Thank you for accepting the rules! You can now participate in the OTHub discussion.').catch(console.error);
