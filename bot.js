@@ -53,9 +53,23 @@ If you agree to these rules, please press the 'I Accept the Rules' button.`;
       Markup.button.callback('I Accept the Rules', 'accept_rules')
     ])).catch(console.error);
 
-  bot.action('accept_rules', (ctx) => {
-    ctx.reply('Thank you for accepting the rules! You can now participate in the OTHub discussion.').catch(console.error);
-  });
+    setTimeout(() => {
+      if (userAcceptedRules[userId] === false) {
+        ctx.telegram.kickChatMember(ctx.chat.id, userId);
+        delete userAcceptedRules[userId];
+      }
+    }, 5000);
+  }
+});
+
+bot.action(/accept_rules:(\d+)/, async (ctx) => {
+  const userId = parseInt(ctx.match[1]);
+
+  if (userId in userAcceptedRules) {
+    userAcceptedRules[userId] = true;
+    const user = await ctx.telegram.getChatMember(ctx.chat.id, userId);
+    const firstName = user.user.first_name;
+    ctx.reply(`Thank you ${firstName} for accepting the rules! You can now participate in the discussion.`).catch(console.error);
   }
 });
 
