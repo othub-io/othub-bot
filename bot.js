@@ -11,7 +11,8 @@ const { NewPublishers,contractsChange } = require('./src/modules/eventMonitor.js
 
 const {
   Telegraf,
-  session
+  session,
+  Markup
 } = require('telegraf')
 const Extra = Telegraf.Extra;
 const Markup = require('telegraf/markup');
@@ -48,17 +49,15 @@ Useful links:\n
 
 If you agree to these rules, please press the 'I Accept the Rules' button.`;
 
-    ctx.reply(welcomeMessage, Extra.markup(
-      Markup.inlineKeyboard([
-        Markup.callbackButton('I Accept the Rules', 'accept_rules')
-      ])
-    )).catch(console.error);
-  }
-  });
+    ctx.reply(welcomeMessage, Markup.inlineKeyboard([
+        Markup.button.callback('I Accept the Rules', 'accept_rules')
+      ]).extra()).catch(console.error);
 
   bot.action('accept_rules', (ctx) => {
     ctx.reply('Thank you for accepting the rules! You can now participate in the OTHub discussion.').catch(console.error);
   });
+  }
+});
 
 ////////////////eventMonitor
 
