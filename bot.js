@@ -15,16 +15,58 @@ const {
   Scenes,
   Markup,
   BaseScene,
-  Stage
+  Stage,
+  Extra
 } = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
 
 bot.use(session({ ttl: 10 }))
 
-////////////////eventMonitor
 const chatId = process.env.OTHUB_ID;
 const adminGroup = process.env.ADMIN_GROUP.split(',');
+
+bot.on('new_chat_members', (ctx) => {
+  if (ctx.chat.id == chatId) {
+    const firstName = ctx.message.new_chat_member.first_name;
+
+    const welcomeMessage = `Hello, ${firstName}! 👋\n\nWelcome to the OTHub Official Channel!\n
+Before you start, please take a moment to review the rules of this channel:\n
+1️⃣ Be respectful: Each member of this community is expected to maintain a respectful and considerate tone when communicating with others.
+
+2️⃣ Keep it professional: This is a professional community focused on OTHub's development. Please keep discussions focused on development topics and refrain from unrelated or inappropriate content.
+
+3️⃣ No spam or self-promotion: Spamming and self-promotion are not allowed. Please do not share irrelevant links or promote personal projects.
+
+4️⃣ Seek to contribute: Aim to contribute positively to the discussions. Your insights and experiences can be of great value to others!
+
+Remember, violation of these rules may result in your removal from the community. By remaining in this community, you agree to abide by these rules.
+
+Useful links:\n
+1️⃣ [OTHub Official Website](https://othub.io)
+2️⃣ [OTHub GitHub](https://github.com/othub-io)
+3️⃣ [OriginTrail Official Website](https://origintrail.io)
+4️⃣ [DKG Explorer](https://dkg.origintrail.io/)
+5️⃣ [OriginTrail Subscan](https://origintrail.subscan.io/)
+6️⃣ [OriginTrail Docs](https://docs.origintrail.io/)
+7️⃣ [OriginTrail DeepDive](https://deepdive.origintrail.club)
+8️⃣ [TracVerse](https://tracverse.com)
+
+If you agree to these rules, please press the 'I Accept the Rules' button.`;
+
+    ctx.reply(welcomeMessage, Extra.markup(
+      Markup.inlineKeyboard([
+        Markup.callbackButton('I Accept the Rules', 'accept_rules')
+      ])
+    )).catch(console.error);
+  }
+  });
+
+  bot.action('accept_rules', (ctx) => {
+    ctx.reply('Thank you for accepting the rules! You can now participate in the OTHub discussion.').catch(console.error);
+  });
+
+////////////////eventMonitor
 
 function notifyTelegramContractsChange(contractsChange) {
   const message = `📜DKG V6 Contracts Change Detected!`;
