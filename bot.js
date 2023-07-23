@@ -22,6 +22,8 @@ bot.use(session({ ttl: 10 }))
 const chatId = process.env.OTHUB_ID;
 const adminGroup = process.env.ADMIN_GROUP.split(',');
 
+let userAcceptedRules = {};
+
 bot.on('new_chat_members', (ctx) => {
   if (ctx.chat.id == chatId) {
     const firstName = ctx.message.new_chat_member.first_name;
