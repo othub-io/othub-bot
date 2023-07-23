@@ -15,9 +15,9 @@ const {
   Scenes,
   Markup,
   BaseScene,
-  Stage,
-  Extra
+  Stage
 } = require('telegraf')
+const Extra = Telegraf.Extra;
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
 
