@@ -34,7 +34,7 @@ const cron = require('node-cron')
 
 bot.use(session({ ttl: 10 }))
 
-const chatId = process.env.ALLIANCE_ID;
+const chatId = process.env.OTHUB_ID;
 
 const adminGroup = process.env.ADMIN_GROUP.split(',');
 
@@ -64,7 +64,7 @@ cron.schedule(process.env.DAILY, function() {
 });
 
 // bot.on('new_chat_members', async ctx => {
-//   const specificChannelId = process.env.ALLIANCE_ID;
+//   const specificChannelId = process.env.OTHUB_ID;
 //   if (ctx.chat && ctx.chat.id == specificChannelId) {
 //     await newMember(ctx);
 //   }

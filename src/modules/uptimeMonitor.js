@@ -160,7 +160,7 @@ module.exports = uptimeMonitor = async () => {
 
     if (is_down == 'true') {
       telegramInfo = await bot.telegram.getChatMember(
-        process.env.ALLIANCE_ID,
+        process.env.OTHUB_ID,
         member.telegramId
       )
       console.log(

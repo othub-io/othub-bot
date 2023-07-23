@@ -317,5 +317,5 @@ Alliance: ${alliance_stake.toFixed(2)} | TraceLabs: ${TL_stake.toFixed(
                  `
   }
 
-  await bot.telegram.sendMessage(process.env.ALLIANCE_ID, msg)
+  await bot.telegram.sendMessage(process.env.OTHUB_ID, msg)
 }
