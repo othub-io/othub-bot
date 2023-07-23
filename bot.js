@@ -1,13 +1,6 @@
 require('dotenv').config()
 
 const queryTypes = require('./src/util/queryTypes')
-// const networkOverview = require('./src/modules/networkOverview.js')
-// const uptimeMonitor = require('./src/modules/uptimeMonitor.js')
-// const teamMonitor = require('./src/modules/teamMonitor.js')
-// const askMonitor = require('./src/modules/askMonitor.js')
-// const myNodes = require('./src/modules/myNodes.js')
-// const newMember = require('./src/modules/newMember.js')
-// const closeProposals = require('./src/modules/closeProposals.js')
 const networkPubs = require('./src/modules/networkPubs.js')
 const { isAdmin , adminCommand } = require('./src/modules/systemCommands.js')
 const adminCommandList = require('./src/modules/adminCommandList.js')
@@ -25,17 +18,12 @@ const {
   Stage
 } = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
-
-// const os = require('os')
-// const fs = require('fs')
 const cron = require('node-cron')
-// const express = require('express')
-// const shell = require('shelljs')
 
 bot.use(session({ ttl: 10 }))
 
+////////////////eventMonitor
 const chatId = process.env.OTHUB_ID;
-
 const adminGroup = process.env.ADMIN_GROUP.split(',');
 
 function notifyTelegramContractsChange(contractsChange) {
@@ -62,50 +50,6 @@ cron.schedule(process.env.DAILY, function() {
   NewPublishers(notifyTelegramNewPublisher);
   contractsChange(notifyTelegramContractsChange);
 });
-
-// bot.on('new_chat_members', async ctx => {
-//   const specificChannelId = process.env.OTHUB_ID;
-//   if (ctx.chat && ctx.chat.id == specificChannelId) {
-//     await newMember(ctx);
-//   }
-// });
-
-
-// bot.command('mynodes', async ctx => {
-//   command = 'mynodes'
-//   spamCheck = await queryTypes.spamCheck()
-//   telegram_id = ctx.message.from.id
-
-//   permission = await spamCheck
-//     .getData(command, telegram_id)
-//     .then(async ({ permission }) => {
-//       return permission
-//     })
-//     .catch(error => console.log(`Error : ${error}`))
-
-//   if (permission != 'allow') {
-//     setTimeout(async () => {
-//       try {
-//         await ctx.deleteMessage();
-//       } catch (error) {
-//         console.error('Error deleting message:', error);
-//       }
-//     }, process.env.DELETE_TIMER);
-//     return;
-//   }
-
-//   const botmessage = await myNodes(ctx)
-
-//   if (botmessage) {
-//     setTimeout(async () => {
-//       try {
-//         await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
-//       } catch (error) {
-//         console.error('Error deleting message:', error)
-//       }
-//     }, process.env.DELETE_TIMER)
-//   }
-// })
 
 ////////////////networkStats
 bot.command('networkstats', async ctx => {
@@ -180,7 +124,6 @@ bot.command('hourlypubs', async ctx => {
     }, process.env.DELETE_TIMER)
   }
 })
-
 
 bot.command('dailypubs', async ctx => {
   command = 'dailypubs'
@@ -664,43 +607,6 @@ bot.command('nodestatslastmonth', async ctx => {
     }
   });
 });
-
-
-// cron.schedule(process.env.ASK_MONITOR, async function () {
-//   await askMonitor()
-// })
-
-// cron.schedule(process.env.TEAM_MONITOR, async function () {
-//   await teamMonitor()
-// })
-
-// cron.schedule(process.env.UPTIME_MONITOR, async function () {
-//   await uptimeMonitor()
-// })
-
-// cron.schedule(process.env.HOURLY, async function () {
-//   await networkOverview(`hourly`)
-// })
-
-// cron.schedule(process.env.DAILY, async function () {
-//   await networkOverview(`daily`)
-// })
-
-// cron.schedule(process.env.WEEKLY, async function () {
-//   await networkOverview(`weekly`)
-// })
-
-// cron.schedule(process.env.MONTHLY, async function () {
-//   await networkOverview(`monthly`)
-// })
-
-// cron.schedule(process.env.YEARLY, async function () {
-//   await networkOverview(`yearly`)
-// })
-
-// cron.schedule(process.env.ASK_PROPOSAL, async function () {
-//   await closeProposals('ask')
-// })
 
 //-----------------------END---------------------------
 
