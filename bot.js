@@ -14,8 +14,6 @@ const {
   session,
   Markup
 } = require('telegraf')
-const Extra = Telegraf.Extra;
-const Markup = require('telegraf/markup');
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
 
