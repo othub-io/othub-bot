@@ -60,7 +60,7 @@ If you agree to these rules, please press the 'I Accept the Rules' button.`;
         ctx.telegram.kickChatMember(ctx.chat.id, userId);
         delete userAcceptedRules[userId];
       }
-    }, 5000);
+    }, 60000);
   }
 });
 
