@@ -15,9 +15,9 @@ const {
   Scenes,
   Markup,
   BaseScene,
-  Stage,
-  Extra
+  Stage
 } = require('telegraf')
+const Extra = Telegraf.Extra;
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
 
@@ -33,12 +33,9 @@ bot.on('new_chat_members', (ctx) => {
     const welcomeMessage = `Hello, ${firstName}! 👋\n\nWelcome to the OTHub Official Channel!\n
 Before you start, please take a moment to review the rules of this channel:\n
 1️⃣ Be respectful: Each member of this community is expected to maintain a respectful and considerate tone when communicating with others.
-
 2️⃣ Keep it professional: This is a professional community focused on OTHub's development. Please keep discussions focused on development topics and refrain from unrelated or inappropriate content.
-
 3️⃣ No spam or self-promotion: Spamming and self-promotion are not allowed. Please do not share irrelevant links or promote personal projects.
-
-4️⃣ Seek to contribute: Aim to contribute positively to the discussions. Your insights and experiences can be of great value to others!
+4️⃣ Seek to contribute: Aim to contribute positively to the discussions. Your insights and experiences can be of great value to others!\n
 
 Remember, violation of these rules may result in your removal from the community. By remaining in this community, you agree to abide by these rules.
 
