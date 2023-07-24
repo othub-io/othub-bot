@@ -84,26 +84,7 @@ bot.command('setaddress', async (ctx) => {
   let text = ctx.message.text;
   let parts = text.split(' ');
   command = 'setaddress' + '_' + publicAddress;
-  let spamCheck = await queryTypes.spamCheck();
   telegram_id = ctx.message.from.id;
-
-  let permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission
-    })
-    .catch(error => console.log(`Error : ${error}`))
-
-  if (permission != 'allow') {
-    setTimeout(async () => {
-      try {
-        await ctx.deleteMessage();
-      } catch (error) {
-        console.error('Error deleting message:', error);
-      }
-    }, process.env.DELETE_TIMER);
-    return;
-  }
 
   if (parts.length < 2) {
       const noAddressMessage = await ctx.reply('Invalid command. Please provide your public address after /setaddress');
@@ -140,26 +121,7 @@ bot.command('getaddress', async (ctx) => {
     return;
   }
   command = 'getaddress'
-  let spamCheck = await queryTypes.spamCheck();
   telegram_id = ctx.message.from.id;
-
-  let permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission
-    })
-    .catch(error => console.log(`Error : ${error}`))
-
-  if (permission != 'allow') {
-    setTimeout(async () => {
-      try {
-        await ctx.deleteMessage();
-      } catch (error) {
-        console.error('Error deleting message:', error);
-      }
-    }, process.env.DELETE_TIMER);
-    return;
-  }
 
   db.query(
     'SELECT public_address FROM publisher_profile WHERE publisher_id = ? AND command = ?',
