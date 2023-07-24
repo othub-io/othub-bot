@@ -112,7 +112,7 @@ bot.command('setaddress', async (ctx) => {
 
 setTimeout(async () => {
   try {
-    await ctx.telegram.deleteMessage(ctx.chat.id, ctx.message.message_id);
+    await ctx.deleteMessage();
   } catch (error) {
     console.error('Error deleting message:', error);
   }
@@ -153,7 +153,7 @@ bot.command('getaddress', async (ctx) => {
     });
   setTimeout(async () => {
     try {
-      await ctx.telegram.deleteMessage(ctx.chat.id, ctx.message.message_id);
+      await ctx.deleteMessage();
     } catch (error) {
       console.error('Error deleting message:', error);
     }
