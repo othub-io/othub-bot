@@ -69,14 +69,16 @@ const db = mysql.createConnection({
 
 bot.command('setaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
-    let privateChat = await ctx.reply('Please use this command in a private chat with the bot.');
+    let userName = ctx.from.username ? '@' + ctx.from.username : ctx.from.first_name;
+    let message = userName + ', please use this command in a private chat with the bot.';
+    let privatChat = await ctx.reply(message);
     setTimeout(async () => {
       try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, privateChat.message_id);
+          await ctx.telegram.deleteMessage(ctx.chat.id, privatChat.message_id);
       } catch (error) {
           console.error('Error deleting message:', error);
       }
-  }, process.env.DELETE_TIMER);
+    }, process.env.DELETE_TIMER);
     return;
   }
   let chatId = ctx.message.chat.id;
@@ -110,14 +112,16 @@ bot.command('setaddress', async (ctx) => {
 
 bot.command('getaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
-    let privateChat = await ctx.reply('Please use this command in a private chat with the bot.');
+    let userName = ctx.from.username ? '@' + ctx.from.username : ctx.from.first_name;
+    let message = userName + ', please use this command in a private chat with the bot.';
+    let privatChat = await ctx.reply(message);
     setTimeout(async () => {
       try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, privateChat.message_id);
+          await ctx.telegram.deleteMessage(ctx.chat.id, privatChat.message_id);
       } catch (error) {
           console.error('Error deleting message:', error);
       }
-  }, process.env.DELETE_TIMER);
+    }, process.env.DELETE_TIMER);
     return;
   }
   command = 'getaddress'
