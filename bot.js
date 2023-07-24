@@ -84,15 +84,9 @@ bot.command('setaddress', async (ctx) => {
   const text = ctx.message.text;
   const parts = text.split(' ');
   command = 'setaddress' + '_' + publicAddress;
-  spamCheck = await queryTypes.spamCheck();
   telegram_id = ctx.message.from.id;
 
-  permission = await spamCheck
-      .getData(command, telegram_id)
-      .then(({ permission }) => {
-          return permission;
-      })
-      .catch(error => console.log(`Error : ${error}`));
+  permission = await spamCheck.getData(command, telegram_id);
 
   if (permission != 'allow') {
     setTimeout(async () => {
@@ -104,7 +98,7 @@ bot.command('setaddress', async (ctx) => {
     }, process.env.DELETE_TIMER);
     return;
   }
-
+  
   if (parts.length < 2) {
       const noAddressMessage = await ctx.reply('Invalid command. Please provide your public address after /setaddress');
       setTimeout(async () => {
