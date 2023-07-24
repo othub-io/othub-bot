@@ -81,7 +81,6 @@ bot.command('setaddress', async (ctx) => {
     }, process.env.DELETE_TIMER);
     return;
   }
-  
   let chatId = ctx.message.chat.id;
   const publicAddress = ctx.message.text.split(' ')[1];
   let text = ctx.message.text;
@@ -109,14 +108,6 @@ bot.command('setaddress', async (ctx) => {
       
       ctx.reply(`Your public address ${publicAddress} has been saved`);
   });
-
-setTimeout(async () => {
-  try {
-    await ctx.deleteMessage();
-  } catch (error) {
-    console.error('Error deleting message:', error);
-  }
-}, process.env.DELETE_TIMER);
 });
 
 bot.command('getaddress', async (ctx) => {
@@ -151,13 +142,6 @@ bot.command('getaddress', async (ctx) => {
             })
             .catch(error => console.error('Error replying:', error));
     });
-  setTimeout(async () => {
-    try {
-      await ctx.deleteMessage();
-    } catch (error) {
-      console.error('Error deleting message:', error);
-    }
-  }, process.env.DELETE_TIMER);
 });
 
 ////////////////eventMonitor
