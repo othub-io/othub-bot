@@ -83,9 +83,9 @@ bot.command('setaddress', async (ctx) => {
   const publicAddress = ctx.message.text.split(' ')[1];
   let text = ctx.message.text;
   let parts = text.split(' ');
-  let command = 'setaddress' + '_' + publicAddress;
+  command = 'setaddress' + '_' + publicAddress;
   let spamCheck = await queryTypes.spamCheck();
-  let telegram_id = ctx.message.from.id;
+  telegram_id = ctx.message.from.id;
 
   let permission = await spamCheck
     .getData(command, telegram_id)
@@ -139,9 +139,9 @@ bot.command('getaddress', async (ctx) => {
   }, process.env.DELETE_TIMER);
     return;
   }
-  let command = 'getaddress'
+  command = 'getaddress'
   let spamCheck = await queryTypes.spamCheck();
-  let telegram_id = ctx.message.from.id;
+  telegram_id = ctx.message.from.id;
 
   let permission = await spamCheck
     .getData(command, telegram_id)
