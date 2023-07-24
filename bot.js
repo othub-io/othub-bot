@@ -17,6 +17,8 @@ const {
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
 const mysql = require('mysql');
+const spamCheck = require('./src/queries/spamCheck')
+const { query } = require('express')
 
 bot.use(session({ ttl: 10 }))
 
@@ -59,15 +61,28 @@ For more interactions with @othubbot, please type: /commands`;
 
 ////////////////Publish Assets
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.OTHUBBOT_DB
+  host: process.env.DBHOST,
+  user: process.env.DBUSER,
+  password: process.env.DBPASSWORD,
+  database: process.env.OTHUBBOT_DB
 });
 
 bot.command('setaddress', async (ctx) => {
+  if (ctx.chat.type !== 'private') {
+    privatChat = await ctx.reply('Please use this command in a private chat with the bot.');
+    setTimeout(async () => {
+      try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, privatChat.message_id);
+      } catch (error) {
+          console.error('Error deleting message:', error);
+      }
+  }, process.env.DELETE_TIMER);
+    return;
+  }
   const chatId = ctx.message.chat.id;
   const publicAddress = ctx.message.text.split(' ')[1];
+  const text = ctx.message.text;
+  const parts = text.split(' ');
   command = 'setaddress' + '_' + publicAddress;
   spamCheck = await queryTypes.spamCheck();
   telegram_id = ctx.message.from.id;
@@ -80,14 +95,14 @@ bot.command('setaddress', async (ctx) => {
       .catch(error => console.log(`Error : ${error}`));
 
   if (permission != 'allow') {
-      setTimeout(async () => {
-          try {
-              await ctx.deleteMessage();
-          } catch (error) {
-              console.error('Error deleting message:', error);
-          }
-      }, process.env.DELETE_TIMER);
-      return;
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
+    return;
   }
 
   if (parts.length < 2) {
@@ -112,17 +127,48 @@ bot.command('setaddress', async (ctx) => {
   });
 });
 
-bot.command('getaddress', (ctx) => {
-    const chatId = ctx.message.chat.id;
+bot.command('getaddress', async (ctx) => {
+  if (ctx.chat.type !== 'private') {
+    await ctx.reply('Please use this command in a private chat with the bot.');
+    setTimeout(async () => {
+      try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, privatChat.message_id);
+      } catch (error) {
+          console.error('Error deleting message:', error);
+      }
+  }, process.env.DELETE_TIMER);
+    return;
+  }
+  command = 'getaddress'
+  telegram_id = ctx.message.from.id;
 
-    db.query('SELECT public_address FROM publisher_profile WHERE publisher_id = ?', [chatId], function(error, results, fields) {
+  permission = await spamCheck.getData(command, telegram_id);
+
+  if (permission != 'allow') {
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
+    return;
+  }
+
+  db.query(
+    'SELECT public_address FROM publisher_profile WHERE publisher_id = ? AND command = ?',
+    [telegram_id, command],
+    function(error, results, fields) {
         if (error) throw error;
-
-        if (results.length > 0) {
-            ctx.reply(`Your public address is ${results[0].public_address}`);
-        } else {
-            ctx.reply('No public address found. Please set it using /setaddress');
-        }
+        const publicAddress = results[0] ? results[0].public_address : 'No address found';
+        ctx.reply(`Your public address is ${publicAddress}`)
+            .then(botmessage => {
+                setTimeout(() => {
+                    ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+                        .catch(error => console.error('Error deleting message:', error));
+                }, process.env.DELETE_TIMER);
+            })
+            .catch(error => console.error('Error replying:', error));
     });
 });
 
