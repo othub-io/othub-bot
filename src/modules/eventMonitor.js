@@ -56,7 +56,7 @@ function NewPublishers(callback) {
         return;
       }
   
-      if (results.length > 0) {
+      if (results) {
         callback(results);
       }
     });
