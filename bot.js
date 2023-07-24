@@ -70,7 +70,7 @@ bot.command('setaddress', async (ctx) => {
   const text = ctx.message.text;
   const parts = text.split(' ');
 
-  const command = '/setaddress';
+  const command = 'setaddress';
   const spamCheck = await queryTypes.spamCheck();
   const telegram_id = ctx.message.from.id;
 
