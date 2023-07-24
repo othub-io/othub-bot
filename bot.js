@@ -69,24 +69,30 @@ const db = mysql.createConnection({
 
 bot.command('setaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
-    privatChat = await ctx.reply('Please use this command in a private chat with the bot.');
+    let privateChat = await ctx.reply('Please use this command in a private chat with the bot.');
     setTimeout(async () => {
       try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, privatChat.message_id);
+          await ctx.telegram.deleteMessage(ctx.chat.id, privateChat.message_id);
       } catch (error) {
           console.error('Error deleting message:', error);
       }
   }, process.env.DELETE_TIMER);
     return;
   }
-  const chatId = ctx.message.chat.id;
+  let chatId = ctx.message.chat.id;
   const publicAddress = ctx.message.text.split(' ')[1];
-  const text = ctx.message.text;
-  const parts = text.split(' ');
-  command = 'setaddress' + '_' + publicAddress;
-  telegram_id = ctx.message.from.id;
+  let text = ctx.message.text;
+  let parts = text.split(' ');
+  let command = 'setaddress' + '_' + publicAddress;
+  let spamCheck = await queryTypes.spamCheck();
+  let telegram_id = ctx.message.from.id;
 
-  permission = await spamCheck.getData(command, telegram_id);
+  let permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
 
   if (permission != 'allow') {
     setTimeout(async () => {
@@ -98,7 +104,7 @@ bot.command('setaddress', async (ctx) => {
     }, process.env.DELETE_TIMER);
     return;
   }
-  
+
   if (parts.length < 2) {
       const noAddressMessage = await ctx.reply('Invalid command. Please provide your public address after /setaddress');
       setTimeout(async () => {
@@ -123,20 +129,26 @@ bot.command('setaddress', async (ctx) => {
 
 bot.command('getaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
-    await ctx.reply('Please use this command in a private chat with the bot.');
+    let privateChat = await ctx.reply('Please use this command in a private chat with the bot.');
     setTimeout(async () => {
       try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, privatChat.message_id);
+          await ctx.telegram.deleteMessage(ctx.chat.id, privateChat.message_id);
       } catch (error) {
           console.error('Error deleting message:', error);
       }
   }, process.env.DELETE_TIMER);
     return;
   }
-  command = 'getaddress'
-  telegram_id = ctx.message.from.id;
+  let command = 'getaddress'
+  let spamCheck = await queryTypes.spamCheck();
+  let telegram_id = ctx.message.from.id;
 
-  permission = await spamCheck.getData(command, telegram_id);
+  let permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
 
   if (permission != 'allow') {
     setTimeout(async () => {
@@ -631,19 +643,32 @@ bot.command('nodestatslastday', async ctx => {
   });
 });
 
-bot.command('nodestatslastweek', async ctx => {
-  const tokenSymbol = ctx.message.text.split(' ')[1];
-  command = 'nodestatslastweek' + '_' + tokenSymbol;
-  
-  spamCheck = await queryTypes.spamCheck();
+bot.command('setaddress', async (ctx) => {
+  if (ctx.chat.type !== 'private') {
+    let privateChat = await ctx.reply('Please use this command in a private chat with the bot.');
+    setTimeout(async () => {
+      try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, privateChat.message_id);
+      } catch (error) {
+          console.error('Error deleting message:', error);
+      }
+  }, process.env.DELETE_TIMER);
+    return;
+  }
+  let chatId = ctx.message.chat.id;
+  const publicAddress = ctx.message.text.split(' ')[1];
+  let text = ctx.message.text;
+  let parts = text.split(' ');
+  command = 'setaddress' + '_' + publicAddress;
+  let  spamCheck = await queryTypes.spamCheck();
   telegram_id = ctx.message.from.id;
-  
-  permission = await spamCheck
+
+  let permission = await spamCheck
     .getData(command, telegram_id)
-    .then(({ permission }) => {
-      return permission;
+    .then(async ({ permission }) => {
+      return permission
     })
-    .catch(error => console.log(`Error : ${error}`));
+    .catch(error => console.log(`Error : ${error}`))
 
   if (permission != 'allow') {
     setTimeout(async () => {
@@ -656,58 +681,50 @@ bot.command('nodestatslastweek', async ctx => {
     return;
   }
 
-  setTimeout(async () => {
-    try {
-      await ctx.deleteMessage();
-    } catch (error) {
-      console.error('Error deleting message:', error);
-    }
-  }, process.env.DELETE_TIMER);
-
-  nodeStats.lastWeekNodeStats(tokenSymbol, async (err, result) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-
-    if (result) {
-      const botmessage = await ctx.reply(result); 
-
-      if (botmessage) {
-        setTimeout(async () => {
-          try {
-            await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id);
-          } catch (error) {
-            console.error('Error deleting message:', error);
-          }
-        }, process.env.DELETE_TIMER);
-      }
-    } else {
-      const noResultsMessage = await ctx.reply('No results found');
+  if (parts.length < 2) {
+      const noAddressMessage = await ctx.reply('Invalid command. Please provide your public address after /setaddress');
       setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
-        } catch (error) {
-          console.error('Error deleting message:', error);
-        }
+          try {
+              await ctx.telegram.deleteMessage(ctx.chat.id, noAddressMessage.message_id);
+          } catch (error) {
+              console.error('Error deleting message:', error);
+          }
       }, process.env.DELETE_TIMER);
-    }
+      return;
+  }
+
+  const query = 'INSERT INTO publisher_profile (publisher_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?';
+  const params = [chatId, 'setaddress', 'telegram', publicAddress, publicAddress];
+  
+  db.query(query, params, function(error, results, fields) {
+      if (error) throw error;
+
+      ctx.reply(`Your public address ${publicAddress} has been saved`);
   });
 });
 
-bot.command('nodestatslastmonth', async ctx => {
-  const tokenSymbol = ctx.message.text.split(' ')[1];
-  command = 'nodestatslastmonth' + '_' + tokenSymbol;
-  
-  spamCheck = await queryTypes.spamCheck();
+bot.command('getaddress', async (ctx) => {
+  if (ctx.chat.type !== 'private') {
+    let privateChat = await ctx.reply('Please use this command in a private chat with the bot.');
+    setTimeout(async () => {
+      try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, privateChat.message_id);
+      } catch (error) {
+          console.error('Error deleting message:', error);
+      }
+  }, process.env.DELETE_TIMER);
+    return;
+  }
+  command = 'getaddress'
+  let spamCheck = await queryTypes.spamCheck();
   telegram_id = ctx.message.from.id;
-  
-  permission = await spamCheck
+
+  let permission = await spamCheck
     .getData(command, telegram_id)
-    .then(({ permission }) => {
-      return permission;
+    .then(async ({ permission }) => {
+      return permission
     })
-    .catch(error => console.log(`Error : ${error}`));
+    .catch(error => console.log(`Error : ${error}`))
 
   if (permission != 'allow') {
     setTimeout(async () => {
@@ -720,44 +737,23 @@ bot.command('nodestatslastmonth', async ctx => {
     return;
   }
 
-  setTimeout(async () => {
-    try {
-      await ctx.deleteMessage();
-    } catch (error) {
-      console.error('Error deleting message:', error);
-    }
-  }, process.env.DELETE_TIMER);
-
-  nodeStats.lastMonthNodeStats(tokenSymbol, async (err, result) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-
-    if (result) {
-      const botmessage = await ctx.reply(result); 
-
-      if (botmessage) {
-        setTimeout(async () => {
-          try {
-            await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id);
-          } catch (error) {
-            console.error('Error deleting message:', error);
-          }
-        }, process.env.DELETE_TIMER);
-      }
-    } else {
-      const noResultsMessage = await ctx.reply('No results found');
-      setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
-        } catch (error) {
-          console.error('Error deleting message:', error);
-        }
-      }, process.env.DELETE_TIMER);
-    }
-  });
+  db.query(
+    'SELECT public_address FROM publisher_profile WHERE publisher_id = ? AND command = ?',
+    [telegram_id, command],
+    function(error, results, fields) {
+        if (error) throw error;
+        const publicAddress = results[0] ? results[0].public_address : 'No address found';
+        ctx.reply(`Your public address is ${publicAddress}`)
+            .then(botmessage => {
+                setTimeout(() => {
+                    ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+                        .catch(error => console.error('Error deleting message:', error));
+                }, process.env.DELETE_TIMER);
+            })
+            .catch(error => console.error('Error replying:', error));
+    });
 });
+
 
 //-----------------------END---------------------------
 
