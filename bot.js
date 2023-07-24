@@ -69,6 +69,7 @@ const db = mysql.createConnection({
 
 bot.command('setaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
+    await ctx.deleteMessage();
     let userName = ctx.from.username ? '@' + ctx.from.username : ctx.from.first_name;
     let message = userName + ', please use this command in a private chat with the bot.';
     let privateChat = await ctx.reply(message);
@@ -112,6 +113,7 @@ bot.command('setaddress', async (ctx) => {
 
 bot.command('getaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
+    await ctx.deleteMessage();
     let userName = ctx.from.username ? '@' + ctx.from.username : ctx.from.first_name;
     let message = userName + ', please use this command in a private chat with the bot.';
     let privateChat = await ctx.reply(message);
