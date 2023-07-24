@@ -67,14 +67,12 @@ const db = mysql.createConnection({
 
 bot.command('setaddress', async (ctx) => {
   const chatId = ctx.message.chat.id;
-  const text = ctx.message.text;
-  const parts = text.split(' ');
+  const publicAddress = ctx.message.text.split(' ')[1];
+  command = 'setaddress' + '_' + publicAddress;
+  spamCheck = await queryTypes.spamCheck();
+  telegram_id = ctx.message.from.id;
 
-  const command = 'setaddress';
-  const spamCheck = await queryTypes.spamCheck();
-  const telegram_id = ctx.message.from.id;
-
-  const permission = await spamCheck
+  permission = await spamCheck
       .getData(command, telegram_id)
       .then(({ permission }) => {
           return permission;
@@ -103,8 +101,6 @@ bot.command('setaddress', async (ctx) => {
       }, process.env.DELETE_TIMER);
       return;
   }
-
-  const publicAddress = parts[1];
 
   const query = 'INSERT INTO publisher_profile (publisher_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?';
   const params = [chatId, 'setaddress', 'telegram', publicAddress, publicAddress];
