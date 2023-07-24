@@ -16,12 +16,14 @@ const {
 } = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
+const mysql = require('mysql');
 
 bot.use(session({ ttl: 10 }))
 
 const chatId = process.env.OTHUB_ID;
 const adminGroup = process.env.ADMIN_GROUP.split(',');
 
+////////////////New Chat Member Welcome Message
 bot.on('new_chat_members', (ctx) => {
   if (ctx.chat.id == chatId) {
     const firstName = ctx.message.new_chat_member.first_name;
@@ -53,6 +55,79 @@ For more interactions with @othubbot, please type: /commands`;
   }, process.env.DELETE_TIMER);
   }).catch(console.error);
   }
+});
+
+////////////////Publish Assets
+const db = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.OTHUBBOT_DB
+});
+
+bot.command('setaddress', async (ctx) => {
+  const chatId = ctx.message.chat.id;
+  const text = ctx.message.text;
+  const parts = text.split(' ');
+
+  const command = '/setaddress';
+  const spamCheck = await queryTypes.spamCheck();
+  const telegram_id = ctx.message.from.id;
+
+  const permission = await spamCheck
+      .getData(command, telegram_id)
+      .then(({ permission }) => {
+          return permission;
+      })
+      .catch(error => console.log(`Error : ${error}`));
+
+  if (permission != 'allow') {
+      setTimeout(async () => {
+          try {
+              await ctx.deleteMessage();
+          } catch (error) {
+              console.error('Error deleting message:', error);
+          }
+      }, process.env.DELETE_TIMER);
+      return;
+  }
+
+  if (parts.length < 2) {
+      const noAddressMessage = await ctx.reply('Invalid command. Please provide your public address after /setaddress');
+      setTimeout(async () => {
+          try {
+              await ctx.telegram.deleteMessage(ctx.chat.id, noAddressMessage.message_id);
+          } catch (error) {
+              console.error('Error deleting message:', error);
+          }
+      }, process.env.DELETE_TIMER);
+      return;
+  }
+
+  const publicAddress = parts[1];
+
+  const query = 'INSERT INTO publisher_profile (publisher_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?';
+  const params = [chatId, 'setaddress', 'telegram', publicAddress, publicAddress];
+  
+  db.query(query, params, function(error, results, fields) {
+      if (error) throw error;
+      
+      ctx.reply(`Your public address ${publicAddress} has been saved`);
+  });
+});
+
+bot.command('getaddress', (ctx) => {
+    const chatId = ctx.message.chat.id;
+
+    db.query('SELECT public_address FROM publisher_profile WHERE publisher_id = ?', [chatId], function(error, results, fields) {
+        if (error) throw error;
+
+        if (results.length > 0) {
+            ctx.reply(`Your public address is ${results[0].public_address}`);
+        } else {
+            ctx.reply('No public address found. Please set it using /setaddress');
+        }
+    });
 });
 
 ////////////////eventMonitor
