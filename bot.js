@@ -8,18 +8,10 @@ const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
 const { NewPublishers,contractsChange,stagingUpdateStatus } = require('./src/modules/eventMonitor.js')
-
-const {
-  Telegraf,
-  session,
-  Markup
-} = require('telegraf')
+const { Telegraf,session,Markup} = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
 const mysql = require('mysql');
-const spamCheck = require('./src/queries/spamCheck')
-const { query } = require('express')
-
 bot.use(session({ ttl: 10 }))
 
 const chatId = process.env.OTHUB_ID;
@@ -70,9 +62,9 @@ const db = mysql.createConnection({
 bot.command('setaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
     await ctx.deleteMessage();
-    let userName = ctx.from.username ? '@' + ctx.from.username : ctx.from.first_name;
-    let message = userName + ', please use this command in a private chat with the bot.';
-    let privateChat = await ctx.reply(message);
+    const userName = ctx.from.username ? '@' + ctx.from.username : ctx.from.first_name;
+    const message = userName + ', please use this command in a private chat with the bot.';
+    const privateChat = await ctx.reply(message);
     setTimeout(async () => {
       try {
           await ctx.telegram.deleteMessage(ctx.chat.id, privateChat.message_id);
@@ -82,10 +74,10 @@ bot.command('setaddress', async (ctx) => {
     }, process.env.DELETE_TIMER);
     return;
   }
-  let chatId = ctx.message.chat.id;
+  const chatId = ctx.message.chat.id;
   const publicAddress = ctx.message.text.split(' ')[1];
-  let text = ctx.message.text;
-  let parts = text.split(' ');
+  const text = ctx.message.text;
+  const parts = text.split(' ');
   command = 'setaddress' + '_' + publicAddress;
   telegram_id = ctx.message.from.id;
 
@@ -114,9 +106,9 @@ bot.command('setaddress', async (ctx) => {
 bot.command('getaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
     await ctx.deleteMessage();
-    let userName = ctx.from.username ? '@' + ctx.from.username : ctx.from.first_name;
-    let message = userName + ', please use this command in a private chat with the bot.';
-    let privateChat = await ctx.reply(message);
+    const userName = ctx.from.username ? '@' + ctx.from.username : ctx.from.first_name;
+    const message = userName + ', please use this command in a private chat with the bot.';
+    const privateChat = await ctx.reply(message);
     setTimeout(async () => {
       try {
           await ctx.telegram.deleteMessage(ctx.chat.id, privateChat.message_id);
