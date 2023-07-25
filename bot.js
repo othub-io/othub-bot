@@ -8,18 +8,10 @@ const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
 const { NewPublishers,contractsChange,stagingUpdateStatus } = require('./src/modules/eventMonitor.js')
-
-const {
-  Telegraf,
-  session,
-  Markup
-} = require('telegraf')
+const { Telegraf,session,Markup} = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
 const mysql = require('mysql');
-const spamCheck = require('./src/queries/spamCheck')
-const { query } = require('express')
-
 bot.use(session({ ttl: 10 }))
 
 const chatId = process.env.OTHUB_ID;
