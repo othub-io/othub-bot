@@ -1,8 +1,6 @@
-require('dotenv').config();
 const { Telegraf, Markup } = require('telegraf');
 const axios = require('axios');
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
 let data = {};
 
 const optionalQuestions = {
@@ -12,7 +10,7 @@ const optionalQuestions = {
   epochs: 'Epochs (default: 5)',
 };
 
-function publishCommand(){
+module.exports = function publishCommand(bot) {
   bot.command('publish', (ctx) => {
     if (ctx.chat.type !== 'private') {
       ctx.reply('The /publish command can only be used in private chat.');
@@ -164,5 +162,3 @@ function publishCommand(){
     }
   });
 }
-
-module.exports = publishCommand;
