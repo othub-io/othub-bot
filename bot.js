@@ -8,6 +8,7 @@ const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
 const { NewPublishers,contractsChange,stagingUpdateStatus } = require('./src/modules/eventMonitor.js')
+const publishCommand = require('./src/modules/publishCommand.js');
 const { Telegraf,session,Markup} = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
@@ -51,13 +52,8 @@ For more interactions with @othubbot, please type: /commands`;
   }
 });
 
-////////////////Publish Assets
-const db = mysql.createConnection({
-  host: process.env.DBHOST,
-  user: process.env.DBUSER,
-  password: process.env.DBPASSWORD,
-  database: process.env.OTHUBBOT_DB
-});
+////////////////Publish Command
+publishCommand();
 
 bot.command('setaddress', async (ctx) => {
   if (ctx.chat.type !== 'private') {
