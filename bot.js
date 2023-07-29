@@ -12,7 +12,6 @@ const publishCommand = require('./src/modules/publishCommand.js');
 const { Telegraf,session,Markup} = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
-const mysql = require('mysql');
 bot.use(session({ ttl: 10 }))
 
 const chatId = process.env.OTHUB_ID;
@@ -51,9 +50,6 @@ For more interactions with @othubbot, please type: /commands`;
   }).catch(console.error);
   }
 });
-
-////////////////Publish Command
-publishCommand(bot);
 
 ////////////////eventMonitor
 function notifyTelegramContractsChange() {
@@ -658,6 +654,9 @@ bot.command('nodestatslastmonth', async ctx => {
     }
   });
 });
+
+////////////////Publish Command
+publishCommand(bot);
 
 //-----------------------END---------------------------
 
