@@ -11,14 +11,13 @@ const optionalQuestions = {
 };
 
 module.exports = function publishCommand(bot) {
-  bot.use(Telegraf.session());
   bot.command('publish', (ctx) => {
     if (ctx.chat.type !== 'private') {
       ctx.reply('The /publish command can only be used in private chat.');
       return;
     }
 
-    ctx.session.data = { inProgress: true }; // reset data object and set inProgress flag to true
+    data = { inProgress: true }; // reset data object and set inProgress flag to true
     ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please, provide your public wallet address.', Markup
       .keyboard(['/cancel'])
       .oneTime()
@@ -38,7 +37,7 @@ module.exports = function publishCommand(bot) {
     const response = ctx.message.text;
     
     // Don't proceed if operation is not in progress
-    if (!ctx.session.data) return;
+    if (!data.inProgress) return;
 
     if (!data.public_address) {
       data.public_address = response;

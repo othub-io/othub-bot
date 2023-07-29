@@ -1,5 +1,11 @@
 require('dotenv').config()
 
+const { Telegraf,session } = require('telegraf')
+const bot = new Telegraf(process.env.BOT_TOKEN)
+const cron = require('node-cron')
+bot.use(session({ ttl: 10 }))
+
+
 const queryTypes = require('./src/util/queryTypes')
 const networkPubs = require('./src/modules/networkPubs.js')
 const { isAdmin , adminCommand } = require('./src/modules/systemCommands.js')
@@ -9,10 +15,6 @@ const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
 const { NewPublishers,contractsChange,stagingUpdateStatus } = require('./src/modules/eventMonitor.js')
 const publishCommand = require('./src/modules/publishCommand.js');
-const { Telegraf,session,Markup} = require('telegraf')
-const bot = new Telegraf(process.env.BOT_TOKEN)
-const cron = require('node-cron')
-bot.use(session({ ttl: 10 }))
 
 const chatId = process.env.OTHUB_ID;
 const adminGroup = process.env.ADMIN_GROUP.split(',');
