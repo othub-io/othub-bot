@@ -80,12 +80,12 @@ function notifyTelegramNewPublisher(newPublishers) {
   bot.telegram.sendMessage(chatId, message, { parse_mode: 'HTML' });
 }
 
-function notifyTelegramDailyHighPubs() {
-  if (!totalPubs.length) {
+function notifyTelegramDailyHighPubs(dailyHighPubs) {
+  if (!dailyHighPubs.length) {
     console.log('Daily Publishing record not broken.');
     return;
   }
-  const message = `🚀🚀🚀 Daily Publishing Record Breached with ${dailyHighPubs} publishes! 🚀🚀🚀`;
+  const message = `🚀🚀 Daily Publishing Record Breached with ${dailyHighPubs} publishes!! 🚀🚀`;
   bot.telegram.sendMessage(chatId, message);
 }
 
