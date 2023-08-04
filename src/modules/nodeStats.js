@@ -24,7 +24,7 @@ exports.lastHourNodeStats = (tokenSymbol, callback) => {
 🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
 🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
 💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
+💰estimatedPayout: ${parseFloat(res.estimatedEarnings).toFixed(3)}
 🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
           return callback(null, stats);
         } else {
@@ -52,7 +52,7 @@ exports.lastDayNodeStats = (tokenSymbol, callback) => {
 🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
 🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
 💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
+💰estimatedPayout: ${parseFloat(res.estimatedEarnings).toFixed(3)}
 🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
           return callback(null, stats);
         } else {
@@ -80,7 +80,7 @@ exports.lastWeekNodeStats = (tokenSymbol, callback) => {
 🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
 🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
 💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
+💰estimatedPayout: ${parseFloat(res.estimatedEarnings).toFixed(3)}
 🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
         return callback(null, stats);
       } else {
@@ -108,7 +108,7 @@ exports.lastMonthNodeStats = (tokenSymbol, callback) => {
 🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
 🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
 💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
+💰estimatedPayout: ${parseFloat(res.estimatedEarnings).toFixed(3)}
 🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
         return callback(null, stats);
       } else {

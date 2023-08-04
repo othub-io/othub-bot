@@ -13,7 +13,7 @@ const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
-const { NewPublishers,contractsChange,stagingUpdateStatus } = require('./src/modules/eventMonitor.js')
+const { NewPublishers, dailyHighPubs, contractsChange,stagingUpdateStatus } = require('./src/modules/eventMonitor.js')
 const publishCommand = require('./src/modules/publishCommand.js');
 
 const chatId = process.env.OTHUB_ID;
@@ -80,9 +80,19 @@ function notifyTelegramNewPublisher(newPublishers) {
   bot.telegram.sendMessage(chatId, message, { parse_mode: 'HTML' });
 }
 
+function notifyTelegramDailyHighPubs() {
+  if (!totalPubs.length) {
+    console.log('Daily Publishing record not broken.');
+    return;
+  }
+  const message = `🚀🚀🚀 Daily Publishing Record Breached with ${dailyHighPubs} publishes! 🚀🚀🚀`;
+  bot.telegram.sendMessage(chatId, message);
+}
+
 cron.schedule(process.env.DAILY, function() {
   NewPublishers(notifyTelegramNewPublisher);
   contractsChange(notifyTelegramContractsChange);
+  dailyHighPubs(notifyTelegramDailyHighPubs);
 });
 
 cron.schedule(process.env.HOURLY, function(){
