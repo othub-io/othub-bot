@@ -3,8 +3,8 @@ require('dotenv').config()
 const { Telegraf,session } = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
-bot.use(session({ ttl: 10 }))
 
+bot.use(session({ ttl: 10 }))
 
 const queryTypes = require('./src/util/queryTypes')
 const networkPubs = require('./src/modules/networkPubs.js')
@@ -80,7 +80,7 @@ function notifyTelegramNewPublisher(newPublishers) {
   bot.telegram.sendMessage(chatId, message, { parse_mode: 'HTML' });
 }
 
-function notifyTelegramDailyHighPubs(dailyHighPubs) {
+function notifyTelegramDailyHighPubs(dailyHighPubs) {                 
   if (!dailyHighPubs.length) {
     console.log('Daily Publishing record not broken.');
     return;
@@ -668,6 +668,7 @@ bot.command('nodestatslastmonth', async ctx => {
 });
 
 ////////////////Publish Command
+
 publishCommand(bot);
 
 //-----------------------END---------------------------
