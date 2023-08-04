@@ -85,7 +85,7 @@ function notifyTelegramDailyHighPubs(dailyHighPubs) {
     console.log('Daily Publishing record not broken.');
     return;
   }
-  const message = `🚀🚀 Daily Publishing Record Breached with ${dailyHighPubs} publishes!! 🚀🚀`;
+  const message = `🚀🚀 Daily Publishing Record Broken with ${dailyHighPubs} Publishes!! 🚀🚀`;
   bot.telegram.sendMessage(chatId, message);
 }
 
