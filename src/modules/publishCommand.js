@@ -1,7 +1,5 @@
-const { Telegraf, Markup } = require('telegraf');
+const { Markup } = require('telegraf')
 const axios = require('axios');
-
-let data = {};
 
 const optionalQuestions = {
   txn_description: 'Transaction Description',
@@ -11,13 +9,18 @@ const optionalQuestions = {
 };
 
 module.exports = function publishCommand(bot) {
+
   bot.command('publish', (ctx) => {
     if (ctx.chat.type !== 'private') {
       ctx.reply('The /publish command can only be used in private chat.');
       return;
     }
 
-    data = { inProgress: true }; // reset data object and set inProgress flag to true
+    if (!ctx.session) {
+      ctx.session = {};
+    }
+
+    ctx.session.publishData = { inProgress: true };
     ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please, provide your public wallet address.', Markup
       .keyboard(['/cancel'])
       .oneTime()
@@ -26,8 +29,8 @@ module.exports = function publishCommand(bot) {
   });
 
   bot.hears('/cancel', (ctx) => {
-    if (data.inProgress) {
-      data = {};
+    if (ctx.session.publishData && ctx.session.publishData.inProgress) {
+      ctx.session.publishData = {};
       ctx.reply('You canceled the operation.');
     }
   });
@@ -35,9 +38,10 @@ module.exports = function publishCommand(bot) {
   bot.on('text', async (ctx) => {
     if (ctx.chat.type !== 'private') return;
     const response = ctx.message.text;
-    
+    const  data = ctx.session.publishData;
+
     // Don't proceed if operation is not in progress
-    if (!data.inProgress) return;
+    if (!data || !data.inProgress) return;
 
     if (!data.public_address) {
       data.public_address = response;
@@ -69,9 +73,66 @@ module.exports = function publishCommand(bot) {
         .resize()
       );
     } else if (response === 'yes' || response === 'no') {
-      if (response === 'yes') {
+        if (response === 'yes') {
+          const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
+          
+          let URL = `https://api.othub.io/otp/dkg/publish?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
+          
+          if(txn_description) {
+            URL += `&txn_description=${txn_description}`;
+          }
+          
+          if(keywords) {
+            URL += `&keywords=${keywords}`;
+          }
+          
+          if(trac_fee) {
+            URL += `&trac_fee=${trac_fee}`;
+          }
+          
+          if(epochs) {
+            URL += `&epochs=${epochs}`;
+          }
+  
+          try {
+            const res = await axios.get(URL);
+            ctx.reply(`Success! The response is: ${JSON.stringify(res.data)}`);
+          } catch (err) {
+            ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
+          }
+          data = {}; // Reset data
+        } else {
+          // Provide the main optional parameters menu if the user replies 'no'
+          ctx.reply('No problem, let\'s continue. Choose the next optional parameter to provide.', Markup
+            .keyboard(['Transaction Description', 'Keywords', 'TRAC Fee', 'Epochs', 'Publish', '/cancel'])
+            .oneTime()
+            .resize()
+          );
+          delete data.confirm;
+        }
+      } else if (data.lastQuestion) {
+        data[data.lastQuestion] = response === 'skip' ? '' : response;
+        data.lastQuestion = undefined;
+        ctx.reply('Would you like to enter other optional fields or proceed with publishing?', Markup
+          .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
+          .oneTime()
+          .resize()
+        );
+      } else {
+        const questionKey = Object.keys(optionalQuestions).find(key => optionalQuestions[key] === response);
+        if (questionKey) {
+          data.lastQuestion = questionKey;
+          ctx.reply(`Please provide ${response} (optional).`, Markup
+            .keyboard(['/cancel', 'skip'])
+            .oneTime()
+            .resize()
+          );
+        }
+      }
+      if (data.confirm !== undefined) {
+        if (data.confirm) {
         const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
-        
+
         let URL = `https://api.othub.io/otp/dkg/publish?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
         
         if(txn_description) {
@@ -96,9 +157,9 @@ module.exports = function publishCommand(bot) {
         } catch (err) {
           ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
         }
-        data = {}; // Reset data
+        ctx.session.publishData = {}; // Reset data
       } else {
-        // Provide the main optional parameters menu if the user replies 'no'
+        // ... your code for handling the "no" response
         ctx.reply('No problem, let\'s continue. Choose the next optional parameter to provide.', Markup
           .keyboard(['Transaction Description', 'Keywords', 'TRAC Fee', 'Epochs', 'Publish', '/cancel'])
           .oneTime()
@@ -118,46 +179,11 @@ module.exports = function publishCommand(bot) {
       const questionKey = Object.keys(optionalQuestions).find(key => optionalQuestions[key] === response);
       if (questionKey) {
         data.lastQuestion = questionKey;
-        ctx.reply(`Please provide ${response} (optional).`, Markup
-          .keyboard(['/cancel', 'skip'])
+        ctx.reply(`Please provide ${response}. You can also type 'skip' to skip this question.`, Markup
+          .keyboard(['/cancel'])
           .oneTime()
           .resize()
         );
-      }
-    }
-
-    if (data.confirm !== undefined) {
-      if (data.confirm) {
-        const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
-
-        let URL = `https://api.othub.io/otp/dkg/publish?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
-        
-        if(txn_description) {
-          URL += `&txn_description=${txn_description}`;
-        }
-        
-        if(keywords) {
-          URL += `&keywords=${keywords}`;
-        }
-        
-        if(trac_fee) {
-          URL += `&trac_fee=${trac_fee}`;
-        }
-        
-        if(epochs) {
-          URL += `&epochs=${epochs}`;
-        }
-
-        try {
-          const res = await axios.get(URL);
-          data = {}; // Reset the data after successful API call
-          ctx.reply(`Success! The response is: ${JSON.stringify(res.data)}`);
-        } catch (err) {
-          ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
-        }
-      } else {
-        ctx.reply('Operation canceled.');
-        data = {};
       }
     }
   });
