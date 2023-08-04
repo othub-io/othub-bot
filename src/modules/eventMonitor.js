@@ -32,6 +32,24 @@ function NewPublishers(callback) {
     });
   }
 
+  function dailyHighPubs(callback) {
+    const query = `SELECT totalPubs
+    FROM v_pubs_stats
+    WHERE date = (SELECT date FROM v_pubs_stats ORDER BY totalPubs DESC LIMIT 1)
+    AND date = CURDATE() - INTERVAL 1 DAY
+    LIMIT 1;`;
+  
+    connection.query(query, (error, results) => {
+      if (error) {
+        console.error('Failed to execute query: ', error);
+        return;
+      }
+  
+      const dailyHighPubs = results.map(row => row.totalPubs);
+      callback(dailyHighPubs);
+    });
+  }
+
   function contractsChange(callback) {
     const query = "SELECT * FROM v_sys_notif_contracts_change";
   
@@ -60,4 +78,4 @@ function NewPublishers(callback) {
     });
   }
 
-  module.exports = { NewPublishers, contractsChange, stagingUpdateStatus };
+  module.exports = { NewPublishers, dailyHighPubs, contractsChange, stagingUpdateStatus };
