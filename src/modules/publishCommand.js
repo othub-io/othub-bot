@@ -12,7 +12,7 @@ module.exports = function publishCommand(bot) {
 
   bot.command('publish', (ctx) => {
     if (ctx.chat.type !== 'private') {
-      ctx.reply('The /publish command can only be used in private chat.');
+      ctx.reply('The /publish command can only be used in private chat. Please use @othubbot to continue.');
       return;
     }
 
