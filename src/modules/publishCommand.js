@@ -2,6 +2,14 @@ const { Markup } = require('telegraf')
 const axios = require('axios')
 const queryTypes = require('../util/queryTypes')
 const { ethers } = require('ethers');
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+  host: process.env.DBHOST,
+  user: process.env.DBUSER,
+  password: process.env.DBPASSWORD,
+  database: process.env.OTHUBBOT_DB,
+});
 
 const optionalQuestions = {
   txn_description: 'Transaction Description',
@@ -53,11 +61,32 @@ module.exports = function publishCommand(bot) {
     }
 
     ctx.session.publishData = { inProgress: true };
-    ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please provide your public wallet address.', Markup
+    const telegramId = ctx.from.id;
+
+    // Query the database to find the user's public wallet address
+    connection.query('SELECT * FROM publisher_profile WHERE publisher_id = ?', [telegramId], function (error, rows, fields) {
+      if (error) {
+        console.error('Failed to execute query: ', error);
+        return;
+      }
+
+    if (rows.length > 0) {
+      // The user exists in the database, so use the public wallet address associated with them
+      savedPublicAddress = rows[0].public_address;
+      ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please provide your public wallet address.', Markup
+      .keyboard([`${savedPublicAddress}`, '/cancel'])
+      .oneTime()
+      .resize()
+      );
+    } else {
+      // The user doesn't exist in the database, so ask for their public wallet address
+      ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please provide your public wallet address.', Markup
       .keyboard(['/cancel'])
       .oneTime()
       .resize()
-    );
+      );  
+    }
+    })
   });
 
   bot.hears('/cancel', (ctx) => {
@@ -71,8 +100,8 @@ module.exports = function publishCommand(bot) {
     if (ctx.chat.type !== 'private') return;
     const response = ctx.message.text;
     const data = ctx.session.publishData;
+    const telegramId = ctx.from.id;
 
-    // Don't proceed if operation is not in progress
     if (!data || !data.inProgress) return;
 
     if (!data.public_address) {
@@ -84,8 +113,14 @@ module.exports = function publishCommand(bot) {
           .oneTime()
           .resize()
         );
+        delete data.public_address
         return;
-      }
+      } else {
+        await connection.query(
+          'INSERT INTO publisher_profile (publisher_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?',
+          [telegramId, 'publish', 'telegram', data.public_address, data.public_address]
+        );
+      };
       ctx.reply('Please select the network (otp::testnet or otp::mainnet).', Markup
         .keyboard(['otp::testnet', 'otp::mainnet', '/cancel'])
         .oneTime()
