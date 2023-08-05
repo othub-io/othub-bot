@@ -155,7 +155,7 @@ module.exports = function publishCommand(bot) {
           } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
           }
-          data = {}; // Reset data
+          ctx.session.publishData = {}; // Reset data
         } else {
           // Provide the main optional parameters menu if the user replies 'no'
           ctx.reply('No problem, let\'s continue. Choose the next optional parameter to provide.', Markup
