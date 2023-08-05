@@ -77,17 +77,15 @@ module.exports = function publishCommand(bot) {
 
     if (!data.public_address) {
       data.public_address = response;
-
       // Check if the public address is in the correct EVM format
-      if (!ethers.utils.isAddress(data.public_address)) {
-        ctx.reply('The provided public wallet address is not in the correct EVM format. Please provide a valid public wallet address.', Markup
+      if (!ethers.isAddress(data.public_address)) {
+        ctx.reply('Please provide a valid public wallet address in the correct EVM format.', Markup
           .keyboard(['/cancel'])
           .oneTime()
           .resize()
         );
         return;
       }
-
       ctx.reply('Please select the network (otp::testnet or otp::mainnet).', Markup
         .keyboard(['otp::testnet', 'otp::mainnet', '/cancel'])
         .oneTime()
@@ -111,7 +109,7 @@ module.exports = function publishCommand(bot) {
         );
       } catch (error) {
         // If it's not valid JSON, send a message to the user
-        ctx.reply('The data you entered is not in a valid JSON format. Please provide the data in correct JSON format or type /cancel to abort.', Markup
+        ctx.reply('Please provide the data in correct JSON format or type /cancel to abort.', Markup
           .keyboard(['/cancel'])
           .oneTime()
           .resize()
