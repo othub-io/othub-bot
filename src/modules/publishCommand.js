@@ -1,5 +1,7 @@
 const { Markup } = require('telegraf')
-const axios = require('axios');
+const axios = require('axios')
+const queryTypes = require('../util/queryTypes')
+const { ethers } = require('ethers');
 
 const optionalQuestions = {
   txn_description: 'Transaction Description',
@@ -10,9 +12,39 @@ const optionalQuestions = {
 
 module.exports = function publishCommand(bot) {
 
-  bot.command('publish', (ctx) => {
+  bot.command('publish', async (ctx) => {
     if (ctx.chat.type !== 'private') {
-      ctx.reply('The /publish command can only be used in private chat.');
+      command = 'publish'
+      spamCheck = await queryTypes.spamCheck()
+      telegram_id = ctx.message.from.id
+    
+      permission = await spamCheck
+        .getData(command, telegram_id)
+        .then(async ({ permission }) => {
+          return permission
+        })
+        .catch(error => console.log(`Error : ${error}`))
+    
+      if (permission != `allow`) {
+        await ctx.deleteMessage()
+        return
+      }
+      setTimeout(async () => {
+        try {
+          await ctx.deleteMessage();
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
+
+      const noResultsMessage = await ctx.reply('The /publish command is only available in private chat with @othubbot.');
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
       return;
     }
 
@@ -21,7 +53,7 @@ module.exports = function publishCommand(bot) {
     }
 
     ctx.session.publishData = { inProgress: true };
-    ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please, provide your public wallet address.', Markup
+    ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please provide your public wallet address.', Markup
       .keyboard(['/cancel'])
       .oneTime()
       .resize()
@@ -38,13 +70,24 @@ module.exports = function publishCommand(bot) {
   bot.on('text', async (ctx) => {
     if (ctx.chat.type !== 'private') return;
     const response = ctx.message.text;
-    const  data = ctx.session.publishData;
+    const data = ctx.session.publishData;
 
     // Don't proceed if operation is not in progress
     if (!data || !data.inProgress) return;
 
     if (!data.public_address) {
       data.public_address = response;
+
+      // Check if the public address is in the correct EVM format
+      if (!ethers.utils.isAddress(data.public_address)) {
+        ctx.reply('The provided public wallet address is not in the correct EVM format. Please provide a valid public wallet address.', Markup
+          .keyboard(['/cancel'])
+          .oneTime()
+          .resize()
+        );
+        return;
+      }
+
       ctx.reply('Please select the network (otp::testnet or otp::mainnet).', Markup
         .keyboard(['otp::testnet', 'otp::mainnet', '/cancel'])
         .oneTime()
@@ -58,13 +101,27 @@ module.exports = function publishCommand(bot) {
         .resize()
       );
     } else if (!data.txn_data) {
-      data.txn_data = response === 'skip' ? '{}' : response;
-      ctx.reply('Would you like to enter optional fields or proceed to publish?', Markup
-        .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
-        .oneTime()
-        .resize()
-      );
+      try {
+        JSON.parse(response);
+        data.txn_data = response === 'skip' ? '{}' : response;
+        ctx.reply('Would you like to enter optional fields or proceed to publish?', Markup
+          .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
+          .oneTime()
+          .resize()
+        );
+      } catch (error) {
+        // If it's not valid JSON, send a message to the user
+        ctx.reply('The data you entered is not in a valid JSON format. Please provide the data in correct JSON format or type /cancel to abort.', Markup
+          .keyboard(['/cancel'])
+          .oneTime()
+          .resize()
+        );
+      }
     } else if (response === 'Publish') {
+      // If txn_description is not provided, set the default description with the current timestamp
+      if (!data.txn_description) {
+        data.txn_description = `Asset publishing requested via Telegram on ${new Date().toISOString()}`;
+      }
       const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
       const previewText = `Please confirm that you want to make the API call with the following data:\n\nPublic Address: ${public_address}\nNetwork: ${network}\nTransaction Data: ${txn_data}\nTransaction Description: ${txn_description || 'None'}\nKeywords: ${keywords || 'None'}\nTRAC Fee: ${trac_fee || 'Default'}\nEpochs: ${epochs || '5'}\n\nType "yes" to confirm or "no" to cancel.`;
       ctx.reply(previewText, Markup
@@ -96,7 +153,7 @@ module.exports = function publishCommand(bot) {
   
           try {
             const res = await axios.get(URL);
-            ctx.reply(`Success! The response is: ${JSON.stringify(res.data)}`);
+            ctx.reply(`API call Succeeded. The response is:\n${JSON.stringify(res.data)}`);
           } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
           }
@@ -129,6 +186,7 @@ module.exports = function publishCommand(bot) {
           );
         }
       }
+
       if (data.confirm !== undefined) {
         if (data.confirm) {
         const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
@@ -153,37 +211,14 @@ module.exports = function publishCommand(bot) {
 
         try {
           const res = await axios.get(URL);
-          ctx.reply(`Success! The response is: ${JSON.stringify(res.data)}`);
+          ctx.session.publishData = {}; // Reset data
+          ctx.reply(`API call Succeeded. The response is:\n${JSON.stringify(res.data)}`);
         } catch (err) {
-          ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
+          ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
         }
-        ctx.session.publishData = {}; // Reset data
       } else {
-        // ... your code for handling the "no" response
-        ctx.reply('No problem, let\'s continue. Choose the next optional parameter to provide.', Markup
-          .keyboard(['Transaction Description', 'Keywords', 'TRAC Fee', 'Epochs', 'Publish', '/cancel'])
-          .oneTime()
-          .resize()
-        );
-        delete data.confirm;
-      }
-    } else if (data.lastQuestion) {
-      data[data.lastQuestion] = response === 'skip' ? '' : response;
-      data.lastQuestion = undefined;
-      ctx.reply('Would you like to enter other optional fields or proceed with publishing?', Markup
-        .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
-        .oneTime()
-        .resize()
-      );
-    } else {
-      const questionKey = Object.keys(optionalQuestions).find(key => optionalQuestions[key] === response);
-      if (questionKey) {
-        data.lastQuestion = questionKey;
-        ctx.reply(`Please provide ${response}. You can also type 'skip' to skip this question.`, Markup
-          .keyboard(['/cancel'])
-          .oneTime()
-          .resize()
-        );
+        ctx.reply('Operation canceled.');
+        data = {};
       }
     }
   });
