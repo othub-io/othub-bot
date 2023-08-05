@@ -1,6 +1,7 @@
 const { Markup } = require('telegraf')
 const axios = require('axios')
 const queryTypes = require('../util/queryTypes')
+const { ethers } = require('ethers');
 
 const optionalQuestions = {
   txn_description: 'Transaction Description',
@@ -35,7 +36,7 @@ module.exports = function publishCommand(bot) {
           console.error('Error deleting message:', error);
         }
       }, process.env.DELETE_TIMER);
-      
+
       const noResultsMessage = await ctx.reply('The /publish command is only available in private chat with @othubbot.');
       setTimeout(async () => {
         try {
@@ -52,7 +53,7 @@ module.exports = function publishCommand(bot) {
     }
 
     ctx.session.publishData = { inProgress: true };
-    ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please, provide your public wallet address.', Markup
+    ctx.reply('Welcome! Let\'s publish an asset on the DKG. Please provide your public wallet address.', Markup
       .keyboard(['/cancel'])
       .oneTime()
       .resize()
@@ -76,6 +77,17 @@ module.exports = function publishCommand(bot) {
 
     if (!data.public_address) {
       data.public_address = response;
+
+      // Check if the public address is in the correct EVM format
+      if (!ethers.utils.isAddress(data.public_address)) {
+        ctx.reply('The provided public wallet address is not in the correct EVM format. Please provide a valid public wallet address.', Markup
+          .keyboard(['/cancel'])
+          .oneTime()
+          .resize()
+        );
+        return;
+      }
+
       ctx.reply('Please select the network (otp::testnet or otp::mainnet).', Markup
         .keyboard(['otp::testnet', 'otp::mainnet', '/cancel'])
         .oneTime()
@@ -89,13 +101,27 @@ module.exports = function publishCommand(bot) {
         .resize()
       );
     } else if (!data.txn_data) {
-      data.txn_data = response === 'skip' ? '{}' : response;
-      ctx.reply('Would you like to enter optional fields or proceed to publish?', Markup
-        .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
-        .oneTime()
-        .resize()
-      );
+      try {
+        JSON.parse(response);
+        data.txn_data = response === 'skip' ? '{}' : response;
+        ctx.reply('Would you like to enter optional fields or proceed to publish?', Markup
+          .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
+          .oneTime()
+          .resize()
+        );
+      } catch (error) {
+        // If it's not valid JSON, send a message to the user
+        ctx.reply('The data you entered is not in a valid JSON format. Please provide the data in correct JSON format or type /cancel to abort.', Markup
+          .keyboard(['/cancel'])
+          .oneTime()
+          .resize()
+        );
+      }
     } else if (response === 'Publish') {
+      // If txn_description is not provided, set the default description with the current timestamp
+      if (!data.txn_description) {
+        data.txn_description = `Asset publishing requested via Telegram on ${new Date().toISOString()}`;
+      }
       const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
       const previewText = `Please confirm that you want to make the API call with the following data:\n\nPublic Address: ${public_address}\nNetwork: ${network}\nTransaction Data: ${txn_data}\nTransaction Description: ${txn_description || 'None'}\nKeywords: ${keywords || 'None'}\nTRAC Fee: ${trac_fee || 'Default'}\nEpochs: ${epochs || '5'}\n\nType "yes" to confirm or "no" to cancel.`;
       ctx.reply(previewText, Markup
@@ -127,7 +153,7 @@ module.exports = function publishCommand(bot) {
   
           try {
             const res = await axios.get(URL);
-            ctx.reply(`Success! The response is: ${JSON.stringify(res.data)}`);
+            ctx.reply(`API call Succeeded. The response is:\n${JSON.stringify(res.data)}`);
           } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
           }
@@ -186,9 +212,9 @@ module.exports = function publishCommand(bot) {
         try {
           const res = await axios.get(URL);
           ctx.session.publishData = {}; // Reset data
-          ctx.reply(`Success! The response is: ${JSON.stringify(res.data)}`);
+          ctx.reply(`API call Succeeded. The response is:\n${JSON.stringify(res.data)}`);
         } catch (err) {
-          ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
+          ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
         }
       } else {
         ctx.reply('Operation canceled.');
