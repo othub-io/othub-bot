@@ -121,7 +121,7 @@ async function fetchAndSendDailyPubs(ctx) {
     let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
     
 
-    const message = `== Last Day \u{1F4CA} ==
+    const message = `== Last 24H \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
