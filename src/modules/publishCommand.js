@@ -143,12 +143,14 @@ module.exports = function publishCommand(bot) {
           .resize()
         );
       } catch (error) {
-        // If it's not valid JSON, send a message to the user
-        ctx.reply('Please provide the data in correct JSON format or type /cancel to abort.', Markup
-          .keyboard(['/cancel'])
-          .oneTime()
-          .resize()
-        );
+        const jsonFormat = { "text": response };
+        data.txn_data = JSON.stringify(jsonFormat);
+        ctx.reply('Wrong format submitted. Your data has been automatically converted to JSON format.');
+        ctx.reply('Would you like to enter optional fields or proceed to publish?', Markup
+        .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
+        .oneTime()
+        .resize()
+      );
       }
     } else if (response === 'Publish') {
       // If txn_description is not provided, set the default description with the current timestamp
@@ -186,14 +188,14 @@ module.exports = function publishCommand(bot) {
   
           try {
             const res = await axios.get(URL);
-            ctx.reply(`API call Succeeded. The response is:\n${JSON.stringify(res.data)}`);
+            ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(res.data)}`);
           } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
           }
           ctx.session.publishData = {}; // Reset data
         } else {
           // Provide the main optional parameters menu if the user replies 'no'
-          ctx.reply('No problem, let\'s continue. Choose the next optional parameter to provide.', Markup
+          ctx.reply('No problem, let\'s continue. Choose the next optional parameter to change.', Markup
             .keyboard(['Transaction Description', 'Keywords', 'TRAC Fee', 'Epochs', 'Publish', '/cancel'])
             .oneTime()
             .resize()
@@ -245,7 +247,7 @@ module.exports = function publishCommand(bot) {
         try {
           const res = await axios.get(URL);
           ctx.session.publishData = {}; // Reset data
-          ctx.reply(`API call Succeeded. The response is:\n${JSON.stringify(res.data)}`);
+          ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(res.data)}`);
         } catch (err) {
           ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
         }
