@@ -3,6 +3,7 @@ const axios = require('axios')
 const queryTypes = require('../util/queryTypes')
 const { ethers } = require('ethers');
 const mysql = require('mysql');
+const fs = require('fs');
 
 const connection = mysql.createConnection({
   host: process.env.DBHOST,
@@ -134,31 +135,37 @@ module.exports = function publishCommand(bot) {
         .resize()
       );
     } else if (!data.txn_data) {
-      try {
-        JSON.parse(response);
-        data.txn_data = response === 'skip' ? '{}' : response;
-        ctx.reply('Would you like to enter optional fields or proceed to publish?', Markup
-          .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
-          .oneTime()
-          .resize()
-        );
-      } catch (error) {
-        const jsonFormat = { "text": response };
-        data.txn_data = JSON.stringify(jsonFormat);
-        ctx.reply('Wrong format submitted. Your data has been automatically converted to JSON format.');
+        const publishContext = JSON.parse(fs.readFileSync('publishContext.json', 'utf8'));
+        publishContext.datePublished = new Date().toISOString();
+        publishContext.publisher = data.public_address;
+        publishContext.text = response;
+
+        data.txn_data = JSON.stringify(publishContext);
+
         ctx.reply('Would you like to enter optional fields or proceed to publish?', Markup
         .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
         .oneTime()
         .resize()
       );
-      }
     } else if (response === 'Publish') {
       // If txn_description is not provided, set the default description with the current timestamp
       if (!data.txn_description) {
         data.txn_description = `Asset publishing requested via Telegram on ${new Date().toISOString()}`;
       }
       const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
-      const previewText = `Please confirm that you want to make the API call with the following data:\n\nPublic Address: ${public_address}\nNetwork: ${network}\nTransaction Data: ${txn_data}\nTransaction Description: ${txn_description || 'None'}\nKeywords: ${keywords || 'None'}\nTRAC Fee: ${trac_fee || 'Default'}\nEpochs: ${epochs || '5'}\n\nType "yes" to confirm or "no" to cancel.`;
+      const formattedTxnData = JSON.stringify(JSON.parse(txn_data), null, 2)
+
+      const previewText = `
+Please confirm the following data before publishing:
+      
+Public Address: ${public_address}
+Network: ${network}
+Transaction Data:
+${formattedTxnData}
+Transaction Description: ${txn_description || 'None'}
+Keywords: ${keywords || 'None'}
+TRAC Fee: ${trac_fee || 'Default'}
+Epochs: ${epochs || '5'}`;
       ctx.reply(previewText, Markup
         .keyboard(['yes', 'no', '/cancel'])
         .oneTime()
