@@ -461,7 +461,7 @@ bot.command('nodestatslasthour', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      const noResultsMessage = await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
       setTimeout(async () => {
         try {
           await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
@@ -526,7 +526,7 @@ bot.command('nodestatslastday', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      const noResultsMessage = await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
       setTimeout(async () => {
         try {
           await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
@@ -591,7 +591,7 @@ bot.command('nodestatslastweek', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      const noResultsMessage = await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
       setTimeout(async () => {
         try {
           await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
@@ -656,7 +656,7 @@ bot.command('nodestatslastmonth', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      const noResultsMessage = await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
       setTimeout(async () => {
         try {
           await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
@@ -721,7 +721,7 @@ bot.command('nodestats', async ctx => {
         }, process.env.DELETE_TIMER);
       }
     } else {
-      const noResultsMessage = await ctx.reply('No results found');
+      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
       setTimeout(async () => {
         try {
           await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
