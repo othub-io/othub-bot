@@ -222,7 +222,7 @@ Epochs: ${epochs || '5'}`;
         if (questionKey) {
           data.lastQuestion = questionKey;
           ctx.reply(`Please provide ${response} (optional).`, Markup
-            .keyboard(['/cancel', 'skip'])
+            .keyboard(['skip', '/cancel'])
             .oneTime()
             .resize()
           );
