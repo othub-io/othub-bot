@@ -203,7 +203,7 @@ Epochs: ${epochs || '5'}`;
         } else {
           // Provide the main optional parameters menu if the user replies 'no'
           ctx.reply('No problem, let\'s continue. Choose the next optional parameter to change.', Markup
-            .keyboard(['Transaction Description', 'Keywords', 'TRAC Fee', 'Epochs', 'Publish', '/cancel'])
+            .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
             .oneTime()
             .resize()
           );
