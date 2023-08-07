@@ -158,15 +158,15 @@ module.exports = function publishCommand(bot) {
       const previewText = `
 Please confirm the following data before publishing:
       
-Public Address: ${public_address}
-Network: ${network}
-Transaction Data:
+<b>Public Address:</b> ${public_address}
+<b>Network:</b> ${network}
+<b>Transaction Data:</b>
 ${formattedTxnData}
-Transaction Description: ${txn_description || 'None'}
-Keywords: ${keywords || 'None'}
-TRAC Fee: ${trac_fee || 'Default'}
-Epochs: ${epochs || '5'}`;
-      ctx.reply(previewText, Markup
+<b>Transaction Description:</b> ${txn_description || 'None'}
+<b>Keywords:</b> ${keywords || 'None'}
+<b>TRAC Fee:</b> ${trac_fee || 'Default'}
+<b>Epochs:</b> ${epochs || '5'}`;
+      ctx.reply(previewText, { parse_mode: 'HTML' }, Markup
         .keyboard(['yes', 'no', '/cancel'])
         .oneTime()
         .resize()
