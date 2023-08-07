@@ -668,6 +668,71 @@ bot.command('nodestatslastmonth', async ctx => {
   });
 });
 
+bot.command('nodestats', async ctx => {
+  const tokenSymbol = ctx.message.text.split(' ')[1];
+  command = 'nodestats' + '_' + tokenSymbol;
+  
+  spamCheck = await queryTypes.spamCheck();
+  telegram_id = ctx.message.from.id;
+  
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(({ permission }) => {
+      return permission;
+    })
+    .catch(error => console.log(`Error : ${error}`));
+
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+  setTimeout(async () => {
+    try {
+      await ctx.deleteMessage();
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    }
+  }, process.env.DELETE_TIMER);
+
+  setTimeout(async () => {
+    try {
+      await ctx.deleteMessage();
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    }
+  }, process.env.DELETE_TIMER);
+
+  nodeStats.NodeStats(tokenSymbol, async (err, result) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    if (result) {
+      const botmessage = await ctx.reply(result); 
+
+      if (botmessage) {
+        setTimeout(async () => {
+          try {
+            await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id);
+          } catch (error) {
+            console.error('Error deleting message:', error);
+          }
+        }, process.env.DELETE_TIMER);
+      }
+    } else {
+      const noResultsMessage = await ctx.reply('No results found');
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
+    }
+  });
+});
+
 ////////////////Publish Command
 
 publishCommand(bot);
