@@ -148,27 +148,27 @@ bot.command('networkstats', async ctx => {
 
 bot.command('dailypubsgraph', async ctx => {
   command = 'dailypubsgraph'
-  // spamCheck = await queryTypes.spamCheck()
-  // telegram_id = ctx.message.from.id
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
 
-  // permission = await spamCheck
-  //   .getData(command, telegram_id)
-  //   .then(async ({ permission }) => {
-  //     return permission
-  //   })
-  //   .catch(error => console.log(`Error : ${error}`))
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission
+    })
+    .catch(error => console.log(`Error : ${error}`))
 
-  // if (permission != `allow`) {
-  //   await ctx.deleteMessage()
-  //   return
-  // }
-  // setTimeout(async () => {
-  //   try {
-  //     await ctx.deleteMessage();
-  //   } catch (error) {
-  //     console.error('Error deleting message:', error);
-  //   }
-  // }, process.env.DELETE_TIMER);
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+  setTimeout(async () => {
+    try {
+      await ctx.deleteMessage();
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    }
+  }, process.env.DELETE_TIMER);
 
   const data = await networkStats.fetchDateTotalPubs();
   const dates = data.map(row => row.date);
