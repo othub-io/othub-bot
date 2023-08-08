@@ -20,7 +20,7 @@ function query(sql, args) {
 
 function fetchDateTotalPubs() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT date, totalPubs FROM v_pubs_stats', (error, results) => {
+    connection.query('SELECT date, totalPubs FROM v_pubs_stats WHERE date < (SELECT MAX(date) FROM v_pubs_stats)', (error, results) => {
       if (error) reject(error);
       resolve(results);
     });
