@@ -1,5 +1,6 @@
 require('dotenv').config();
 const mysql = require('mysql');
+const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 
 const connection = mysql.createConnection({
     host: process.env.DBHOST,
@@ -13,6 +14,15 @@ function query(sql, args) {
     connection.query(sql, args, (error, rows) => {
       if (error) return reject(error);
       resolve(rows);
+    });
+  });
+}
+
+function fetchDateTotalPubs() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT date, totalPubs FROM v_pubs_stats', (error, results) => {
+      if (error) reject(error);
+      resolve(results);
     });
   });
 }
@@ -94,6 +104,39 @@ async function fetchNetworkStatistics(ctx) {
   }
 }
 
+async function generateGraph(dates, totalPubsValues) {
+  const width = 400; //px
+  const height = 400; //px
+  const backgroundColour = 'white';
+  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour});
+
+  const configuration = {
+    type: 'line',
+    data: {
+      labels: dates.map((_, index) => index + 1),  // Use a linear sequence for labels
+      datasets: [{
+        label: 'Total Pubs',
+        data: totalPubsValues,
+        borderColor: 'blue',
+        fill: false
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          display: false,  // Hide the x-axis
+          type: 'linear'
+        },
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  };
+
+  return await chartJSNodeCanvas.renderToBuffer(configuration);
+}
+
 module.exports = {
-  fetchNetworkStatistics
+  fetchNetworkStatistics, fetchDateTotalPubs, generateGraph
 };
