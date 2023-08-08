@@ -105,27 +105,28 @@ async function fetchNetworkStatistics(ctx) {
 }
 
 async function generateGraph(dates, totalPubsValues) {
+
   const width = 400; //px
   const height = 400; //px
   const backgroundColour = 'white';
   const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour});
 
   const configuration = {
-    type: 'line',
+    type: 'bar',  // Change this to 'bar'
     data: {
-      labels: dates.map((_, index) => index + 1),  // Use a linear sequence for labels
+      labels: dates,
       datasets: [{
         label: 'Total Pubs',
         data: totalPubsValues,
+        backgroundColor: 'blue',  // Add this for the bar color
         borderColor: 'blue',
-        fill: false
+        borderWidth: 1  // Add this for the border width of the bars
       }]
     },
     options: {
       scales: {
         x: {
-          display: false,  // Hide the x-axis
-          type: 'linear'
+          display: false  // Hide the x-axis
         },
         y: {
           beginAtZero: true
@@ -136,6 +137,7 @@ async function generateGraph(dates, totalPubsValues) {
 
   return await chartJSNodeCanvas.renderToBuffer(configuration);
 }
+
 
 module.exports = {
   fetchNetworkStatistics, fetchDateTotalPubs, generateGraph
