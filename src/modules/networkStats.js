@@ -111,25 +111,58 @@ async function generateGraph(dates, totalPubsValues) {
   const backgroundColour = 'white';
   const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour});
 
+  // Create an array for the X-axis labels
+  const xLabels = dates.map((dateObj, index, self) => {
+    const dateStr = dateObj.toISOString().split('T')[0];  // Convert Date object to "YYYY-MM-DD"
+    const monthYear = dateStr.slice(0, 7);  // Extract "YYYY-MM" from the date
+    if (self.findIndex(d => d.toISOString().split('T')[0].slice(0, 7) === monthYear) === index) {
+      const d = new Date(dateObj);
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const label = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+      return label !== "Dec 2022" ? label : '';  // Exclude "Dec 2022"
+    } else {
+      return '';  // Empty string for other dates
+    }
+  });
+
   const configuration = {
-    type: 'bar',  // Change this to 'bar'
+    type: 'bar',
     data: {
-      labels: dates,
+      labels: xLabels,
       datasets: [{
-        label: 'Total Pubs',
+        label: 'Daily Pubs',
         data: totalPubsValues,
-        backgroundColor: 'blue',  // Add this for the bar color
+        backgroundColor: 'blue',
         borderColor: 'blue',
-        borderWidth: 1  // Add this for the border width of the bars
+        borderWidth: 1
       }]
     },
     options: {
+      layout: {
+        padding: {
+          right: 10
+        }
+      },
       scales: {
         x: {
-          display: false  // Hide the x-axis
+          display: true,
+          grid: {
+            drawOnChartArea: false,
+            drawBorder: false
+          },
+          ticks: {
+            autoSkip: false,
+            font: {
+              size: 10
+            }
+          }
         },
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          grid: {
+            drawOnChartArea: true, 
+            drawBorder: false
+          }
         }
       }
     }
@@ -137,6 +170,7 @@ async function generateGraph(dates, totalPubsValues) {
 
   return await chartJSNodeCanvas.renderToBuffer(configuration);
 }
+
 
 
 module.exports = {
