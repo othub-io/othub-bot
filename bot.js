@@ -426,8 +426,27 @@ bot.command('nodestats', async ctx => {
 });
 
 ////////////////Publish Command
-
 publishCommand(bot);
+
+////////////////easterEgg
+bot.command('totalpubsovertime', async ctx => {
+  command = 'totalpubsovertime'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const easterEgg = 'You just reduced the lifetime amount of pubs by 5%.'
+  await ctx.reply(easterEgg);
+  await ctx.deleteMessage();
+})
 
 //-----------------------END---------------------------
 
