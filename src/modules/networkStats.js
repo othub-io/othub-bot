@@ -35,6 +35,16 @@ function fetchDateTotalPubs() {
   });
 }
 
+function fetchDateCumulativeTracSpent() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT date, SUM(totalTracSpent) OVER (ORDER BY date ASC) AS cumulativeTotalTracSpent FROM v_pubs_stats ORDER BY date ASC', (error, results) => {
+      if (error) reject(error);
+      resolve(results);
+    });
+  });
+}
+
+
 function getReadableTime(days) {
   let remainingDays = days;
 
@@ -98,7 +108,7 @@ async function fetchNetworkStatistics(ctx) {
   }
 }
 
-async function generateGraph(dates, totalPubsValues) {
+async function KnowledgeAssetsOverTime(dates, totalPubsValues) {
 
   const width = 800;
   const height = 600;
@@ -180,6 +190,92 @@ async function generateGraph(dates, totalPubsValues) {
   return await chartJSNodeCanvas.renderToBuffer(configuration);
 }
 
+async function cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues) {
+  const width = 1200;
+  const height = 600;
+  const backgroundColour = 'white';
+  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour});
+
+  const xLabels = dates.map((dateObj, index, self) => {
+    const dateStr = dateObj.toISOString().split('T')[0]; 
+    const monthYear = dateStr.slice(0, 7);
+    if (self.findIndex(d => d.toISOString().split('T')[0].slice(0, 7) === monthYear) === index) {
+      const d = new Date(dateObj);
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const label = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+      return label !== "Dec 2022" ? label : '';
+    } else {
+      return ''; 
+    }
+  });
+
+  const configuration = {
+    type: 'line',
+    data: {
+      labels: xLabels,
+      datasets: [{
+        label: 'Cumulative TRAC Spent on Publishing',
+        data: cumulativeTotalTracSpentValues,
+        backgroundColor: '#6168ED',
+        borderColor: '#6168ED',
+        borderWidth: 3,
+        fill: false, 
+        pointRadius: 0,
+        tension: 0.9,
+        lineTension: 0.9
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              size: 20
+            }
+          }
+        }
+      },
+      devicePixelRatio: 2,
+      layout: {
+        padding: {
+          right: 10
+        }
+      },
+      scales: {
+        x: {
+          display: true,
+          grid: {
+            drawOnChartArea: false,
+            drawBorder: false
+          },
+          ticks: {
+            autoSkip: false,
+            font: {
+              size: 14
+            }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            drawOnChartArea: true, 
+            drawBorder: false
+          },
+          ticks: {
+            font: {
+              size: 14
+            }
+          }
+        }
+      }
+    }
+  };
+
+  return await chartJSNodeCanvas.renderToBuffer(configuration);
+}
+
+
+
 module.exports = {
-  fetchNetworkStatistics, fetchDateTotalPubs, generateGraph, bufferToStream
+  fetchNetworkStatistics, fetchDateTotalPubs, fetchDateCumulativeTracSpent, KnowledgeAssetsOverTime, bufferToStream, cumulativeTracSpentOverTime
 };
