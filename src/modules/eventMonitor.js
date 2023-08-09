@@ -78,4 +78,39 @@ function NewPublishers(callback) {
     });
   }
 
-  module.exports = { NewPublishers, dailyHighPubs, contractsChange, stagingUpdateStatus };
+  function notifyTelegramContractsChange() {
+    const message = `📜DKG V6 Contracts Change Detected!`;
+    adminGroup.forEach(adminId => {
+      bot.telegram.sendMessage(adminId, message);
+    });
+  }
+  
+  function notifyTelegramStagingUpdateStatus() {
+    const message = `🛠Staging Update process stalled!`;
+    adminGroup.forEach(adminId => {
+      bot.telegram.sendMessage(adminId, message);
+    });
+  }
+  
+  function notifyTelegramNewPublisher(newPublishers) {
+    if (!newPublishers.length) {
+      console.log('No new publishers found.');
+      return;
+    }
+    const messages = newPublishers.map(publisher => 
+      `<a href="https://origintrail.subscan.io/account/${publisher}">${publisher}</a>`
+    );
+    const message = `🪪New Publisher Detected:\n${messages.join('\n')}`;
+    bot.telegram.sendMessage(chatId, message, { parse_mode: 'HTML' });
+  }
+  
+  function notifyTelegramDailyHighPubs(dailyHighPubs) {
+    if (!dailyHighPubs.length) {
+      console.log('Daily Publishing record not broken.');
+      return;
+    }
+    const message = `🚀🚀 Daily Publishing Record Broken with ${dailyHighPubs} Publishes!! 🚀🚀`;
+    bot.telegram.sendMessage(chatId, message);
+  }
+  
+  module.exports = { NewPublishers, dailyHighPubs, contractsChange, stagingUpdateStatus, notifyTelegramContractsChange, notifyTelegramStagingUpdateStatus, notifyTelegramNewPublisher, notifyTelegramDailyHighPubs };
