@@ -131,6 +131,7 @@ async function generateGraph(dates, totalPubsValues) {
       }]
     },
     options: {
+      devicePixelRatio: 2,
       layout: {
         padding: {
           right: 10
@@ -163,8 +164,6 @@ async function generateGraph(dates, totalPubsValues) {
 
   return await chartJSNodeCanvas.renderToBuffer(configuration);
 }
-
-
 
 module.exports = {
   fetchNetworkStatistics, fetchDateTotalPubs, generateGraph, bufferToStream
