@@ -19,6 +19,26 @@ const publishCommand = require('./src/modules/publishCommand.js');
 const chatId = process.env.OTHUB_ID;
 const adminGroup = process.env.ADMIN_GROUP.split(',');
 
+////////////////easterEgg
+bot.command('totalpubsovertime', async ctx => {
+  command = 'totalpubsovertime'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const easterEgg = 'You just reduced the lifetime amount of pubs by 5%.'
+  await ctx.reply(easterEgg);
+  await ctx.deleteMessage();
+})
+
 ////////////////New Chat Member Welcome Message
 bot.on('new_chat_members', (ctx) => {
   if (ctx.chat.id == chatId) {
@@ -100,13 +120,53 @@ bot.command('dailypubsgraph', async ctx => {
   const data = await networkStats.fetchDateTotalPubs();
   const dates = data.map(row => row.date);
   const totalPubsValues = data.map(row => row.totalPubs);
-  const imageBuffer = await networkStats.generateGraph(dates, totalPubsValues);
+  const imageBuffer = await networkStats.KnowledgeAssetsOverTime(dates, totalPubsValues);
+  const imageStream = networkStats.bufferToStream(imageBuffer);
+  await ctx.replyWithPhoto({ source: imageStream });
+  await ctx.deleteMessage();
+})
+
+bot.command('tracspentgraph', async ctx => {
+  command = 'tracspentgraph'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const data = await networkStats.fetchDateCumulativeTracSpent();
+  const dates = data.map(row => row.date);
+  const cumulativeTotalTracSpentValues = data.map(row => row.cumulativeTotalTracSpent);
+  const imageBuffer = await networkStats.cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues);
   const imageStream = networkStats.bufferToStream(imageBuffer);
   await ctx.replyWithPhoto({ source: imageStream });
   await ctx.deleteMessage();
 })
 
 ////////////////networkPubs
+bot.command('totalpubs', async ctx => {
+  command = 'totalpubs'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+  await ctx.deleteMessage();
+  await networkPubs.fetchAndSendTotalPubs(ctx)
+})
+
 bot.command('hourlypubs', async ctx => {
   command = 'hourlypubs'
   spamCheck = await queryTypes.spamCheck()
@@ -426,7 +486,6 @@ bot.command('nodestats', async ctx => {
 });
 
 ////////////////Publish Command
-
 publishCommand(bot);
 
 //-----------------------END---------------------------

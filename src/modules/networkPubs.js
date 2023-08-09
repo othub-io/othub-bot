@@ -56,6 +56,19 @@ function getLastMonthStats() {
   });
 }
 
+function getTotalStats() {
+  return new Promise((resolve, reject) => {
+    pool.query('SELECT AVG(avgPubSize) AS avgPubSize, AVG(avgEpochsNumber) AS avgEpochsNumber, AVG(avgPubPrice) AS avgPubPrice, AVG(avgBid) AS avgBid, SUM(totalPubs) AS totalPubs, SUM(totalTracSpent) AS totalTracSpent FROM v_pubs_stats_hourly', (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+}
+
+
 async function fetchAndSendHourlyPubs(ctx) {
   const lastHourStats = await getLastHourStats();
 
@@ -157,9 +170,35 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
   await ctx.reply(message);
 }
 
+async function fetchAndSendTotalPubs(ctx) {
+  const lastTotalStats = await getTotalStats();
+  const totalPubs = lastTotalStats.totalPubs;
+  const totalTracSpent = parseInt(lastTotalStats.totalTracSpent);
+  const avgPubPrice = parseFloat(lastTotalStats.avgPubPrice).toFixed(2);
+  const avgPubSize = parseFloat(lastTotalStats.avgPubSize).toFixed(2);
+  const avgBid = parseFloat(lastTotalStats.avgBid).toFixed(3);
+  const avgEpochs = parseInt(lastTotalStats.avgEpochsNumber);
+
+  let totalPubsEmoji = totalPubs > 72000 ? '🚀' : totalPubs >= 54000 ? '✈️' : totalPubs >= 36000 ? '🚁' : totalPubs >= 18000 ? '🎈' : '☠️';
+  let totalTracSpentEmoji = totalTracSpent > 288000 ? '🤑' : totalTracSpent >= 216000 ? '💰' : totalTracSpent >= 144000 ? '💸' : totalTracSpent >= 72000 ? '💵' : '🪙';
+  let avgPubPriceEmoji = avgPubPrice > 0.4 ? '😃' : avgPubPrice >= 0.3 ? '🙂' : avgPubPrice >= 0.2 ? '😐' : avgPubPrice >= 0.1 ? '🤕' : '🤮';
+  let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
+
+  const message = `== Total Pubs \u{1F4CA} ==
+${totalPubsEmoji}Total pubs: ${totalPubs}
+${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
+${avgPubSizeEmoji}Size: ${avgPubSize}kB
+${avgPubPriceEmoji}Pub price: ${avgPubPrice}
+⚖️Bid: ${avgBid}
+⏰Epochs: ${avgEpochs}`;
+
+  await ctx.reply(message);
+}
+
 module.exports = {
   fetchAndSendHourlyPubs,
   fetchAndSendDailyPubs,
   fetchAndSendWeeklyPubs,
-  fetchAndSendMonthlyPubs
+  fetchAndSendMonthlyPubs,
+  fetchAndSendTotalPubs
 };
