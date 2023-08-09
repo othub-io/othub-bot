@@ -103,8 +103,8 @@ bot.command('networkstats', async ctx => {
   await ctx.deleteMessage();
 })
 
-bot.command('dailypubsgraph', async ctx => {
-  command = 'dailypubsgraph'
+bot.command('pubsgraph', async ctx => {
+  command = 'pubsgraph'
   spamCheck = await queryTypes.spamCheck()
   telegram_id = ctx.message.from.id
   permission = await spamCheck

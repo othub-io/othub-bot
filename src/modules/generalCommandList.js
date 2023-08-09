@@ -1,6 +1,6 @@
 module.exports = {
     'publish': 'Publish Knowledge Assets on the DKG',
-    'dailypubsgraph': 'Show total network graph pubs over time',
+    'pubsgraph': 'Show total network pubs over time',
     'tracspentgraph': 'Show cumulative TRAC spent on publishing over time',
     'hourlypubs': 'Show network stats for the last hour',
     'dailypubs': 'Show network pubs for the last day',
