@@ -100,7 +100,7 @@ async function fetchNetworkStatistics(ctx) {
 
 async function generateGraph(dates, totalPubsValues) {
 
-  const width = 600;
+  const width = 800;
   const height = 600;
   const backgroundColour = 'white';
   const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour});
@@ -123,14 +123,24 @@ async function generateGraph(dates, totalPubsValues) {
     data: {
       labels: xLabels,
       datasets: [{
-        label: 'Daily Pubs',
+        label: 'Knowledge Assets published per day',
         data: totalPubsValues,
-        backgroundColor: 'blue',
-        borderColor: 'blue',
-        borderWidth: 1
+        backgroundColor: '#6168ED',
+        borderColor: '#6168ED',
+        borderWidth: 0,
+        barPercentage: 0.8
       }]
     },
     options: {
+      plugins: {
+        legend: {
+          labels: {
+            font:{
+              size: 20
+          }
+        }
+      }
+    },
       devicePixelRatio: 2,
       layout: {
         padding: {
@@ -147,7 +157,7 @@ async function generateGraph(dates, totalPubsValues) {
           ticks: {
             autoSkip: false,
             font: {
-              size: 10
+              size: 14
             }
           }
         },
@@ -156,6 +166,11 @@ async function generateGraph(dates, totalPubsValues) {
           grid: {
             drawOnChartArea: true, 
             drawBorder: false
+          },
+          ticks: {
+            font: {
+              size: 14
+            }
           }
         }
       }
