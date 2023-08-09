@@ -36,7 +36,6 @@ bot.command('totalpubsovertime', async ctx => {
 
   const easterEgg = 'You just reduced the lifetime amount of pubs by 5%.'
   await ctx.reply(easterEgg);
-  await ctx.deleteMessage();
 })
 
 ////////////////New Chat Member Welcome Message
