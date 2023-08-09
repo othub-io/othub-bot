@@ -1,6 +1,7 @@
 require('dotenv').config();
 const mysql = require('mysql');
 const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
+const { Readable } = require('stream');
 
 const connection = mysql.createConnection({
     host: process.env.DBHOST,
