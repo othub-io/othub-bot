@@ -99,6 +99,7 @@ module.exports = function publishCommand(bot) {
 
   bot.on('text', async (ctx) => {
     if (ctx.chat.type !== 'private') return;
+    if (!ctx.session || !ctx.session.publishData) return;
     const response = ctx.message.text;
     const data = ctx.session.publishData;
     const telegramId = ctx.from.id;
