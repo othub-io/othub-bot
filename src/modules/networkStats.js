@@ -234,8 +234,8 @@ async function cumulativeGraph(dates, cumulativeTotalTracSpentValues,cumulativeP
       {
         label: 'TRAC Spent on Publishing',
         data: cumulativeTotalTracSpentValues,
-        backgroundColor: '#6168ED',
-        borderColor: '#6168ED',
+        backgroundColor: '#6344DF',
+        borderColor: '#6344DF',
         borderWidth: 3,
         fill: false, 
         pointRadius: 0,
@@ -245,8 +245,8 @@ async function cumulativeGraph(dates, cumulativeTotalTracSpentValues,cumulativeP
       {
         label: 'Assets Published',
         data: cumulativePubsValues,
-        backgroundColor: '#073763',
-        borderColor: '#073763',
+        backgroundColor: '#3b419c',
+        borderColor: '#3b419c',
         borderWidth: 3,
         fill: false, 
         pointRadius: 0,
@@ -256,8 +256,8 @@ async function cumulativeGraph(dates, cumulativeTotalTracSpentValues,cumulativeP
       {
         label: 'Node Payouts',
         data: cumulativePayoutsValues,
-        backgroundColor: '#3ac000',
-        borderColor: '#3ac000',
+        backgroundColor: '#8244df',
+        borderColor: '#8244df',
         borderWidth: 3,
         fill: false, 
         pointRadius: 0,
