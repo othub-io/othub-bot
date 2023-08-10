@@ -243,10 +243,10 @@ async function cumulativeGraph(dates, cumulativeTotalTracSpentValues,cumulativeP
         lineTension: 0.9
       },
       {
-        label: 'Asset Publishing',
+        label: 'Assets Published',
         data: cumulativePubsValues,
-        backgroundColor: '#00d2ff',
-        borderColor: '#00d2ff',
+        backgroundColor: '#073763',
+        borderColor: '#073763',
         borderWidth: 3,
         fill: false, 
         pointRadius: 0,
