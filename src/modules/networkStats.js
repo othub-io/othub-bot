@@ -225,7 +225,7 @@ async function cumulativeGraph(dates, cumulativeTotalTracSpentValues,cumulativeP
       return ''; 
     }
   });
-  
+
   const configuration = {
     type: 'line',
     data: {
@@ -256,8 +256,8 @@ async function cumulativeGraph(dates, cumulativeTotalTracSpentValues,cumulativeP
       {
         label: 'Node Payouts',
         data: cumulativePayoutsValues,
-        backgroundColor: '#4472df',
-        borderColor: '#4472df',
+        backgroundColor: '#56a4ff',
+        borderColor: '#56a4ff',
         borderWidth: 3,
         fill: false, 
         pointRadius: 0,
