@@ -139,14 +139,14 @@ bot.command('tracspentgraph', async ctx => {
     return
   }
 
-  const cumulativeTracSpentData = await networkStats.cumulativeGraph();
+  const cumulativeTracSpentData = await networkStats.fetchDateCumulativeTracSpent();
   const cumulativePubsData = await networkStats.fetchDateCumulativePubs();
   const cumulativePayoutsData = await networkStats.fetchDateCumulativePayouts();
   const dates = cumulativeTracSpentData.map(row => row.date);
-  const cumulativePubsValues = cumulativePubsData.map(row => row.cumulativeTotalPubs);
+  const cumulativePubsValues = cumulativePubsData.map(row => row.cumulativePubs);
   const cumulativePayoutsValues = cumulativePayoutsData.map(row => row.cumulativePayout);
   const cumulativeTotalTracSpentValues = cumulativeTracSpentData.map(row => row.cumulativeTotalTracSpent);
-  const imageBuffer = await networkStats.cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues, cumulativePubsValues, cumulativePayoutsValues);
+  const imageBuffer = await networkStats.cumulativeGraph(dates, cumulativeTotalTracSpentValues, cumulativePubsValues, cumulativePayoutsValues);
   const imageStream = networkStats.bufferToStream(imageBuffer);
   await ctx.replyWithPhoto({ source: imageStream });
   await ctx.deleteMessage();

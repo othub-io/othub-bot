@@ -35,7 +35,7 @@ function fetchDateTotalPubs() {
   });
 }
 
-function cumulativeGraph() {
+function fetchDateCumulativeTracSpent() {
   return new Promise((resolve, reject) => {
     connection.query('SELECT date, SUM(totalTracSpent) OVER (ORDER BY date ASC) AS cumulativeTotalTracSpent FROM v_pubs_stats ORDER BY date ASC', (error, results) => {
       if (error) reject(error);
@@ -46,7 +46,7 @@ function cumulativeGraph() {
 
 function fetchDateCumulativePubs() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT date, SUM(totalPubs) OVER (ORDER BY date ASC) AS cumulativeTotalPubs FROM v_pubs_stats ORDER BY date ASC', (error, results) => {
+    connection.query('SELECT date, SUM(totalPubs) OVER (ORDER BY date ASC) AS cumulativePubs FROM v_pubs_stats ORDER BY date ASC', (error, results) => {
       if (error) reject(error);
       resolve(results);
     });
@@ -207,7 +207,7 @@ async function KnowledgeAssetsOverTime(dates, totalPubsValues) {
   return await chartJSNodeCanvas.renderToBuffer(configuration);
 }
 
-async function cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues,cumulativePubsValues,cumulativePayoutsValues) {
+async function cumulativeGraph(dates, cumulativeTotalTracSpentValues,cumulativePubsValues,cumulativePayoutsValues) {
   const width = 800;
   const height = 600;
   const backgroundColour = 'white';
@@ -316,5 +316,5 @@ async function cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues
 }
 
 module.exports = {
-  fetchNetworkStatistics, fetchDateTotalPubs, cumulativeGraph, fetchDateCumulativePubs, fetchDateCumulativePayouts, KnowledgeAssetsOverTime, bufferToStream, cumulativeTracSpentOverTime
+  fetchNetworkStatistics, fetchDateTotalPubs, fetchDateCumulativeTracSpent, fetchDateCumulativePubs, fetchDateCumulativePayouts, KnowledgeAssetsOverTime, bufferToStream, cumulativeGraph
 };
