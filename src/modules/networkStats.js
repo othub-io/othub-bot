@@ -35,7 +35,7 @@ function fetchDateTotalPubs() {
   });
 }
 
-function fetchDateCumulativeTracSpent() {
+function cumulativeGraph() {
   return new Promise((resolve, reject) => {
     connection.query('SELECT date, SUM(totalTracSpent) OVER (ORDER BY date ASC) AS cumulativeTotalTracSpent FROM v_pubs_stats ORDER BY date ASC', (error, results) => {
       if (error) reject(error);
@@ -44,6 +44,23 @@ function fetchDateCumulativeTracSpent() {
   });
 }
 
+function fetchDateCumulativePubs() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT date, SUM(totalPubs) OVER (ORDER BY date ASC) AS cumulativeTotalPubs FROM v_pubs_stats ORDER BY date ASC', (error, results) => {
+      if (error) reject(error);
+      resolve(results);
+    });
+  });
+}
+
+function fetchDateCumulativePayouts() {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT a.date,SUM(value) OVER (ORDER BY date ASC) AS cumulativePayout FROM (select block_date as date, sum(value) as value from staging_proof_submitted group by block_date) as a ORDER BY date ASC', (error, results) => {
+      if (error) reject(error);
+      resolve(results);
+    });
+  });
+}
 
 function getReadableTime(days) {
   let remainingDays = days;
@@ -190,8 +207,8 @@ async function KnowledgeAssetsOverTime(dates, totalPubsValues) {
   return await chartJSNodeCanvas.renderToBuffer(configuration);
 }
 
-async function cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues) {
-  const width = 1200;
+async function cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues,cumulativePubsValues,cumulativePayoutsValues) {
+  const width = 800;
   const height = 600;
   const backgroundColour = 'white';
   const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height, backgroundColour});
@@ -213,7 +230,8 @@ async function cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues
     type: 'line',
     data: {
       labels: xLabels,
-      datasets: [{
+      datasets: [
+      {
         label: 'Cumulative TRAC Spent on Publishing',
         data: cumulativeTotalTracSpentValues,
         backgroundColor: '#6168ED',
@@ -223,7 +241,30 @@ async function cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues
         pointRadius: 0,
         tension: 0.9,
         lineTension: 0.9
-      }]
+      },
+      {
+        label: 'Cumulative Pubs',
+        data: cumulativePubsValues,
+        backgroundColor: 'blue',
+        borderColor: 'blue',
+        borderWidth: 3,
+        fill: false, 
+        pointRadius: 0,
+        tension: 0.9,
+        lineTension: 0.9
+      },
+      {
+        label: 'Cumulative Payouts',
+        data: cumulativePayoutsValues,
+        backgroundColor: 'green',
+        borderColor: 'green',
+        borderWidth: 3,
+        fill: false, 
+        pointRadius: 0,
+        tension: 0.9,
+        lineTension: 0.9
+      }
+    ]
     },
     options: {
       plugins: {
@@ -274,8 +315,6 @@ async function cumulativeTracSpentOverTime(dates, cumulativeTotalTracSpentValues
   return await chartJSNodeCanvas.renderToBuffer(configuration);
 }
 
-
-
 module.exports = {
-  fetchNetworkStatistics, fetchDateTotalPubs, fetchDateCumulativeTracSpent, KnowledgeAssetsOverTime, bufferToStream, cumulativeTracSpentOverTime
+  fetchNetworkStatistics, fetchDateTotalPubs, cumulativeGraph, fetchDateCumulativePubs, fetchDateCumulativePayouts, KnowledgeAssetsOverTime, bufferToStream, cumulativeTracSpentOverTime
 };
