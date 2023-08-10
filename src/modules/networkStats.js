@@ -55,7 +55,7 @@ function fetchDateCumulativePubs() {
 
 function fetchDateCumulativePayouts() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT a.date,SUM(value) OVER (ORDER BY date ASC) AS cumulativePayout FROM (select block_date as date, sum(value) as value from staging_proof_submitted group by block_date) as a ORDER BY date ASC', (error, results) => {
+    connection.query(`WITH RECURSIVE dates_cte AS (select (select cast(convert_tz(from_unixtime(timestamp),_utf8mb4'SYSTEM',_utf8mb4'UTC') as date) from block order by number asc limit 1) as date_val UNION ALL SELECT DATE_ADD(date_val, INTERVAL 1 DAY) FROM dates_cte WHERE date_val < (select block_date from v_sys_staging_date)), dates_cte_2 as (select a.date_val from dates_cte as a left join (select distinct block_date from staging_proof_submitted) as b on a.date_val=b.block_date where b.block_date is null) SELECT a.date ,SUM(value) OVER (ORDER BY date ASC) AS cumulativePayout FROM (select block_date as date, sum(value) as value from staging_proof_submitted group by block_date UNION ALL select date_val,0 from dates_cte_2) as a ORDER BY date ASC`, (error, results) => {
       if (error) reject(error);
       resolve(results);
     });
