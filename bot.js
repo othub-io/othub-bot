@@ -127,7 +127,7 @@ for (let term in glossary) {
       await ctx.deleteMessage()
       return
     }
-    
+
     // setTimeout(async () => {
     //   try {
     //     await ctx.deleteMessage();
@@ -137,6 +137,11 @@ for (let term in glossary) {
     // }, process.env.DELETE_TIMER)
   
     const botmessage = await ctx.reply(glossary[term]);
+    if (term === 'Knowledge_Assets') {
+      const imagePath = './glossary/Knowledge_Assets';
+      await ctx.replyWithPhoto({ source: imagePath });
+    }
+
     // if (botmessage) {
     //   setTimeout(async () => {
     //     try {
