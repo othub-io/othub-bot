@@ -15,6 +15,7 @@ const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
 const eventMonitor = require('./src/modules/eventMonitor.js')
 const publishCommand = require('./src/modules/publishCommand.js');
+const glossary = require ('./glossary.js');
 
 const chatId = process.env.OTHUB_ID;
 const adminGroup = process.env.ADMIN_GROUP.split(',');
@@ -71,6 +72,82 @@ For more interactions with @othubbot, please type: /commands`;
   }).catch(console.error);
   }
 });
+
+////////////////Glossary
+bot.command('glossary', async (ctx) => {
+  command = 'glossary'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+  let message = "Here's a list of OriginTrail terms:\n";
+  for (let term in glossary) {
+    message += `/${term.replace(" ", "_")}\n`;
+  }
+
+  // setTimeout(async () => {
+  //   try {
+  //     await ctx.deleteMessage();
+  //   } catch (error) {
+  //     console.error('Error deleting message:', error)
+  //   }
+  // }, process.env.DELETE_TIMER)
+
+  const botmessage = await ctx.reply(message);
+//   if (botmessage) {
+//     setTimeout(async () => {
+//       try {
+//         await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+//       } catch (error) {
+//         console.error('Error deleting message:', error)
+//       }
+//     }, process.env.DELETE_TIMER)
+//   }
+});
+
+for (let term in glossary) {
+  const commandName = term.replace(" ", "_");
+  bot.command(commandName, async (ctx) => {
+    command = commandName
+    spamCheck = await queryTypes.spamCheck()
+    telegram_id = ctx.message.from.id
+    permission = await spamCheck
+      .getData(command, telegram_id)
+      .then(async ({ permission }) => {
+        return permission })
+      .catch(error => console.log(`Error : ${error}`))
+    if (permission != `allow`) {
+      await ctx.deleteMessage()
+      return
+    }
+    
+    // setTimeout(async () => {
+    //   try {
+    //     await ctx.deleteMessage();
+    //   } catch (error) {
+    //     console.error('Error deleting message:', error)
+    //   }
+    // }, process.env.DELETE_TIMER)
+  
+    const botmessage = await ctx.reply(glossary[term]);
+    // if (botmessage) {
+    //   setTimeout(async () => {
+    //     try {
+    //       await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+    //     } catch (error) {
+    //       console.error('Error deleting message:', error)
+    //     }
+    //   }, process.env.DELETE_TIMER)
+    // }
+  });
+}
 
 ////////////////eventMonitor
 cron.schedule(process.env.DAILY, function() {
