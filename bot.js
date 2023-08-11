@@ -3,6 +3,9 @@ require('dotenv').config()
 const { Telegraf,session } = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN)
 const cron = require('node-cron')
+const fs = require('fs');
+const path = require('path');
+
 
 bot.use(session({ ttl: 10 }))
 
@@ -137,8 +140,8 @@ for (let term in glossary) {
     // }, process.env.DELETE_TIMER)
   
     const botmessage = await ctx.reply(glossary[term]);
-    if (term === 'Knowledge_Assets') {
-      const imagePath = './glossary/Knowledge_Assets';
+    const imagePath = path.join(__dirname, 'glossary', `${term}`);
+    if (fs.existsSync(imagePath)) {
       await ctx.replyWithPhoto({ source: imagePath });
     }
 
