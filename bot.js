@@ -39,7 +39,16 @@ bot.command('totalpubsovertime', async ctx => {
   }
 
   const easterEgg = 'You just reduced the lifetime amount of pubs by 5%.'
-  await ctx.reply(easterEgg);
+  const botmessage = await ctx.reply(easterEgg);
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
 })
 
 bot.command('cumgraph', async ctx => {
@@ -73,7 +82,16 @@ bot.command('cumgraph', async ctx => {
 ⠀⠀⠀⠀⣀⡀⠀⣰⠇⣾⠀⠀⠈⣩⣥⣄⣿⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⢿⡉⠳⡟⣸⠃⠀⠀⠀⠘⢷⣌⠉⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠙⢦⣴⠏⠀⠀⠀⠀⠀⠀⠉⠳⠶⠏⠀⠀`
-  await ctx.reply(easterEgg);
+  const botmessage = await ctx.reply(easterEgg);
+  if (botmessage) {
+  setTimeout(async () => {
+    try {
+      await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+    } catch (error) {
+      console.error('Error deleting message:', error)
+    }
+  }, process.env.DELETE_TIMER)
+}
 })
 
 ////////////////New Chat Member Welcome Message
