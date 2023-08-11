@@ -89,6 +89,42 @@ bot.command('cumgraph', async ctx => {
 }
 })
 
+bot.command('kitty', async ctx => {
+  command = 'kitty'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+  const easterEgg = `⠀⠀⠀⠀⠀⠀⣠⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⣠⠎⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⢀⣀⡀⠞⠁⠀⠀⠁⠁⠐⠒⠒⠋⡹⠀⠀⠀⠀
+  ⠈⢢⠀⠾⠃⠀⠀⠀⠀⠀⠀⠀⡰⠁⠀⠀⠀⠀
+  ⢰⠣⡄⠠⢄⠀⠾⠅⠀⠀⢠⣰⠁⠀⠀⠀⠀⠀
+  ⠀⠀⠐⢤⣀⠀⣀⣆⢰⠉⠢⡇⠀⢀⠤⠤⣀⠀
+  ⠀⠀⢸⠀⠀⠀⠀⠀⠙⠀⠈⠳⡀⠘⠤⡀⠀⢆
+  ⠀⠀⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢄⡀⢸⠀⠸
+  ⠀⠀⠁⠀⢥⠀⠀⡇⠀⠀⠀⠀⠀⠀⣱⠼⠀⡘
+  ⠀⢀⡇⠀⠢⠄⢀⠃⠀⢐⠀⠀⠀⠀⡇⠤⠋⠀
+  ⠀⠸⢄⣀⠜⠀⢸⡀⠴⠋⠀⠉⠁⠁`
+  const botmessage = await ctx.reply(easterEgg);
+  if (botmessage) {
+  setTimeout(async () => {
+    try {
+      await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+    } catch (error) {
+      console.error('Error deleting message:', error)
+    }
+  }, process.env.DELETE_TIMER)
+}
+})
+
 ////////////////New Chat Member Welcome Message
 bot.on('new_chat_members', (ctx) => {
   if (ctx.chat.id == chatId) {
