@@ -25,6 +25,9 @@ const adminGroup = process.env.ADMIN_GROUP.split(',');
 
 ////////////////easterEgg
 bot.command('totalpubsovertime', async ctx => {
+  if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
+    ctx.deleteMessage(ctx.message.message_id); 
+  }
   command = 'totalpubsovertime'
   spamCheck = await queryTypes.spamCheck()
   telegram_id = ctx.message.from.id
@@ -52,6 +55,9 @@ bot.command('totalpubsovertime', async ctx => {
 })
 
 bot.command('cumgraph', async ctx => {
+  if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
+    ctx.deleteMessage(ctx.message.message_id); 
+  }
   command = 'cumgraph'
   spamCheck = await queryTypes.spamCheck()
   telegram_id = ctx.message.from.id
@@ -90,6 +96,9 @@ bot.command('cumgraph', async ctx => {
 })
 
 bot.command('kitty', async ctx => {
+  if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
+    ctx.deleteMessage(ctx.message.message_id); 
+  }
   command = 'kitty'
   spamCheck = await queryTypes.spamCheck()
   telegram_id = ctx.message.from.id
