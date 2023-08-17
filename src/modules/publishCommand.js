@@ -102,6 +102,7 @@ module.exports = function publishCommand(bot) {
     if (!ctx.session || !ctx.session.publishData) return;
     const response = ctx.message.text;
     const data = ctx.session.publishData;
+    const messageId = ctx.message.message_id;
     const telegramId = ctx.from.id;
 
     if (!data || !data.inProgress) return;
@@ -119,8 +120,8 @@ module.exports = function publishCommand(bot) {
         return;
       } else {
         await connection.query(
-          'INSERT INTO publisher_profile (publisher_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?',
-          [telegramId, 'publish', 'telegram', data.public_address, data.public_address]
+          'INSERT INTO publisher_profile (publisher_id, message_id, command, platform, public_address) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?, message_id = ?',
+          [telegramId, messageId, 'publish', 'telegram', data.public_address, data.public_address, messageId]
         );
       };
       ctx.reply('Please select the network (otp::testnet or otp::mainnet).', Markup
