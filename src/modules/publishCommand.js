@@ -138,6 +138,8 @@ module.exports = function publishCommand(bot) {
     } else if (!data.txn_data) {
         const publishContext = JSON.parse(fs.readFileSync('publishContext.json', 'utf8'));
         publishContext.datePublished = new Date().toISOString();
+        publishContext.creator = ctx.from.id;
+        publishContext.identifier = ctx.message.message_id;
         publishContext.publisher = data.public_address;
         publishContext.text = response;
 
