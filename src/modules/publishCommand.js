@@ -178,7 +178,7 @@ Epochs: ${epochs || '5'}`;
         if (response === 'yes') {
           const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
           
-          let URL = `https://api.othub.io/otp/dkg/publish?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
+          let URL = `https://api.othub.io/otp/dkg/create?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
           
           if(txn_description) {
             URL += `&txn_description=${txn_description}`;
@@ -236,7 +236,7 @@ Epochs: ${epochs || '5'}`;
         if (data.confirm) {
         const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
 
-        let URL = `https://api.othub.io/otp/dkg/publish?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
+        let URL = `https://api.othub.io/otp/dkg/create?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
         
         if(txn_description) {
           URL += `&txn_description=${txn_description}`;
