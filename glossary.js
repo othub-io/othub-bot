@@ -13,5 +13,5 @@ module.exports = {
       "OriginTrail_Parachain": "OriginTrail's parachain in the Polkadot ecosystem tailored to the /Decentralized_Knowledge_Graph. It is powered by the /OTP token.",
       "OTP": "OTP has a max supply of 1 Billion and is inflationary. It serves as the gas and governance token for the /OriginTrail_Parachain.",
       "TRAC": "TRAC, an ERC-20 token, is essential for all operations on the DKG. It is an utility token with great driving the entire network, used for various operations including publishing /Knowledge_Assets and running /Nodes. It has a non-inflationary supply of 500M, all distributed during ICO in 2018.",
-      "chatDKG": "chatDKG is an open-source framework promoting the adoption of trusted knowledge with AI, addressing AI hallucinations and misinformation by using verifiable /Knowledge_Assets."
+      "chatDKG": "chatDKG is an open-source framework promoting the adoption of trusted knowledge with AI, addressing AI hallucinations and misinformation by using verifiable /Knowledge_Assets. Find out more at chatdkg.ai!"
   };
