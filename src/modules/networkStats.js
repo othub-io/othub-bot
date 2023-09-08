@@ -112,17 +112,7 @@ async function fetchNetworkStatistics(ctx) {
 ⚖️Avg Pub Price: ${avgPubPrice}
 🫴Avg Node Ask: ${avgNodeAsk}`;
 
-  const botmessage = await ctx.reply(message);
-
-  if (botmessage) {
-    setTimeout(async () => {
-      try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
-      } catch (error) {
-        console.error('Error deleting message:', error)
-      }
-    }, process.env.DELETE_TIMER)
-  }
+  await ctx.reply(message);
 }
 
 async function KnowledgeAssetsOverTime(dates, totalPubsValues) {
