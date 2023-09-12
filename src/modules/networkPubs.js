@@ -79,9 +79,9 @@ async function fetchAndSendHourlyPubs(ctx) {
   const avgBid = parseFloat(lastHourStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(lastHourStats.avgEpochsNumber);
 
-  let totalPubsEmoji = totalPubs > 100 ? '🚀' : totalPubs >= 75 ? '✈️' : totalPubs >= 50 ? '🚁' : totalPubs >= 25 ? '🎈' : '☠️';
-  let totalTracSpentEmoji = totalTracSpent > 400 ? '🤑' : totalTracSpent >= 300 ? '💰' : totalTracSpent >= 200 ? '💸' : totalTracSpent >= 100 ? '💵' : '🪙';
-  let avgPubPriceEmoji = avgPubPrice > 0.4 ? '😃' : avgPubPrice >= 0.3 ? '🙂' : avgPubPrice >= 0.2 ? '😐' : avgPubPrice >= 0.1 ? '🤕' : '🤮';
+  let totalPubsEmoji = totalPubs > 900 ? '🚀' : totalPubs >= 700 ? '✈️' : totalPubs >= 500 ? '🚁' : totalPubs >= 300 ? '🎈' : '☠️';
+  let totalTracSpentEmoji = totalTracSpent > 125 ? '🤑' : totalTracSpent >= 100 ? '💰' : totalTracSpent >= 75 ? '💸' : totalTracSpent >= 50 ? '💵' : '🪙';
+  let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
 
   const message = `== Last Hour \u{1F4CA} ==
@@ -104,9 +104,9 @@ async function fetchAndSendDailyPubs(ctx) {
   const avgBid = parseFloat(last24HourStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(last24HourStats.avgEpochsNumber);
 
-  let totalPubsEmoji = totalPubs > 2400 ? '🚀' : totalPubs >= 1800 ? '✈️' : totalPubs >= 1200 ? '🚁' : totalPubs >= 600 ? '🎈' : '☠️';
-  let totalTracSpentEmoji = totalTracSpent > 9600 ? '🤑' : totalTracSpent >= 7200 ? '💰' : totalTracSpent >= 4800 ? '💸' : totalTracSpent >= 2400 ? '💵' : '🪙';
-  let avgPubPriceEmoji = avgPubPrice > 0.4 ? '😃' : avgPubPrice >= 0.3 ? '🙂' : avgPubPrice >= 0.2 ? '😐' : avgPubPrice >= 0.1 ? '🤕' : '🤮';
+  let totalPubsEmoji = totalPubs > 20000 ? '🚀' : totalPubs >= 15000 ? '✈️' : totalPubs >= 10000 ? '🚁' : totalPubs >= 5000 ? '🎈' : '☠️';
+  let totalTracSpentEmoji = totalTracSpent > 3000 ? '🤑' : totalTracSpent >= 2400 ? '💰' : totalTracSpent >= 1800 ? '💸' : totalTracSpent >= 1200 ? '💵' : '🪙';
+  let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
 
   const message = `== Last 24H \u{1F4CA} ==
@@ -129,9 +129,9 @@ async function fetchAndSendWeeklyPubs(ctx) {
   const avgBid = parseFloat(lastWeekStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(lastWeekStats.avgEpochsNumber);
 
-  let totalPubsEmoji = totalPubs > 16800 ? '🚀' : totalPubs >= 12600 ? '✈️' : totalPubs >= 8400 ? '🚁' : totalPubs >= 4200 ? '🎈' : '☠️';
-  let totalTracSpentEmoji = totalTracSpent > 67200 ? '🤑' : totalTracSpent >= 50400 ? '💰' : totalTracSpent >= 33600 ? '💸' : totalTracSpent >= 16800 ? '💵' : '🪙';
-  let avgPubPriceEmoji = avgPubPrice > 0.4 ? '😃' : avgPubPrice >= 0.3 ? '🙂' : avgPubPrice >= 0.2 ? '😐' : avgPubPrice >= 0.1 ? '🤕' : '🤮';
+  let totalPubsEmoji = totalPubs > 140000 ? '🚀' : totalPubs >= 105000 ? '✈️' : totalPubs >= 70000 ? '🚁' : totalPubs >= 35000 ? '🎈' : '☠️';
+  let totalTracSpentEmoji = totalTracSpent > 21000 ? '🤑' : totalTracSpent >= 16800 ? '💰' : totalTracSpent >= 12600 ? '💸' : totalTracSpent >= 8400 ? '💵' : '🪙';
+  let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
 
   const message = `== Last Week \u{1F4CA} ==
@@ -154,9 +154,9 @@ async function fetchAndSendMonthlyPubs(ctx) {
   const avgBid = parseFloat(lastMonthStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(lastMonthStats.avgEpochsNumber);
 
-  let totalPubsEmoji = totalPubs > 72000 ? '🚀' : totalPubs >= 54000 ? '✈️' : totalPubs >= 36000 ? '🚁' : totalPubs >= 18000 ? '🎈' : '☠️';
-  let totalTracSpentEmoji = totalTracSpent > 288000 ? '🤑' : totalTracSpent >= 216000 ? '💰' : totalTracSpent >= 144000 ? '💸' : totalTracSpent >= 72000 ? '💵' : '🪙';
-  let avgPubPriceEmoji = avgPubPrice > 0.4 ? '😃' : avgPubPrice >= 0.3 ? '🙂' : avgPubPrice >= 0.2 ? '😐' : avgPubPrice >= 0.1 ? '🤕' : '🤮';
+  let totalPubsEmoji = totalPubs > 600000 ? '🚀' : totalPubs >= 450000 ? '✈️' : totalPubs >= 300000 ? '🚁' : totalPubs >= 150000 ? '🎈' : '☠️';
+  let totalTracSpentEmoji = totalTracSpent > 90000 ? '🤑' : totalTracSpent >= 72000 ? '💰' : totalTracSpent >= 54000 ? '💸' : totalTracSpent >= 36000 ? '💵' : '🪙';
+  let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
 
   const message = `== Last Month \u{1F4CA} ==
@@ -179,9 +179,9 @@ async function fetchAndSendTotalPubs(ctx) {
   const avgBid = parseFloat(lastTotalStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(lastTotalStats.avgEpochsNumber);
 
-  let totalPubsEmoji = totalPubs > 72000 ? '🚀' : totalPubs >= 54000 ? '✈️' : totalPubs >= 36000 ? '🚁' : totalPubs >= 18000 ? '🎈' : '☠️';
-  let totalTracSpentEmoji = totalTracSpent > 288000 ? '🤑' : totalTracSpent >= 216000 ? '💰' : totalTracSpent >= 144000 ? '💸' : totalTracSpent >= 72000 ? '💵' : '🪙';
-  let avgPubPriceEmoji = avgPubPrice > 0.4 ? '😃' : avgPubPrice >= 0.3 ? '🙂' : avgPubPrice >= 0.2 ? '😐' : avgPubPrice >= 0.1 ? '🤕' : '🤮';
+  let totalPubsEmoji = totalPubs > 700000 ? '🚀' : totalPubs >= 600000 ? '✈️' : totalPubs >= 500000 ? '🚁' : totalPubs >= 400000 ? '🎈' : '☠️';
+  let totalTracSpentEmoji = totalTracSpent > 800000 ? '🤑' : totalTracSpent >= 700000 ? '💰' : totalTracSpent >= 600000 ? '💸' : totalTracSpent >= 500000 ? '💵' : '🪙';
+  let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
 
   const message = `== Total Pubs \u{1F4CA} ==
