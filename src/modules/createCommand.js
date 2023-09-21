@@ -101,7 +101,7 @@ module.exports = function createCommand(bot) {
             const value = input[i + 1];
             switch (flag) {
         case '-A':
-        case '--data':
+        case '--asset':
             data.txn_data = value;
             break;
         case '-N':
