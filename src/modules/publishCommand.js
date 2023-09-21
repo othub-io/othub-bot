@@ -136,20 +136,22 @@ module.exports = function publishCommand(bot) {
         .resize()
       );
     } else if (!data.txn_data) {
-        const publishContext = JSON.parse(fs.readFileSync('publishContext.json', 'utf8'));
-        publishContext.datePublished = new Date().toISOString();
-        publishContext.creator = ctx.from.id;
-        publishContext.identifier = ctx.message.message_id;
-        publishContext.publisher = data.public_address;
-        publishContext.text = response;
-
-        data.txn_data = JSON.stringify(publishContext);
-
+      try {
+        JSON.parse(response);
+        data.txn_data = response === 'skip' ? '{}' : response;
         ctx.reply('Would you like to enter optional fields or proceed to publish?', Markup
         .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
         .oneTime()
         .resize()
       );
+      } catch (error) {
+      // If it's not valid JSON, send a message to the user
+        ctx.reply('Please provide the data in correct JSON format or type /cancel to abort.', Markup
+          .keyboard(['/cancel'])
+          .oneTime()
+          .resize()
+        );
+      }
     } else if (response === 'Publish') {
       // If txn_description is not provided, set the default description with the current timestamp
       if (!data.txn_description) {
