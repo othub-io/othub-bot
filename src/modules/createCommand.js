@@ -70,10 +70,36 @@ module.exports = function createCommand(bot) {
         network: 'otp::mainnet'
     };
 
-    for (let i = 0; i < input.length; i += 2) {
-        const flag = input[i];
-        const value = input[i + 1];
-        switch (flag) {
+    let jsonData = "";
+    let isJsonStarted = false;
+    
+    for (let i = 0; i < input.length; i++) {
+        const part = input[i];
+        if (part.startsWith('{')) {
+            isJsonStarted = true;
+        }
+        if (isJsonStarted) {
+            jsonData += part + " ";
+        }
+        if (part.endsWith('}')) {
+            isJsonStarted = false;
+        }
+    }
+    
+    jsonData = jsonData.trim();
+    
+    if (jsonData) {
+        try {
+            const jsonObject = JSON.parse(jsonData);
+            data.txn_data = JSON.stringify(jsonObject);  // Convert it to single line
+        } catch (e) {
+            return ctx.reply('Invalid JSON data.');
+        }
+    } else {
+        for (let i = 0; i < input.length; i += 2) {
+            const flag = input[i];
+            const value = input[i + 1];
+            switch (flag) {
         case '-A':
         case '--data':
             data.txn_data = value;
@@ -100,6 +126,7 @@ module.exports = function createCommand(bot) {
             break;
         }
     }
+    }
 
     if (!data.public_address) {
         const telegramId = ctx.from.id;
@@ -125,6 +152,7 @@ module.exports = function createCommand(bot) {
     if (!data.public_address || !ethers.isAddress(data.public_address)) {
         return ctx.reply('Invalid or missing EVM public address.');
     } else {
+        const telegramId = ctx.from.id;
         await connection.query(
           'INSERT INTO publisher_profile (publisher_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?',
           [telegramId, 'create', 'telegram', data.public_address, data.public_address]
@@ -155,6 +183,17 @@ module.exports = function createCommand(bot) {
     if(epochs) {
         URL += `&epochs=${epochs}`;
     }
+
+    const previewMessage = `
+Publish preview:
+Public Address: ${public_address}
+Network: ${network}
+Data: ${txn_data}
+Description: ${txn_description}
+Keywords: ${keywords}
+Epochs: ${epochs}`;
+
+ctx.reply(previewMessage);
 
     try {
         const res = await axios.get(URL);
