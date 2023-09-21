@@ -142,7 +142,7 @@ module.exports = function createCommand(bot) {
     }
 
     if (!data.txn_data || !isValidJSON(data.txn_data)) {
-        return ctx.reply('Invalid or missing JSON data.');
+        return ctx.reply('Invalid or missing JSON data. Try /Schema_Markup for help.');
     }
 
     if (!['otp::testnet', 'otp::mainnet'].includes(data.network)) {
