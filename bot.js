@@ -209,8 +209,13 @@ for (let term in glossary) {
       return
     }
     const botmessage = await ctx.reply(glossary[term]);
+    
+    const gifPath = path.join(__dirname, 'glossary', `${term}.gif`);
     const imagePath = path.join(__dirname, 'glossary', `${term}`);
-    if (fs.existsSync(imagePath)) {
+    
+    if (fs.existsSync(gifPath)) {
+      await ctx.replyWithAnimation({ source: gifPath });
+    } else if (fs.existsSync(imagePath)) {
       await ctx.replyWithPhoto({ source: imagePath });
     }
   });
