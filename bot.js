@@ -668,7 +668,7 @@ bot.command('nodestats', async ctx => {
 
 ////////////////Publish Command
 createCommand(bot);
-publishCommand(bot);
+//publishCommand(bot);
 
 //-----------------------END---------------------------
 
