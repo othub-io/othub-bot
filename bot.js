@@ -28,6 +28,7 @@ const adminGroup = process.env.ADMIN_GROUP.split(',');
 bot.command('totalpubsovertime', async ctx => {
   if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
     ctx.deleteMessage(ctx.message.message_id); 
+    return;
   }
   command = 'totalpubsovertime'
   spamCheck = await queryTypes.spamCheck()
@@ -58,6 +59,7 @@ bot.command('totalpubsovertime', async ctx => {
 bot.command('cumgraph', async ctx => {
   if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
     ctx.deleteMessage(ctx.message.message_id); 
+    return;
   }
   command = 'cumgraph'
   spamCheck = await queryTypes.spamCheck()
@@ -99,6 +101,7 @@ bot.command('cumgraph', async ctx => {
 bot.command('kitty', async ctx => {
   if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
     ctx.deleteMessage(ctx.message.message_id); 
+    return;
   }
   command = 'kitty'
   spamCheck = await queryTypes.spamCheck()
@@ -137,7 +140,7 @@ bot.command('kitty', async ctx => {
 
 ////////////////New Chat Member Welcome Message
 bot.on('new_chat_members', (ctx) => {
-  if (ctx.chat.id == chatId) {
+  if (ctx.chat.id == process.env.OTHUB_ID) {
     const firstName = ctx.message.new_chat_member.first_name;
 
     const welcomeMessage = `Hello, ${firstName}! 👋\n\nWelcome to the Official OTHub Channel!\n
@@ -187,25 +190,7 @@ bot.command('glossary', async (ctx) => {
   for (let term in glossary) {
     message += `/${term.replace(" ", "_")}\n`;
   }
-
-  // setTimeout(async () => {
-  //   try {
-  //     await ctx.deleteMessage();
-  //   } catch (error) {
-  //     console.error('Error deleting message:', error)
-  //   }
-  // }, process.env.DELETE_TIMER)
-
   const botmessage = await ctx.reply(message);
-//   if (botmessage) {
-//     setTimeout(async () => {
-//       try {
-//         await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
-//       } catch (error) {
-//         console.error('Error deleting message:', error)
-//       }
-//     }, process.env.DELETE_TIMER)
-//   }
 });
 
 for (let term in glossary) {
@@ -223,30 +208,11 @@ for (let term in glossary) {
       await ctx.deleteMessage()
       return
     }
-
-    // setTimeout(async () => {
-    //   try {
-    //     await ctx.deleteMessage();
-    //   } catch (error) {
-    //     console.error('Error deleting message:', error)
-    //   }
-    // }, process.env.DELETE_TIMER)
-  
     const botmessage = await ctx.reply(glossary[term]);
     const imagePath = path.join(__dirname, 'glossary', `${term}`);
     if (fs.existsSync(imagePath)) {
       await ctx.replyWithPhoto({ source: imagePath });
     }
-
-    // if (botmessage) {
-    //   setTimeout(async () => {
-    //     try {
-    //       await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
-    //     } catch (error) {
-    //       console.error('Error deleting message:', error)
-    //     }
-    //   }, process.env.DELETE_TIMER)
-    // }
   });
 }
 
