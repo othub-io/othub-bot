@@ -58,7 +58,7 @@ function getLastMonthStats() {
 
 function getTotalStats() {
   return new Promise((resolve, reject) => {
-    pool.query('SELECT AVG(avgPubSize) AS avgPubSize, AVG(avgEpochsNumber) AS avgEpochsNumber, AVG(avgPubPrice) AS avgPubPrice, AVG(avgBid) AS avgBid, SUM(totalPubs) AS totalPubs, SUM(totalTracSpent) AS totalTracSpent FROM v_pubs_stats_hourly', (error, results) => {
+    pool.query('select avg(size) as avgPubSize, avg(epochs_number) as avgEpochsNumber, avg(token_amount) as avgPubPrice, avg(bid)  as avgBid, count(*) as totalPubs, sum(token_amount) as totalTracSpent from v_pubs', (error, results) => {
       if (error) {
         reject(error);
       } else {
