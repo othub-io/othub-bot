@@ -28,7 +28,7 @@ function bufferToStream(buffer) {
 
 function fetchDateTotalPubs() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT date, totalPubs FROM v_pubs_stats WHERE date < (SELECT MAX(date) FROM v_pubs_stats) order by date', (error, results) => {
+    connection.query('select * from v_pubs_stats where date != (select block_date from v_sys_staging_date) order by date', (error, results) => {
       if (error) reject(error);
       resolve(results);
     });
