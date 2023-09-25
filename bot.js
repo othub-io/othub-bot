@@ -17,12 +17,10 @@ const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
 const eventMonitor = require('./src/modules/eventMonitor.js')
-const publishCommand = require('./src/modules/publishCommand.js');
+//const publishCommand = require('./src/modules/publishCommand.js');
 const createCommand = require('./src/modules/createCommand.js');
 const glossary = require ('./glossary.js');
-
-const chatId = process.env.OTHUB_ID;
-const adminGroup = process.env.ADMIN_GROUP.split(',');
+const sendInvoice = require('./src/modules/sendInvoice');
 
 ////////////////easterEgg
 bot.command('totalpubsovertime', async ctx => {
@@ -639,6 +637,7 @@ bot.command('nodestats', async ctx => {
 
 ////////////////Publish Command
 createCommand(bot);
+sendInvoice(bot);
 //publishCommand(bot);
 
 //-----------------------END---------------------------
