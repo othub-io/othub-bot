@@ -53,7 +53,7 @@ module.exports = function createCommand(bot) {
             return ctx.reply(
                 'To use the /create command, please provide the following parameters:\n\n' +
                 'Required:\n' +
-                '-A, --data <publish_data_in_JSON>\n' +
+                '-A, --data <data_to_publish_in_JSON_format>\n' +
                 '-N, --network <otp::mainnet_or_otp::testnet> (default: otp::mainnet)\n' +
                 '-W, --wallet <public_address>\n\n' +
                 'Optional:\n' +
@@ -125,7 +125,7 @@ module.exports = function createCommand(bot) {
                 const jsonObject = JSON.parse(jsonData);
                 data.txn_data = JSON.stringify(jsonObject);
             } catch (e) {
-                return ctx.reply('Invalid JSON data.');
+                return ctx.reply('Invalid JSON data. For help, try /Schema_Markup.');
             }
         }
 
