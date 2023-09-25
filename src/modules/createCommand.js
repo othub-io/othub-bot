@@ -15,10 +15,10 @@ module.exports = function createCommand(bot) {
         if (ctx.chat.type !== 'private') {
             command = 'create'
             spamCheck = await queryTypes.spamCheck()
-            telegram_id = ctx.message.from.id
+            telegramId = ctx.message.from.id
             
             permission = await spamCheck
-                .getData(command, telegram_id)
+                .getData(command, telegramId)
                 .then(async ({ permission }) => {
                 return permission
                 })
