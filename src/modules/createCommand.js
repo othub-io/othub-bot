@@ -13,20 +13,20 @@ const connection = mysql.createConnection({
 module.exports = function createCommand(bot) {
     bot.command('create', async (ctx) => {
         if (ctx.chat.type !== 'private') {
-            const command = 'create';
-            const spamCheck = await queryTypes.spamCheck();
-            const telegramId = ctx.message.from.id;
+            command = 'create'
+            spamCheck = await queryTypes.spamCheck()
+            telegram_id = ctx.message.from.id
             
-            const permission = await spamCheck
-                .getData(command, telegramId)
+            permission = await spamCheck
+                .getData(command, telegram_id)
                 .then(async ({ permission }) => {
-                    return permission;
+                return permission
                 })
-                .catch(error => console.log(`Error : ${error}`));
+                .catch(error => console.log(`Error : ${error}`))
             
-            if (permission !== 'allow') {
-                await ctx.deleteMessage();
-                return;
+            if (permission != `allow`) {
+                await ctx.deleteMessage()
+                return
             }
             setTimeout(async () => {
                 try {
