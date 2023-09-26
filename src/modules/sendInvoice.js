@@ -1,11 +1,99 @@
 const queryTypes = require('../util/queryTypes');
+const axios = require('axios');
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: process.env.DBHOST,
+    user: process.env.DBUSER,
+    password: process.env.DBPASSWORD,
+    database: process.env.PAYMENT_DB,
+});
+
+function addTransaction(transaction) {
+const {
+    orderNumber,
+    userId,
+    productId,
+    amountPaid,
+    currency,
+    telegramPaymentChargeId,
+    providerPaymentChargeId,
+    paymentStatus,
+    notes,
+} = transaction;
+
+const query = `
+    INSERT INTO invoice_records (
+    orderNumber,
+    userId,
+    productId,
+    amountPaid,
+    currency,
+    telegramPaymentChargeId,
+    providerPaymentChargeId,
+    paymentStatus,
+    notes
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
+
+connection.query(query, [
+    orderNumber,
+    userId,
+    productId,
+    amountPaid,
+    currency,
+    telegramPaymentChargeId,
+    providerPaymentChargeId,
+    paymentStatus,
+    notes,
+], (error, results, fields) => {
+    if (error) {
+    console.error('Error inserting transaction:', error);
+    return;
+    }
+    console.log('Transaction inserted with ID:', results.insertId);
+});
+}
 
 module.exports = function sendInvoice(bot) {
-
     const options = [
-        { label: '100 OTHub Credits - $10', amount: 1000, credits: 100 },
-        { label: '600 OTHub Credits - $50', amount: 5000, credits: 600 },
+        { label: '$1', amount: 100 },
+        { label: '$2', amount: 200 },
+        { label: '$5', amount: 500 },
+        { label: '$10', amount: 1000 },
+        { label: '$50', amount: 5000 },
+        { label: 'Custom', amount: null },
     ];
+
+    const awaitingCustomAmountUsers = {};
+
+    function generateUniqueOrderNumber(userId) {
+        const timestamp = Date.now();
+        const orderNumber = `OTHUB-${userId}-${timestamp}`;
+        return orderNumber;
+    }
+
+    const sendInvoiceToUser = async (ctx, label, amount) => {
+        const userId = ctx.from.id;
+        await bot.telegram.sendInvoice(ctx.from.id, {
+            title: 'Knowledge Assets Creation',
+            description: `Unlock the power of Knowledge with OTHub.io! Review the /Terms and agree by clicking on 'Pay' ✅`,
+            payload: JSON.stringify({
+                userId: userId,
+                productId: 'othub-credits',
+                currency: 'USD',
+                orderNumber: generateUniqueOrderNumber(userId),
+            }),
+            provider_token: '284685063:TEST:NGE0OTBmMjEyZjM1',
+            photo_url: 'https://runtime.othub.io/images?src=OTHub-Logo.png',
+            photo_width: '180',
+            photo_height: '180',
+            currency: 'USD',
+            prices: [
+                { label: label, amount: amount },
+            ],
+        });
+    };
 
     bot.command('invoice', async (ctx) => {
         command = 'invoice'
@@ -23,38 +111,52 @@ module.exports = function sendInvoice(bot) {
         //     await ctx.deleteMessage()
         //     return
         // }
+        
         const keyboard = options.map((option, index) => ({
             text: option.label,
-            callback_data: String(index),
+            callback_data: option.amount !== null ? String(index) : 'custom',
         }));
-                await ctx.reply('Select the amount of OTHub Credits you want to purchase:', {
+            await ctx.reply('Please select the amount you want to pay:', {
             reply_markup: {
                 inline_keyboard: [keyboard],
             },
         });
     });
+
     
     bot.action(/.*/, async (ctx) => {
+
+        if (ctx.match[0] === 'custom') {
+            awaitingCustomAmountUsers[ctx.from.id] = true;
+            ctx.reply('Please enter the custom dollar amount you wish to pay:');
+            await ctx.answerCbQuery();
+            return;
+        }
+
         const index = parseInt(ctx.match[0]);
         const selectedOption = options[index];
 
-        const chatId = ctx.chat.id;
-        await bot.telegram.sendInvoice(chatId, {
-            title: 'OTHub Credits',
-            description: `Purchase ${selectedOption.credits} credits to create knowledge assets on OTHub.io!`,
-            payload: 'othubio',
-            provider_token: '284685063:TEST:NGE0OTBmMjEyZjM1',
-            photo_url: 'https://runtime.othub.io/images?src=OTHub-Logo.png',
-            photo_width: '200',
-            photo_height: '200',
-            currency: 'USD',
-            prices: [
-                { label: selectedOption.label, amount: selectedOption.amount },
-            ],
-        });
+        await sendInvoiceToUser(ctx, selectedOption.label, selectedOption.amount);
         await ctx.answerCbQuery();
     });
     
+    bot.on('message', async (ctx) => {
+        if (awaitingCustomAmountUsers[ctx.from.id]) {
+            const customAmount = parseFloat(ctx.message.text);
+            if (isNaN(customAmount) || customAmount <= 0) {
+                ctx.reply('Invalid amount. Please enter a valid dollar amount.');
+                return;
+            }
+
+            const customLabel = `$${customAmount}`;
+            const customAmountInCents = customAmount * 100;
+
+            delete awaitingCustomAmountUsers[ctx.from.id];
+
+            await sendInvoiceToUser(ctx, customLabel, customAmountInCents);
+        }
+    });
+
     bot.on('pre_checkout_query', async (ctx) => {
         try {
             await ctx.answerPreCheckoutQuery(true);
@@ -65,9 +167,74 @@ module.exports = function sendInvoice(bot) {
     });
     
     bot.on('successful_payment', (ctx) => {
-        // Update the user's balance in your database
-        // ...
+        const payload = JSON.parse(ctx.update.message.successful_payment.invoice_payload);
+        const userId = payload.userId;
+        const orderNumber = payload.orderNumber;
+        const currency = payload.currency;
+        const productId = payload.productId;
+        const telegramPaymentChargeId = ctx.update.message.successful_payment.telegram_payment_charge_id;
+        const providerPaymentChargeId = ctx.update.message.successful_payment.provider_payment_charge_id;    
+        const amountPaid = ctx.update.message.successful_payment.total_amount / 100;
+        const paymentStatus = 'Completed';
+
+        addTransaction({
+            orderNumber,
+            userId,
+            productId,
+            amountPaid,
+            currency,
+            telegramPaymentChargeId,
+            providerPaymentChargeId,
+            paymentStatus,
+        });
         
-        ctx.reply(`Thank you for your purchase! Your balance has been updated. You now have X OTHub Credits.`);
+        // Check if the userId already has an associated evmAddress in the database
+        const checkQuery = 'SELECT evmAddress FROM invoice_records WHERE userId = ? AND evmAddress IS NOT NULL LIMIT 1';
+        connection.query(checkQuery, [userId], (error, results, fields) => {
+        if (error) {
+            console.error('Error checking EVM address:', error);
+            return;
+        }
+
+        if (results.length > 0) {
+            // An evmAddress is already associated with this userId
+            const existingEvmAddress = results[0].evmAddress;
+
+            // Update the new transaction record with the existing evmAddress
+            const updateQuery = 'UPDATE invoice_records SET evmAddress = ? WHERE orderNumber = ?';
+            connection.query(updateQuery, [existingEvmAddress, orderNumber], (updateError, updateResults, updateFields) => {
+                if (updateError) {
+                    console.error('Error updating EVM address:', updateError);
+                    return;
+                }
+                ctx.reply('Thank you for your purchase! Your balance has been updated. Your existing EVM address has been successfully linked to this transaction!');
+            });
+        } else {
+
+        ctx.reply('Thank you for your purchase! Your balance has been updated. Would you like to provide your EVM address to link your balance with your wallet on OTHub.io? If so, please reply with your EVM address. This step is required for App Developers to use OTHub API.');
+
+            bot.on('message', async (messageCtx) => {
+                // Check if the message is from the same user
+                if (messageCtx.from.id === ctx.from.id) {
+                    const evmAddress = messageCtx.message.text.trim();
+
+                    // Validate the EVM address
+                    if (ethers.utils.isAddress(evmAddress)) {
+                        // Update the transaction record in the database with the provided EVM address
+                        const updateQuery = 'UPDATE invoice_records SET evmAddress = ? WHERE orderNumber = ?';
+                        connection.query(updateQuery, [evmAddress, orderNumber], (updateError, updateResults, updateFields) => {
+                            if (updateError) {
+                                console.error('Error updating EVM address:', updateError);
+                                return;
+                            }
+                            messageCtx.reply('Your EVM address has been successfully linked!');
+                        });
+                    } else {
+                        messageCtx.reply('Invalid EVM address. Please enter a valid EVM address.');
+                    }
+                }
+            });
+        }
     });
-}
+});
+};
