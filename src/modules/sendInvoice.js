@@ -74,8 +74,8 @@ module.exports = function sendInvoice(bot) {
     const sendInvoiceToUser = async (ctx, label, amount) => {
         const userId = ctx.from.id;
         await bot.telegram.sendInvoice(ctx.from.id, {
-            title: 'Knowledge Assets Creation',
-            description: `Unlock the power of Knowledge with OTHub.io! Review the /Terms and agree by clicking on 'Pay' ✅`,
+            title: 'OTHub.io credits',
+            description: `Unlock the power of Knowledge with OTHub.io! Create Knowledge Assets until your OTHub.io balance is depleted.`,
             payload: JSON.stringify({
                 userId: userId,
                 productId: 'othub-credits',
@@ -109,12 +109,39 @@ module.exports = function sendInvoice(bot) {
         //     await ctx.deleteMessage()
         //     return
         // }
+
+        const description = `
+🌟 *Welcome to OTHub.io!* 🌟
+
+You are about to create */Knowledge_Assets* to harness the power of connected and structured AI-ready data! 
         
+🔍 *What You Get:*
+- OTHub credits to create Knowledge Assets
+- Exclusive features on @othubbot
+- Unique tiers of OTHub Knowledge Badges
+- Access to create and transfer API for App Developers
+- Priority Support
+- And Much More!
+
+By continuing, you accept our /Terms.
+        
+💰 *Select the amount you want to purchase:*`;
+
+        // Inline keyboard with payment options
         const keyboard = options.map((option, index) => ({
             text: option.label,
-            callback_data: option.amount !== null ? String(index) : 'custom',
+            callback_data: String(index),
         }));
-            await ctx.reply('Please select the amount you want to pay:', {
+        
+        // Send the logo
+        await ctx.replyWithPhoto('https://runtime.othub.io/images?src=OTHub-Logo.png', {
+            width: 180,
+            height: 180,
+        });
+
+        // Send the descriptive message with the inline keyboard
+        await ctx.reply(description, {
+            parse_mode: 'Markdown',
             reply_markup: {
                 inline_keyboard: [keyboard],
             },
