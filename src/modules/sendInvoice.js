@@ -1,6 +1,7 @@
 const queryTypes = require('../util/queryTypes');
 const axios = require('axios');
 const mysql = require('mysql');
+const { ethers } = require('ethers');
 
 const connection = mysql.createConnection({
     host: process.env.DBHOST,
@@ -62,10 +63,7 @@ module.exports = function sendInvoice(bot) {
         { label: '$5', amount: 500 },
         { label: '$10', amount: 1000 },
         { label: '$50', amount: 5000 },
-        { label: 'Custom', amount: null },
     ];
-
-    const awaitingCustomAmountUsers = {};
 
     function generateUniqueOrderNumber(userId) {
         const timestamp = Date.now();
@@ -123,38 +121,12 @@ module.exports = function sendInvoice(bot) {
         });
     });
 
-    
     bot.action(/.*/, async (ctx) => {
-
-        if (ctx.match[0] === 'custom') {
-            awaitingCustomAmountUsers[ctx.from.id] = true;
-            ctx.reply('Please enter the custom dollar amount you wish to pay:');
-            await ctx.answerCbQuery();
-            return;
-        }
-
         const index = parseInt(ctx.match[0]);
         const selectedOption = options[index];
 
         await sendInvoiceToUser(ctx, selectedOption.label, selectedOption.amount);
         await ctx.answerCbQuery();
-    });
-    
-    bot.on('message', async (ctx) => {
-        if (awaitingCustomAmountUsers[ctx.from.id]) {
-            const customAmount = parseFloat(ctx.message.text);
-            if (isNaN(customAmount) || customAmount <= 0) {
-                ctx.reply('Invalid amount. Please enter a valid dollar amount.');
-                return;
-            }
-
-            const customLabel = `$${customAmount}`;
-            const customAmountInCents = customAmount * 100;
-
-            delete awaitingCustomAmountUsers[ctx.from.id];
-
-            await sendInvoiceToUser(ctx, customLabel, customAmountInCents);
-        }
     });
 
     bot.on('pre_checkout_query', async (ctx) => {
