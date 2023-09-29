@@ -7,7 +7,7 @@ const connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.DBUSER,
   password: process.env.DBPASSWORD,
-  database: process.env.OTHUBBOT_DB,
+  database: process.env.PAYMENT_DB,
 });
 
 module.exports = function createCommand(bot) {
@@ -47,6 +47,8 @@ module.exports = function createCommand(bot) {
             return;
         }
 
+        //connection to paymentdb view to check the current balance for given tg id
+
         const input = ctx.message.text.split(' ').slice(1);
 
         if (input.length === 0) {
@@ -55,7 +57,7 @@ module.exports = function createCommand(bot) {
                 'Required:\n' +
                 '-A, --data <data_to_publish_in_JSON_format>\n' +
                 '-N, --network <otp::mainnet_or_otp::testnet> (default: otp::mainnet)\n' +
-                '-W, --wallet <public_address>\n\n' +
+                '-W, --wallet <recipient_public_address>\n\n' +
                 'Optional:\n' +
                 '-D, --description <transaction_description>\n' +
                 '-K, --keywords <keywords_separated_by_comma>\n' +
@@ -124,30 +126,16 @@ module.exports = function createCommand(bot) {
             try {
                 const jsonObject = JSON.parse(jsonData);
                 data.txn_data = JSON.stringify(jsonObject);
+                //limit the amount of characters in the json to about 10k chars
             } catch (e) {
                 return ctx.reply('Invalid JSON data. For help, try /Schema_Markup.');
             }
         }
 
         if (!data.public_address) {
-            const telegramId = ctx.from.id;
-            try {
-                const rows = await queryDatabase(telegramId);
-                if (rows.length > 0) {
-                    data.public_address = rows[0].public_address;
-                }
-            } catch (error) {
-                console.error('Failed to execute query: ', error);
-                return;
-            }
+            return ctx.reply('Missing Recipient EVM public address.');
         } else if (!ethers.isAddress(data.public_address)) {
-            return ctx.reply('Invalid or missing EVM public address.');
-        } else if (data.public_address) {
-            const telegramId = ctx.from.id;
-            await connection.query(
-                'INSERT INTO publisher_profile (publisher_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?',
-                [telegramId, 'create', 'telegram', data.public_address, data.public_address]
-            );
+            return ctx.reply('Invalid EVM public address.');
         }
 
         if (!data.txn_data || !isValidJSON(data.txn_data)) {
@@ -169,7 +157,7 @@ module.exports = function createCommand(bot) {
 
         const { public_address, network, txn_data, txn_description, keywords, epochs } = data;
 
-        let URL = `https://api.othub.io/dkg/create?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
+        let URL = `https://api.othub.io/dkg/create_n_transfer?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
         
         if(txn_description) {
             URL += `&txn_description=${txn_description}`;
@@ -197,6 +185,7 @@ Epochs: ${epochs}`;
         try {
             const res = await axios.get(URL);
             ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(res.data)}`);
+            //await assetHistory search every 5 seconds, add the insert to db here for create_n_transfer_records, or find a way to instantly get asset info
         } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
         }
@@ -214,17 +203,5 @@ Epochs: ${epochs}`;
     function isValidKeywords(keywords) {
         const keywordArray = keywords.split(',');
         return keywordArray.every(keyword => keyword.trim().split(' ').length === 1);
-    }
-
-    function queryDatabase(telegramId) {
-        return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM publisher_profile WHERE publisher_id = ?', [telegramId], function (error, rows) {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
     }
 }
