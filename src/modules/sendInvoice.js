@@ -113,7 +113,7 @@ module.exports = function sendInvoice(bot) {
         const description = `
 🌟 *Welcome to OTHub.io!* 🌟
 
-You are about to create */Knowledge_Assets* to harness the power of connected and structured AI-ready data! 
+Create */Knowledge_Assets* to harness the power of structured AI-ready data! 
         
 🔍 *What You Get:*
 - OTHub credits to create Knowledge Assets
