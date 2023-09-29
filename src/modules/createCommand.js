@@ -157,7 +157,7 @@ module.exports = function createCommand(bot) {
 
         const { public_address, network, txn_data, txn_description, keywords, epochs } = data;
 
-        let URL = `https://api.othub.io/dkg/create_n_transfer?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
+        let URL = `https://api.othub.io/dkg/create_n_transfer?api_key=${process.env.API_KEY}&network=${network}&public_address=${public_address}&txn_data=${txn_data}`;
         
         if(txn_description) {
             URL += `&txn_description=${txn_description}`;
