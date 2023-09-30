@@ -2,6 +2,8 @@ const { ethers } = require('ethers');
 const mysql = require('mysql');
 const queryTypes = require('../util/queryTypes');
 const axios = require('axios');
+const assertionMetadata = require('./assertionMetadata');
+const { getCoinPrice } = require('./getCoinPrice');;
 
 const connection = mysql.createConnection({
   host: process.env.DBHOST,
@@ -178,14 +180,47 @@ Network: ${network}
 Data: ${txn_data}
 Description: ${txn_description}
 Keywords: ${keywords}
-Epochs: ${epochs}`;
+Epochs: ${epochs}
+Asset size: ${assertionMetadata.getAssertionSizeInBytes(txn_data)}`;
 
         ctx.reply(previewMessage);
-
         try {
-            const res = await axios.get(URL);
+            const res = await axios.post(URL, { timeout: 0 });
             ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(res.data)}`);
-            //await assetHistory search every 5 seconds, add the insert to db here for create_n_transfer_records, or find a way to instantly get asset info
+            
+            const telegram_id = ctx.message.from.id
+            const tracPriceUsd = await getCoinPrice('TRAC');
+            const size = assertionMetadata.getAssertionSizeInBytes(txn_data);
+            const costInTrac = 0;  // Placeholder value until you have the actual cost in TRAC
+            const costInUsd = costInTrac * tracPriceUsd;
+            const commissionInUsd = 0.10 * tracPriceUsd;  // Assuming a 10% commission on the price of TRAC
+            const bid = 0;  // Placeholder value until you have the actual bid
+            const UAL = 0;  // Assuming UAL is returned in the response data
+
+            const query = `
+                INSERT INTO create_n_transfer_records
+                (paymentDate, userId, recipient, assertionId, size, epochs, costInTrac, tracPriceUsd, costInUsd, commissionInUsd, bid, UAL)
+                VALUES
+                (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+
+            // Executing the SQL query
+            connection.query(query, [
+                telegram_id,
+                public_address,
+                '',  // Placeholder value for assertionId until you have a method to generate it
+                size,
+                epochs,
+                costInTrac,
+                tracPriceUsd,
+                costInUsd,
+                commissionInUsd,
+                bid,
+                UAL,
+            ], (error, results, fields) => {
+                if (error) throw error;
+                console.log('Inserted record ID:', results.insertId);
+            });
         } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
         }
@@ -203,5 +238,5 @@ Epochs: ${epochs}`;
     function isValidKeywords(keywords) {
         const keywordArray = keywords.split(',');
         return keywordArray.every(keyword => keyword.trim().split(' ').length === 1);
-    }
+    }    
 }
