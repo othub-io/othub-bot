@@ -186,54 +186,56 @@ By continuing, you accept our /Terms.
             providerPaymentChargeId,
             paymentStatus,
         });
+
+        ctx.reply('Thank you for your purchase! Your balance has been updated. To start creating /Knowledge_Assets, use the command /create!')
         
-        // Check if the userId already has an associated evmAddress in the database
-        const checkQuery = 'SELECT evmAddress FROM invoice_records WHERE userId = ? AND evmAddress IS NOT NULL LIMIT 1';
-        connection.query(checkQuery, [userId], (error, results, fields) => {
-        if (error) {
-            console.error('Error checking EVM address:', error);
-            return;
-        }
+    //     // Check if the userId already has an associated evmAddress in the database
+    //     const checkQuery = 'SELECT evmAddress FROM invoice_records WHERE userId = ? AND evmAddress IS NOT NULL LIMIT 1';
+    //     connection.query(checkQuery, [userId], (error, results, fields) => {
+    //     if (error) {
+    //         console.error('Error checking EVM address:', error);
+    //         return;
+    //     }
 
-        if (results.length > 0) {
-            // An evmAddress is already associated with this userId
-            const existingEvmAddress = results[0].evmAddress;
+    //     if (results.length > 0) {
+    //         // An evmAddress is already associated with this userId
+    //         const existingEvmAddress = results[0].evmAddress;
 
-            // Update the new transaction record with the existing evmAddress
-            const updateQuery = 'UPDATE invoice_records SET evmAddress = ? WHERE orderNumber = ?';
-            connection.query(updateQuery, [existingEvmAddress, orderNumber], (updateError, updateResults, updateFields) => {
-                if (updateError) {
-                    console.error('Error updating EVM address:', updateError);
-                    return;
-                }
-                ctx.reply('Thank you for your purchase! Your balance has been updated. Your existing EVM address has been successfully linked to this transaction!');
-            });
-        } else {
+    //         // Update the new transaction record with the existing evmAddress
+    //         const updateQuery = 'UPDATE invoice_records SET evmAddress = ? WHERE orderNumber = ?';
+    //         connection.query(updateQuery, [existingEvmAddress, orderNumber], (updateError, updateResults, updateFields) => {
+    //             if (updateError) {
+    //                 console.error('Error updating EVM address:', updateError);
+    //                 return;
+    //             }
+    //             ctx.reply('Thank you for your purchase! Your balance has been updated. Your existing EVM address has been successfully linked to this transaction!');
+    //         });
+    //     } else {
 
-        ctx.reply('Thank you for your purchase! Your balance has been updated. Would you like to provide your EVM address to link your balance with your wallet on OTHub.io? If so, please reply with your EVM address. This step is required for App Developers to use OTHub API.');
+    //     ctx.reply('Thank you for your purchase! Your balance has been updated. Would you like to provide your EVM address to link your balance with your wallet on OTHub.io? If so, please reply with your EVM address. This step is required for App Developers to use OTHub API.');
 
-            bot.on('message', async (messageCtx) => {
-                // Check if the message is from the same user
-                if (messageCtx.from.id === ctx.from.id) {
-                    const evmAddress = messageCtx.message.text.trim();
+    //         bot.on('message', async (messageCtx) => {
+    //             // Check if the message is from the same user
+    //             if (messageCtx.from.id === ctx.from.id) {
+    //                 const evmAddress = messageCtx.message.text.trim();
 
-                    // Validate the EVM address
-                    if (ethers.utils.isAddress(evmAddress)) {
-                        // Update the transaction record in the database with the provided EVM address
-                        const updateQuery = 'UPDATE invoice_records SET evmAddress = ? WHERE orderNumber = ?';
-                        connection.query(updateQuery, [evmAddress, orderNumber], (updateError, updateResults, updateFields) => {
-                            if (updateError) {
-                                console.error('Error updating EVM address:', updateError);
-                                return;
-                            }
-                            messageCtx.reply('Your EVM address has been successfully linked!');
-                        });
-                    } else {
-                        messageCtx.reply('Invalid EVM address. Please enter a valid EVM address.');
-                    }
-                }
-            });
-        }
-    });
+    //                 // Validate the EVM address
+    //                 if (ethers.utils.isAddress(evmAddress)) {
+    //                     // Update the transaction record in the database with the provided EVM address
+    //                     const updateQuery = 'UPDATE invoice_records SET evmAddress = ? WHERE orderNumber = ?';
+    //                     connection.query(updateQuery, [evmAddress, orderNumber], (updateError, updateResults, updateFields) => {
+    //                         if (updateError) {
+    //                             console.error('Error updating EVM address:', updateError);
+    //                             return;
+    //                         }
+    //                         messageCtx.reply('Your EVM address has been successfully linked!');
+    //                     });
+    //                 } else {
+    //                     messageCtx.reply('Invalid EVM address. Please enter a valid EVM address.');
+    //                 }
+    //             }
+    //         });
+    //     }
+    // });
 });
 };
