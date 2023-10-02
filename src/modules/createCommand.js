@@ -3,7 +3,7 @@ const mysql = require('mysql');
 const queryTypes = require('../util/queryTypes');
 const axios = require('axios');
 const assertionMetadata = require('./assertionMetadata');
-const { getCoinPrice } = require('./getCoinPrice');;
+const { getCoinPrice } = require('./getCoinPrice');
 
 const connection = mysql.createConnection({
   host: process.env.DBHOST,
@@ -49,10 +49,36 @@ module.exports = function createCommand(bot) {
             return;
         }
 
-        //connection to paymentdb view to check the current balance for given tg id
+        const userId = ctx.message.from.id;
+        const balance = await checkBalance(userId);
+        if (balance <= 0) {
+            return ctx.reply('Insufficient balance to create a Knowledge Asset. Please use command /invoice to continue.');
+        } else {
+            ctx.reply(`Your current balance is: ${balance.toFixed(2)}USD`);
+        }
+
+        const inputString = ctx.message.text;
+        const flagMatch = inputString.match(/(-A|--asset)(\s+)/i);
+
+        if (!flagMatch) {
+            return ctx.reply('Missing -A or --asset flag. For help, try /Schema_Markup.');
+        }
+
+        const flagIndex = flagMatch.index;
+        const jsonStartIndex = flagIndex + flagMatch[0].length;
+        const substring = inputString.slice(jsonStartIndex).trim();
+        let openIndex = substring.indexOf('{');
+        let closeIndex = substring.lastIndexOf('}');
+
+        if (openIndex === -1 || closeIndex === -1 || closeIndex <= openIndex) {
+            return ctx.reply('Invalid JSON data. For help, try /Schema_Markup.');
+        }
+
+        const jsonObjectString = substring.slice(openIndex, closeIndex + 1);
+        const modifiedInputString = inputString.slice(0, flagIndex) + substring.slice(closeIndex + 1);
+        const modifiedInput = modifiedInputString.split(' ').slice(1);  // Split into array and remove the command name
 
         const input = ctx.message.text.split(' ').slice(1);
-
         if (input.length === 0) {
             return ctx.reply(
                 'To use the /create command, please provide the following parameters:\n\n' +
@@ -71,67 +97,44 @@ module.exports = function createCommand(bot) {
             txn_description: '',
             keywords: '',
             epochs: '5',
-            network: 'otp::mainnet'
+            network: 'otp::mainnet',
+            txn_data: jsonObjectString
         };
 
-        let jsonData = "";
-        const inputString = input.join(' ');
-
-        const jsonObjects = [];
-        const modifiedInputString = inputString.replace(/({[^}]*})/g, (match) => {
-            jsonObjects.push(match);
-            return 'JSON_PLACEHOLDER';
-        });
-
-        const modifiedInput = modifiedInputString.split(' ');
-
-        for (let i = 0; i < modifiedInput.length; i++) {
-            const part = modifiedInput[i];
-            if (part === 'JSON_PLACEHOLDER') {
-                jsonData = jsonObjects.shift();
-            } else {
-                const flag = part;
-                const value = modifiedInput[i + 1];
-                switch (flag) {
-                    case '-A':
-                    case '--asset':
-                        data.txn_data = value;
-                        break;
-                    case '-N':
-                    case '--network':
-                        data.network = value;
-                        break;
-                    case '-W':
-                    case '--wallet':
-                        data.public_address = value;
-                        break;
-                    case '-D':
-                    case '--description':
-                        data.txn_description = value;
-                        break;
-                    case '-K':
-                    case '--keywords':
-                        data.keywords = value;
-                        break;
-                    case '-E':
-                    case '--epochs':
-                        data.epochs = value;
-                        break;
-                }
-                if (flag.startsWith('-') && value !== 'JSON_PLACEHOLDER') i++;
-            }
+        try {
+            JSON.parse(jsonObjectString);
+        } catch (e) {
+            return ctx.reply('Invalid JSON data. For help, try /Schema_Markup.');
         }
 
-        jsonData = jsonData.trim();
+        for (let i = 0; i < modifiedInput.length; i++) {
+            const flag = modifiedInput[i];
+            const value = modifiedInput[i + 1];
 
-        if (jsonData) {
-            try {
-                const jsonObject = JSON.parse(jsonData);
-                data.txn_data = JSON.stringify(jsonObject);
-                //limit the amount of characters in the json to about 10k chars
-            } catch (e) {
-                return ctx.reply('Invalid JSON data. For help, try /Schema_Markup.');
+            switch (flag) {
+                case '-N':
+                case '--network':
+                    data.network = value;
+                    break;
+                case '-W':
+                case '--wallet':
+                    data.public_address = value;
+                    break;
+                case '-D':
+                case '--description':
+                    data.txn_description = value;
+                    break;
+                case '-K':
+                case '--keywords':
+                    data.keywords = value;
+                    break;
+                case '-E':
+                case '--epochs':
+                    data.epochs = value;
+                    break;
             }
+
+            if (flag.startsWith('-')) i++;
         }
 
         if (!data.public_address) {
@@ -148,7 +151,6 @@ module.exports = function createCommand(bot) {
             return ctx.reply('Invalid network. Choose either otp::testnet or otp::mainnet.');
         }
 
-        // Validate optional parameters (only if they are provided)
         if (data.keywords && !isValidKeywords(data.keywords)) {
             return ctx.reply('Keywords should be single words separated by a comma.');
         }
@@ -184,46 +186,71 @@ Epochs: ${epochs}
 Asset size: ${assertionMetadata.getAssertionSizeInBytes(txn_data)}`;
 
         ctx.reply(previewMessage);
+
         try {
-            const res = await axios.post(URL, { timeout: 0 });
-            ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(res.data)}`);
+            const processingMessage = await ctx.reply('Processing your request, please wait a few minutes...');
             
-            const telegram_id = ctx.message.from.id
-            const tracPriceUsd = await getCoinPrice('TRAC');
-            const size = assertionMetadata.getAssertionSizeInBytes(txn_data);
-            const costInTrac = 0;  // Placeholder value until you have the actual cost in TRAC
-            const costInUsd = costInTrac * tracPriceUsd;
-            const commissionInUsd = 0.10 * tracPriceUsd;  // Assuming a 10% commission on the price of TRAC
-            const bid = 0;  // Placeholder value until you have the actual bid
-            const UAL = 0;  // Assuming UAL is returned in the response data
+            axios.post(URL, { timeout: 0 })
+                .then(async (res) => {
+                    await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
+        
+                    const responseData = res.data;
+        
+                    if (responseData.status && responseData.status !== '200') {
+                        ctx.reply(`API call returned an error: ${responseData.result}`);
+                    } else {
+                        ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(responseData)}`);
+        
+                        const telegram_id = ctx.message.from.id
+                        const tracPriceUsd = await getCoinPrice('TRAC');
+                        const size = assertionMetadata.getAssertionSizeInBytes(txn_data);
+                        const costInTrac = 0;  // Placeholder value until you have the actual cost in TRAC
+                        const costInUsd = costInTrac * tracPriceUsd;
+                        const crowdfundInUsd = 0.10 * tracPriceUsd;  // Assuming a 10% commission on the price of TRAC
+                        const totalCostInUsd= tracPriceUsd + crowdfundInUsd
+                        const bid = 0;  // Placeholder value until you have the actual bid
+                        const UAL = 0;  // Assuming UAL is returned in the response data
+                        const status = 'Completed';
+        
+                        const query = `
+                            INSERT INTO create_n_transfer_records
+                            (paymentDate, userId, recipient, assertionId, size, epochs, costInTrac, tracPriceUsd, costInUsd, crowdfundInUsd, totalCostInUsd, bid, UAL, status)
+                            VALUES
+                            (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        `;
+        
+                        // Executing the SQL query
+                        connection.query(query, [
+                            telegram_id,
+                            public_address,
+                            '',  // Placeholder value for assertionId until you have a method to generate it
+                            size,
+                            epochs,
+                            costInTrac,
+                            tracPriceUsd,
+                            costInUsd,
+                            crowdfundInUsd,
+                            totalCostInUsd,
+                            bid,
+                            UAL,
+                            status,
+                        ], (error, results, fields) => {
+                            if (error) throw error;
+                            console.log('Inserted record ID:', results.insertId);
+                        });
 
-            const query = `
-                INSERT INTO create_n_transfer_records
-                (paymentDate, userId, recipient, assertionId, size, epochs, costInTrac, tracPriceUsd, costInUsd, commissionInUsd, bid, UAL)
-                VALUES
-                (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
+                        const newBalance = await checkBalance(telegram_id);
+                        ctx.reply(`Your new balance is: ${newBalance.toFixed(2)}USD`);
 
-            // Executing the SQL query
-            connection.query(query, [
-                telegram_id,
-                public_address,
-                '',  // Placeholder value for assertionId until you have a method to generate it
-                size,
-                epochs,
-                costInTrac,
-                tracPriceUsd,
-                costInUsd,
-                commissionInUsd,
-                bid,
-                UAL,
-            ], (error, results, fields) => {
-                if (error) throw error;
-                console.log('Inserted record ID:', results.insertId);
-            });
+                    }
+                })
+                .catch(async (err) => {
+                    await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
+                    ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
+                });
         } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
-        }
+        }        
     });
 
     function isValidJSON(str) {
@@ -238,5 +265,17 @@ Asset size: ${assertionMetadata.getAssertionSizeInBytes(txn_data)}`;
     function isValidKeywords(keywords) {
         const keywordArray = keywords.split(',');
         return keywordArray.every(keyword => keyword.trim().split(' ').length === 1);
-    }    
+    }
+    
+    async function checkBalance(userId) {
+        return new Promise((resolve, reject) => {
+            const query = 'SELECT balance FROM v_user_balance WHERE userId = ?';
+            connection.query(query, [userId], (error, results, fields) => {
+                if (error) return reject(error);
+                if (results.length === 0) return resolve(0);
+                const balance = results[0].balance;  
+                resolve(balance);  
+            });
+        });
+    }
 }
