@@ -1,11 +1,10 @@
 require('dotenv').config()
 
 const { Telegraf,session } = require('telegraf')
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(process.env.BOT_TOKEN, { handlerTimeout: 1000_000 });
 const cron = require('node-cron')
 const fs = require('fs');
 const path = require('path');
-
 
 bot.use(session({ ttl: 10 }))
 
