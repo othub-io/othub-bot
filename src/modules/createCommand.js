@@ -53,8 +53,21 @@ module.exports = function createCommand(bot) {
         const balance = await checkBalance(userId);
         if (balance <= 0) {
             return ctx.reply('Insufficient balance to create a Knowledge Asset. Please use command /invoice to continue.');
-        } else {
-            ctx.reply(`Your current balance is: ${balance.toFixed(2)}USD`);
+        }
+
+        const input = ctx.message.text.split(' ').slice(1);
+        if (input.length === 0) {
+            return ctx.reply(
+                'To use the /create command, please provide the following parameters:\n\n' +
+                'Required:\n' +
+                '-A, --data <data_to_publish_in_JSON_format>\n' +
+                '-N, --network <otp::mainnet_or_otp::testnet> (only otp::testnet available for now)\n' +
+                '-W, --wallet <recipient_public_address>\n\n' +
+                'Optional:\n' +
+                '-D, --description <transaction_description>\n' +
+                '-K, --keywords <keywords_separated_by_comma>\n' +
+                '-E, --epochs <epochs_number> (default: 5)'
+            );
         }
 
         const inputString = ctx.message.text;
@@ -74,37 +87,22 @@ module.exports = function createCommand(bot) {
             return ctx.reply('Invalid JSON data. For help, try /Schema_Markup.');
         }
 
-        const jsonObjectString = substring.slice(openIndex, closeIndex + 1);
+        const jsonObjectString = substring.slice(openIndex, closeIndex + 1).trim();
         const modifiedInputString = inputString.slice(0, flagIndex) + substring.slice(closeIndex + 1);
         const modifiedInput = modifiedInputString.split(' ').slice(1);  // Split into array and remove the command name
-
-        const input = ctx.message.text.split(' ').slice(1);
-        if (input.length === 0) {
-            return ctx.reply(
-                'To use the /create command, please provide the following parameters:\n\n' +
-                'Required:\n' +
-                '-A, --data <data_to_publish_in_JSON_format>\n' +
-                '-N, --network <otp::mainnet_or_otp::testnet> (default: otp::mainnet)\n' +
-                '-W, --wallet <recipient_public_address>\n\n' +
-                'Optional:\n' +
-                '-D, --description <transaction_description>\n' +
-                '-K, --keywords <keywords_separated_by_comma>\n' +
-                '-E, --epochs <epochs_number> (default: 5)'
-            );
-        }
 
         const data = {
             txn_description: '',
             keywords: '',
             epochs: '5',
-            network: 'otp::mainnet',
+            network: 'otp::testnet',
             txn_data: jsonObjectString
         };
 
         try {
             JSON.parse(jsonObjectString);
         } catch (e) {
-            return ctx.reply('Invalid JSON data. For help, try /Schema_Markup.');
+            return ctx.reply(`Invalid JSON data: ${e.message} For help, try /Schema_Markup.`);
         }
 
         for (let i = 0; i < modifiedInput.length; i++) {
@@ -144,7 +142,7 @@ module.exports = function createCommand(bot) {
         }
 
         if (!data.txn_data || !isValidJSON(data.txn_data)) {
-            return ctx.reply('Invalid or missing JSON data. Try /Schema_Markup for help.');
+            return ctx.reply('Error 3: Invalid or missing JSON data. Try /Schema_Markup for help.');
         }
 
         if (!['otp::testnet', 'otp::mainnet'].includes(data.network)) {
@@ -175,20 +173,20 @@ module.exports = function createCommand(bot) {
             URL += `&epochs=${epochs}`;
         }
 
-        const previewMessage = `
-Publish preview:
-Public Address: ${public_address}
-Network: ${network}
-Data: ${txn_data}
-Description: ${txn_description}
-Keywords: ${keywords}
-Epochs: ${epochs}
-Asset size: ${assertionMetadata.getAssertionSizeInBytes(txn_data)}`;
+//         const previewMessage = `
+// Publish preview:
+// Public Address: ${public_address}
+// Network: ${network}
+// Data: ${txn_data}
+// Description: ${txn_description}
+// Keywords: ${keywords}
+// Epochs: ${epochs}
+// Asset size: ${assertionMetadata.getAssertionSizeInBytes(txn_data)}`;
 
-        ctx.reply(previewMessage);
+//         ctx.reply(previewMessage);
 
         try {
-            const processingMessage = await ctx.reply('Processing your request, please wait a few minutes...');
+            const processingMessage = await ctx.reply(`Your current balance is: ${balance.toFixed(2)}USD.\nProcessing your request, please wait a few minutes...`);
             
             axios.post(URL, { timeout: 0 })
                 .then(async (res) => {
@@ -199,7 +197,12 @@ Asset size: ${assertionMetadata.getAssertionSizeInBytes(txn_data)}`;
                     if (responseData.status && responseData.status !== '200') {
                         ctx.reply(`API call returned an error: ${responseData.result}`);
                     } else {
-                        ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(responseData)}`);
+                        // ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(responseData)}`);
+                        const baseUrl = data.network === 'otp::testnet' ? 'https://dkg-testnet.origintrail.io' : 'https://dkg.origintrail.io';
+                        const responseMessage = `
+The Knowledge Asset has been created successfully!
+Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
+                        ctx.reply(responseMessage);
         
                         const telegram_id = ctx.message.from.id
                         const tracPriceUsd = await getCoinPrice('TRAC');
