@@ -16,6 +16,7 @@ const {
     userId,
     productId,
     amountPaid,
+    balanceCredited,
     currency,
     telegramPaymentChargeId,
     providerPaymentChargeId,
@@ -29,6 +30,7 @@ const query = `
     userId,
     productId,
     amountPaid,
+    balanceCredited,
     currency,
     telegramPaymentChargeId,
     providerPaymentChargeId,
@@ -42,6 +44,7 @@ connection.query(query, [
     userId,
     productId,
     amountPaid,
+    balanceCredited,
     currency,
     telegramPaymentChargeId,
     providerPaymentChargeId,
@@ -118,7 +121,6 @@ Create */Knowledge_Assets* to harness the power of structured AI-ready data!
 🔍 *What You Get:*
 - OTHub credits to create Knowledge Assets
 - Exclusive features on @othubbot
-- Unique tiers of OTHub Knowledge Badges
 - Access to create and transfer API for App Developers
 - Priority Support
 - And Much More!
@@ -172,8 +174,11 @@ By continuing, you accept our /Terms.
         const currency = payload.currency;
         const productId = payload.productId;
         const telegramPaymentChargeId = ctx.update.message.successful_payment.telegram_payment_charge_id;
-        const providerPaymentChargeId = ctx.update.message.successful_payment.provider_payment_charge_id;    
-        const amountPaid = ctx.update.message.successful_payment.total_amount / 100;
+        const providerPaymentChargeId = ctx.update.message.successful_payment.provider_payment_charge_id;
+        const feePercentage = 2.9 / 100;
+        const fixedFee = 0.30;
+        const amountPaid = ctx.update.message.successful_payment.total_amount / 100;    
+        const balanceCredited = amountPaid - (amountPaid * feePercentage + fixedFee);
         const paymentStatus = 'Completed';
 
         addTransaction({
@@ -181,6 +186,7 @@ By continuing, you accept our /Terms.
             userId,
             productId,
             amountPaid,
+            balanceCredited,
             currency,
             telegramPaymentChargeId,
             providerPaymentChargeId,
