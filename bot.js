@@ -20,6 +20,7 @@ const eventMonitor = require('./src/modules/eventMonitor.js')
 const createCommand = require('./src/modules/createCommand.js');
 const glossary = require ('./glossary.js');
 const sendInvoice = require('./src/modules/sendInvoice');
+const balanceOperations = require('./src/modules/balanceOperations');
 
 ////////////////easterEgg
 bot.command('totalpubsovertime', async ctx => {
@@ -637,6 +638,7 @@ bot.command('nodestats', async ctx => {
 ////////////////Publish Command
 createCommand(bot);
 sendInvoice(bot);
+balanceOperations(bot);
 //publishCommand(bot);
 
 //-----------------------END---------------------------
