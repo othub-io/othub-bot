@@ -36,7 +36,7 @@ const query = `
     providerPaymentChargeId,
     paymentStatus,
     notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
 connection.query(query, [

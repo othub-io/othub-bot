@@ -9,7 +9,7 @@ const connection = mysql.createConnection({
   host: process.env.DBHOST,
   user: process.env.DBUSER,
   password: process.env.DBPASSWORD,
-  database: process.env.OTHUBBOT_DB,
+  database: process.env.PAYMENT_DB,
 });
 
 const optionalQuestions = {
@@ -65,7 +65,7 @@ module.exports = function publishCommand(bot) {
     const telegramId = ctx.from.id;
 
     // Query the database to find the user's public wallet address
-    connection.query('SELECT * FROM publisher_profile WHERE publisher_id = ?', [telegramId], function (error, rows, fields) {
+    connection.query('SELECT * FROM user_profile WHERE user_id = ?', [telegramId], function (error, rows, fields) {
       if (error) {
         console.error('Failed to execute query: ', error);
         return;
@@ -119,7 +119,7 @@ module.exports = function publishCommand(bot) {
         return;
       } else {
         await connection.query(
-          'INSERT INTO publisher_profile (publisher_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?',
+          'INSERT INTO user_profile (user_id, command, platform, public_address) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?',
           [telegramId, 'publish', 'telegram', data.public_address, data.public_address]
         );
       };
