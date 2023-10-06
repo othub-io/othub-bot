@@ -21,6 +21,9 @@ const createCommand = require('./src/modules/createCommand.js');
 const glossary = require ('./glossary.js');
 const sendInvoice = require('./src/modules/sendInvoice');
 const balanceOperations = require('./src/modules/balanceOperations');
+const schedule = require('node-schedule');
+const fetchTransactions = require('./src/modules/transactionSync');
+
 
 ////////////////easterEgg
 bot.command('totalpubsovertime', async ctx => {
@@ -640,6 +643,8 @@ createCommand(bot);
 sendInvoice(bot);
 balanceOperations(bot);
 //publishCommand(bot);
+
+schedule.scheduleJob('*/1 * * * *', fetchTransactions);
 
 //-----------------------END---------------------------
 
