@@ -26,6 +26,37 @@ const fetchTransactions = require('./src/modules/transactionSync');
 
 
 ////////////////easterEgg
+bot.command('whereisamos', async ctx => {
+  if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
+    ctx.deleteMessage(ctx.message.message_id); 
+    return;
+  }
+  command = 'whereisamos'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+
+  const easterEgg = 'Locating Amos... Please standby.\n...\n...\n...\nAmos has been found! Loading next vlog...'
+  const botmessage = await ctx.reply(easterEgg);
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
+})
+
 bot.command('totalpubsovertime', async ctx => {
   if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
     ctx.deleteMessage(ctx.message.message_id); 

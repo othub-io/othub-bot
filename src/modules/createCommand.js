@@ -27,9 +27,9 @@ async function dkg(txn_data, epochs) {
     });
 
     const knowledgeAssetContent = txn_data
-    //const assertionId = await dkgInstance.assertion.getPublicAssertionId(knowledgeAssetContent);
+    const assertionId = await dkgInstance.assertion.getPublicAssertionId(knowledgeAssetContent);
     const size = await dkgInstance.assertion.getSizeInBytes(knowledgeAssetContent);
-    //const bidSuggestion = await dkgInstance.network.getBidSuggestion(assertionId, size, { epochsNum: epochs });
+    const bidSuggestion = await dkgInstance.network.getBidSuggestion(assertionId, size, { epochsNum: epochs });
   
     return { assertionId, size, bidSuggestion };
 }
@@ -110,22 +110,29 @@ module.exports = function createCommand(bot) {
         }
 
         const jsonObjectString = substring.slice(openIndex, closeIndex + 1).trim();
+        console.log(jsonObjectString)
         const modifiedInputString = inputString.slice(0, flagIndex) + substring.slice(closeIndex + 1);
         const modifiedInput = modifiedInputString.split(' ').slice(1);  // Split into array and remove the command name
 
+        let parsedTxnData;
+        try {
+            parsedTxnData = JSON.parse(jsonObjectString);
+        } catch (e) {
+            return ctx.reply(`Invalid JSON data: ${e.message} For help, try /Schema_Markup.`);
+        }
+        const txndata = {
+            public: {
+                ...parsedTxnData,
+            },
+        };
+        
         const data = {
             txn_description: '',
             keywords: '',
             epochs: '5',
             network: 'otp::testnet',
-            txn_data: jsonObjectString
+            txn_data: txndata
         };
-        console.log(jsonObjectString);
-        try {
-            JSON.parse(jsonObjectString);
-        } catch (e) {
-            return ctx.reply(`Invalid JSON data: ${e.message} For help, try /Schema_Markup.`);
-        }
 
         for (let i = 0; i < modifiedInput.length; i++) {
             const flag = modifiedInput[i];
@@ -180,8 +187,8 @@ module.exports = function createCommand(bot) {
         }
 
         const { public_address, network, txn_data, txn_description, keywords, epochs } = data;
-
-        let URL = `https://api.othub.io/dkg/create_n_transfer?api_key=${process.env.API_KEY}&network=${network}&public_address=${public_address}&txn_data=${txn_data}`;
+        console.log(txn_data);
+        let URL = `https://api.othub.io/dkg/create_n_transfer?api_key=${process.env.API_KEY}&network=${network}&public_address=${public_address}&txn_data=${JSON.stringify(txn_data)}`;
         
         if(txn_description) {
             URL += `&txn_description=${txn_description}`;
@@ -212,14 +219,21 @@ module.exports = function createCommand(bot) {
 
             const telegram_id = ctx.message.from.id
             const tracPriceUsd = await getCoinPrice('TRAC');
-            const dkgResult = await dkg(txn_data, epochs); // assuming txn_data and epochs are defined
-            const { assertionId, size, bidSuggestion } = dkgResult;
-            const costInTrac = size * bidSuggestion * epochs * 3; 
+            const dkgResult = await dkg(txn_data, epochs);
+            console.log(dkgResult);
+            const assertionId = dkgResult.assertionId;
+            const bidSuggestionBigInt = dkgResult.bidSuggestion;
+            const bidSuggestionNumber = Number(bidSuggestionBigInt);  // Convert to a Number
+            const bidSuggestionString = bidSuggestionNumber.toString();  // Convert to a String
+            const assetSize = dkgResult.size;
+
+            //const assertionId = await dkg(txn_data, epochs).assertionId;
+            //const assetSize = await dkg(txn_data, epochs).size;
+            const costInTrac = assetSize * bidSuggestionString * epochs * 3; 
             const costInUsd = costInTrac * tracPriceUsd;
             const crowdfundInUsd = 0.10 * tracPriceUsd;
             const totalCostInUsd= tracPriceUsd + crowdfundInUsd
-            const bid = bidSuggestion;
-            console.log(telegram_id, tracPriceUsd, assertionId, size, bidSuggestion, costInTrac, costInUsd, crowdfundInUsd, totalCostInUsd)
+            console.log(telegram_id, tracPriceUsd, assertionId, assetSize, bidSuggestionString, costInTrac, costInUsd, crowdfundInUsd, totalCostInUsd)
             
             axios.post(URL, { timeout: 0 })
                 .then(async (res) => {
@@ -252,14 +266,14 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
                             telegram_id,
                             public_address,
                             assertionId,
-                            size,
+                            assetSize,
                             epochs,
                             costInTrac,
                             tracPriceUsd,
                             costInUsd,
                             crowdfundInUsd,
                             totalCostInUsd,
-                            bid,
+                            bidSuggestionString,
                             UAL,
                             status,
                         ], (error, results, fields) => {
@@ -280,11 +294,22 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
         }        
     });
 
-    function isValidJSON(str) {
-        try {
-            JSON.parse(str);
-            return true;
-        } catch (e) {
+    function isValidJSON(input) {
+        if (typeof input === 'object') {
+            try {
+                JSON.stringify(input);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        } else if (typeof input === 'string') {
+            try {
+                JSON.parse(input);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        } else {
             return false;
         }
     }
