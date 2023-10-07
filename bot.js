@@ -644,8 +644,8 @@ sendInvoice(bot);
 balanceOperations(bot);
 //publishCommand(bot);
 
-schedule.scheduleJob('*/1 * * * *', fetchTransactions);
-
+//schedule.scheduleJob('*/1 * * * *', fetchTransactions);
+fetchTransactions(bot);
 //-----------------------END---------------------------
 
 bot.launch()

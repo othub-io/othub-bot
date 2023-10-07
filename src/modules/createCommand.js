@@ -4,6 +4,7 @@ const queryTypes = require('../util/queryTypes');
 const axios = require('axios');
 const assertionMetadata = require('./assertionMetadata');
 const { getCoinPrice } = require('./getCoinPrice');
+const DKG = require('dkg.js');
 
 const connection = mysql.createConnection({
   host: process.env.DBHOST,
@@ -11,6 +12,27 @@ const connection = mysql.createConnection({
   password: process.env.DBPASSWORD,
   database: process.env.PAYMENT_DB,
 });
+  
+async function dkg(txn_data, epochs) {
+    const dkgInstance = new DKG({
+        endpoint: process.env.OT_NODE_HOSTNAME,
+        port: process.env.OT_NODE_TESTNET_PORT,
+        useSSL: true,
+        maxNumberOfRetries: 100,
+        blockchain: {
+            name: 'otp::testnet',
+            publicKey: process.env.PUBLIC_KEY,
+            privateKey: process.env.PRIVATE_KEY,
+        },
+    });
+
+    const knowledgeAssetContent = txn_data
+    //const assertionId = await dkgInstance.assertion.getPublicAssertionId(knowledgeAssetContent);
+    const size = await dkgInstance.assertion.getSizeInBytes(knowledgeAssetContent);
+    //const bidSuggestion = await dkgInstance.network.getBidSuggestion(assertionId, size, { epochsNum: epochs });
+  
+    return { assertionId, size, bidSuggestion };
+}
 
 module.exports = function createCommand(bot) {
     bot.command('create', async (ctx) => {
@@ -98,7 +120,7 @@ module.exports = function createCommand(bot) {
             network: 'otp::testnet',
             txn_data: jsonObjectString
         };
-
+        console.log(jsonObjectString);
         try {
             JSON.parse(jsonObjectString);
         } catch (e) {
@@ -187,6 +209,17 @@ module.exports = function createCommand(bot) {
 
         try {
             const processingMessage = await ctx.reply(`Your current balance is: ${balance.toFixed(2)}USD.\nProcessing your request, please wait a few minutes...`);
+
+            const telegram_id = ctx.message.from.id
+            const tracPriceUsd = await getCoinPrice('TRAC');
+            const dkgResult = await dkg(txn_data, epochs); // assuming txn_data and epochs are defined
+            const { assertionId, size, bidSuggestion } = dkgResult;
+            const costInTrac = size * bidSuggestion * epochs * 3; 
+            const costInUsd = costInTrac * tracPriceUsd;
+            const crowdfundInUsd = 0.10 * tracPriceUsd;
+            const totalCostInUsd= tracPriceUsd + crowdfundInUsd
+            const bid = bidSuggestion;
+            console.log(telegram_id, tracPriceUsd, assertionId, size, bidSuggestion, costInTrac, costInUsd, crowdfundInUsd, totalCostInUsd)
             
             axios.post(URL, { timeout: 0 })
                 .then(async (res) => {
@@ -203,17 +236,10 @@ module.exports = function createCommand(bot) {
 The Knowledge Asset has been created successfully!
 Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
                         ctx.reply(responseMessage);
-        
-                        const telegram_id = ctx.message.from.id
-                        const tracPriceUsd = await getCoinPrice('TRAC');
-                        const size = assertionMetadata.getAssertionSizeInBytes(txn_data);
-                        const costInTrac = 0;  // Placeholder value until you have the actual cost in TRAC
-                        const costInUsd = costInTrac * tracPriceUsd;
-                        const crowdfundInUsd = 0.10 * tracPriceUsd;  // Assuming a 10% commission on the price of TRAC
-                        const totalCostInUsd= tracPriceUsd + crowdfundInUsd
-                        const bid = 0;  // Placeholder value until you have the actual bid
-                        const UAL = 0;  // Assuming UAL is returned in the response data
+    
+                        const UAL = responseData.ual;
                         const status = 'Completed';
+
         
                         const query = `
                             INSERT INTO create_n_transfer_records
@@ -222,11 +248,10 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
                             (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         `;
         
-                        // Executing the SQL query
                         connection.query(query, [
                             telegram_id,
                             public_address,
-                            '',  // Placeholder value for assertionId until you have a method to generate it
+                            assertionId,
                             size,
                             epochs,
                             costInTrac,
@@ -248,8 +273,7 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
                     }
                 })
                 .catch(async (err) => {
-                    await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
-                    ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
+                    ctx.reply(`Oops, something went wrong. Error:\n${err.message}`);
                 });
         } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
