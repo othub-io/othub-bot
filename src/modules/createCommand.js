@@ -110,19 +110,12 @@ module.exports = function createCommand(bot) {
         }
 
         const jsonObjectString = substring.slice(openIndex, closeIndex + 1).trim();
-        console.log(jsonObjectString)
         const modifiedInputString = inputString.slice(0, flagIndex) + substring.slice(closeIndex + 1);
         const modifiedInput = modifiedInputString.split(' ').slice(1);  // Split into array and remove the command name
 
-        let parsedTxnData;
-        try {
-            parsedTxnData = JSON.parse(jsonObjectString);
-        } catch (e) {
-            return ctx.reply(`Invalid JSON data: ${e.message} For help, try /Schema_Markup.`);
-        }
         const txndata = {
             public: {
-                ...parsedTxnData,
+                ...JSON.parse(jsonObjectString),
             },
         };
         
@@ -187,8 +180,8 @@ module.exports = function createCommand(bot) {
         }
 
         const { public_address, network, txn_data, txn_description, keywords, epochs } = data;
-        console.log(txn_data);
-        let URL = `https://api.othub.io/dkg/create_n_transfer?api_key=${process.env.API_KEY}&network=${network}&public_address=${public_address}&txn_data=${JSON.stringify(txn_data)}`;
+
+        let URL = `https://api.othub.io/dkg/create_n_transfer?api_key=${process.env.API_KEY}&network=${network}&public_address=${public_address}&txn_data=${txn_data}`;
         
         if(txn_description) {
             URL += `&txn_description=${txn_description}`;
