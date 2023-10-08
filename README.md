@@ -1,20 +1,21 @@
 # OTHub Bot
 
-OTHub bot is a community managed multi purpose bot allowing social media platforms to view DKG network statistics and seamlessly get, update, publish knowledge assets. 
+OTHub bot is a multi purpose mini app allowing Telegram users to view the Decentralized Knowledge Graph's advanced network statistics and seamlessly create Knowledge Assets. 
 
 ### OTHub bot will be designed with a few functionalities in mind:
-- Provide an interactive and simple way for Telegram and Discord users to query the DKG network statistics and to publish knowledge assets;
-- Provide a simple way for Twitter users to query the DKG and to turn Tweets into knowledge assets, making them verifiable, immutable and traceable by simply tagging @othubbot with a command;
-- Provide a tool that reports significant network activities such as new record daily publishing amount, new high stake node detected and publishes them on social media and chat platforms to gather discussion and interest towards the ecosystem;
+- Provide an interactive and simple way for Telegram users to query the DKG network statistics;
+- Provide an easy command to create knowledge assets and to refill account balances;
+- Provide a simple way to learn about the DKG ecosystem;
+- Provide a tool that reports significant network activities such as new record daily publishing amount, new high stake node detected;
 
-OTHub bot aims to fill the void between the retail user and the technical skills required to fully utilize the DKG infrastructure, fulfilling one of the core pillars of OriginTrail, usability. The lack of user-friendly front end to publish knowledge assets to the DKG across social media or chat platforms is a potential hindrance to retail adoption. The exposure to popular platforms such as Telegram, Discord and Twitter and allowing users to publish knowledge assets with just a few clicks should have a positive impact on the networking effects of the DKG. The primary goal of this project is to make viewing the DKG network and publishing assets extremely user-friendly and accessible. 
+OTHub bot aims to fill the void between the retail user and the technical skills required to fully utilize the DKG infrastructure, fulfilling one of the core pillars of OriginTrail - usability. The lack of user-friendly front end to publish knowledge assets to the DKG across social media or chat platforms is a potential hindrance to retail adoption. The exposure to popular platforms such as Telegram and allowing users to publish knowledge assets with just a few clicks should have a positive impact on the networking effects of the DKG. The primary goal of this project is to make viewing the DKG network and publishing assets extremely user-friendly and accessible. 
 
 An early version of the OTHub bot has been released to the public on OriginTrail's Community channel on June 2023 and reception has been overwhelmingly positive. The OTHub bot Telegram handle is [@othubbot](t.me/othubbot) and is available for everyone.
 
 ### Instructions
 > **Warning**
 > 
-> Please be aware that the instructions below are for users with a full sync of the OriginTrail Parachain blockchain by using otp-sync or any other indexing method which is required to run this bot. The code is open for reviewing and the bot is currently available on Telegram as [@othubbot](t.me/othubbot) and will be available on other platforms according to the timeline above. It is advised to use the bot instead of replicating and maintaining the OT parachain sync. 
+> Please note that @othubbot network statistics should not be considered financial advice. The bot is still in beta and some features are still in testing. The bot relies on OTHub.io's API, which is currently free and accessible to any App Developers on the DKG. The bot also relies on OTHub's OriginTrail Parachain Sync, which requires maintaining a full blockchain sync to get the latest network statistics. This project is unique to OriginTrail but you are free to use our code and ideas for your project. See more details here: https://github.com/othub-io. 
 
 Set up your working environment
 ```
