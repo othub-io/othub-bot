@@ -173,11 +173,11 @@ Create */Knowledge_Assets* to harness the power of structured AI-ready data!
 
     if (rows.length > 0) {
       savedPublicAddress = rows[0].public_address;
-      ctx.reply(`💰 Please enter your funding public address:`, Markup.keyboard([`${savedPublicAddress}`, '/cancel'])
+      ctx.reply(`💰 Please enter your public address used for funding:`, Markup.keyboard([`${savedPublicAddress}`, '/cancel'])
       .oneTime()
       .resize());
     } else {
-        ctx.reply(`💰 Please enter your funding public address:`, Markup.keyboard(['/cancel'])
+        ctx.reply(`💰 Please enter your funding public address used for funding:`, Markup.keyboard(['/cancel'])
         .oneTime()
         .resize());
       }
