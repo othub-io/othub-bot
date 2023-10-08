@@ -80,6 +80,7 @@ function NewPublishers(callback) {
 
   function notifyTelegramContractsChange() {
     const message = `📜DKG V6 Contracts Change Detected!`;
+    const adminGroup = process.env.ADMIN_GROUP
     adminGroup.forEach(adminId => {
       bot.telegram.sendMessage(adminId, message);
     });
@@ -87,30 +88,25 @@ function NewPublishers(callback) {
   
   function notifyTelegramStagingUpdateStatus() {
     const message = `🛠Staging Update process stalled!`;
+    const adminGroup = process.env.ADMIN_GROUP
     adminGroup.forEach(adminId => {
       bot.telegram.sendMessage(adminId, message);
     });
   }
   
   function notifyTelegramNewPublisher(newPublishers) {
-    if (!newPublishers.length) {
-      console.log('No new publishers found.');
-      return;
-    }
     const messages = newPublishers.map(publisher => 
       `<a href="https://origintrail.subscan.io/account/${publisher}">${publisher}</a>`
     );
     const message = `🪪New Publisher Detected:\n${messages.join('\n')}`;
-    bot.telegram.sendMessage(process.env.OTHUB_ID, message, { parse_mode: 'HTML' });
+    bot.telegram.sendMessage(process.env.OTHUB_ID, message, { parse_mode: 'HTML' })
+    bot.telegram.sendMessage(process.env.ORIGINTRAIL_ID, message, { parse_mode: 'HTML' });
   }
   
   function notifyTelegramDailyHighPubs(dailyHighPubs) {
-    if (!dailyHighPubs.length) {
-      console.log('Daily Publishing record not broken.');
-      return;
-    }
     const message = `🚀🚀 Daily Publishing Record Broken with ${dailyHighPubs} Publishes!! 🚀🚀`;
     bot.telegram.sendMessage(process.env.OTHUB_ID, message);
+    bot.telegram.sendMessage(process.env.ORIGINTRAIL_ID, message, { parse_mode: 'HTML' })
   }
   
   module.exports = { NewPublishers, dailyHighPubs, contractsChange, stagingUpdateStatus, notifyTelegramContractsChange, notifyTelegramStagingUpdateStatus, notifyTelegramNewPublisher, notifyTelegramDailyHighPubs };
