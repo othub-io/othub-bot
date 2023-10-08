@@ -101,7 +101,7 @@ function NewPublishers(callback) {
       `<a href="https://origintrail.subscan.io/account/${publisher}">${publisher}</a>`
     );
     const message = `🪪New Publisher Detected:\n${messages.join('\n')}`;
-    bot.telegram.sendMessage(chatId, message, { parse_mode: 'HTML' });
+    bot.telegram.sendMessage(process.env.OTHUB_ID, message, { parse_mode: 'HTML' });
   }
   
   function notifyTelegramDailyHighPubs(dailyHighPubs) {
@@ -110,7 +110,7 @@ function NewPublishers(callback) {
       return;
     }
     const message = `🚀🚀 Daily Publishing Record Broken with ${dailyHighPubs} Publishes!! 🚀🚀`;
-    bot.telegram.sendMessage(chatId, message);
+    bot.telegram.sendMessage(process.env.OTHUB_ID, message);
   }
   
   module.exports = { NewPublishers, dailyHighPubs, contractsChange, stagingUpdateStatus, notifyTelegramContractsChange, notifyTelegramStagingUpdateStatus, notifyTelegramNewPublisher, notifyTelegramDailyHighPubs };
