@@ -44,7 +44,7 @@ bot.command('whereisamos', async ctx => {
     return
   }
 
-  const easterEgg = 'Locating Amos... Please standby.\n...\n...\n...\nAmos has been found! Loading next vlog...'
+  const easterEgg = 'Locating @TriniZoneAmos...\n...\n...\n...\nRequesting next vlog update...'
   const botmessage = await ctx.reply(easterEgg);
   if (botmessage) {
     setTimeout(async () => {

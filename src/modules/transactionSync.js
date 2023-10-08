@@ -38,6 +38,9 @@ const fetchTransactions = async () => {
     const updatedUserIds = new Set();
 
     for (const txnData of transactions) {
+      if (txnData.to.toLowerCase() !== process.env.OTHUB_WALLET.toLowerCase()) {
+        continue;
+      }
       const isTxComplete = await checkTxHash(txnData.hash);
       if (isTxComplete) {
           if (['TRAC', 'USDC', 'USDT'].includes(txnData.tokenSymbol)) {
