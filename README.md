@@ -67,15 +67,16 @@ systemctl enable othub-bot
 ### Commands
 Here is a list of functional commands:
 ##### **Knowledge Asset Creation**
-/othub - @othubbot landing page
-/knowledge - Start of the Journey
-/start - Link Telegram ID with Funding Public Address
+/othub - @othubbot landing page\n
+/knowledge - Start of the Journey\n
+/start - Link Telegram ID with Funding Public Address\n
 /balance - Check current balance
 /fund - Fund user's wallet with test balance
 /create - Create Knowledge Assets on the DKG
 
 ##### **Advanced Network Statistics**
 /pubsgraph - Show total network pubs over time
+
 /networkgraph - TRAC spent on publishing, Assets published, Node payouts
 /hourlypubs - Show network stats for the last hour
 /dailypubs - Show network pubs for the last day
