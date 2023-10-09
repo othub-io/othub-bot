@@ -58,3 +58,41 @@ systemctl daemon-reload
 systemctl start othub-bot
 systemctl enable othub-bot
 ```
+> **Note**
+> 
+> @othubbot is designed to be the bridge between the non coding general Telegram community and the power of the Decentralized Knowledge Graph.
+> By allowing every day users to publish Knowledge Assets, members of society will be able to participate in this shift from Web2 to Web3, owning their physical and digital assets. 
+> More info about the DKG can be found on https://origintrail.io/ and a full length DKG Conference 2023 explains the power of the DKG: https://www.youtube.com/watch?v=ekG1Bl-tCjc.
+
+### Commands
+Here is a list of functional commands:
+##### **Knowledge Asset Creation**
+/othub - @othubbot landing page\n
+/knowledge - Start of the Journey\n
+/start - Link Telegram ID with Funding Public Address\n
+/balance - Check current balance
+/fund - Fund user's wallet with test balance
+/create - Create Knowledge Assets on the DKG
+
+##### **Advanced Network Statistics**
+/pubsgraph - Show total network pubs over time
+
+/networkgraph - TRAC spent on publishing, Assets published, Node payouts
+/hourlypubs - Show network stats for the last hour
+/dailypubs - Show network pubs for the last day
+/weeklypubs - Show network pubs for the last week
+/monthlypubs - Show network pubs for the last month
+/totalpubs - Show total network pubs
+/networkstats - Show total network stats
+/nodestats <tokenSymbol> - Show cumulative node stats for provided tokenSymbol
+/nodestatslasthour <tokenSymbol> - Show node stats for provided tokenSymbol for the last hour
+/nodestatslastday <tokenSymbol> - Show node stats for provided tokenSymbol for the last day
+/nodestatslastweek <tokenSymbol> - Show node stats for provided tokenSymbol for the last week
+/nodestatslastmonth <tokenSymbol> - Show node stats for provided tokenSymbol for the last month
+
+##### **Definitions**
+/commands - shows all available commands to all users
+/admincommands - shows admin commands
+/glossary - A list of terms and definitions to better understand the OriginTrail Ecosystem
+
+*@othubbot is a work in progress. Feel free to provide us some feedback!*
