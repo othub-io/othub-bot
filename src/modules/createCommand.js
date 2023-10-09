@@ -327,7 +327,7 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
     
     async function checkBalance(userId) {
         return new Promise((resolve, reject) => {
-            const query = 'SELECT USD_balance FROM v_user_balance WHERE userId = ?';
+            const query = 'SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?';
             connection.query(query, [userId], (error, results, fields) => {
                 if (error) return reject(error);
                 if (results.length === 0) return resolve(0);

@@ -64,7 +64,7 @@ const fetchTransactions = async () => {
       }
     }
     for (const userId of updatedUserIds) {
-      const balanceRows = await executeQuery('SELECT USD_balance FROM v_user_balance WHERE userId = ?', [userId]);
+      const balanceRows = await executeQuery('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [userId]);
       const newBalance = balanceRows[0].USD_balance;
       bot.telegram.sendMessage(userId, `Your new balance is ${newBalance}.\nYou can use your balance to /create Knowledge Assets!`);
     }
