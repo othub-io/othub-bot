@@ -155,15 +155,14 @@ Create */Knowledge_Assets* to harness the power of structured AI-ready data!
 OTHub wallet not available yet.
 For testing, use /fund
 
+⚠️ *WARNING:* ⚠️
+- After beta phase, @othubbot only accepts USDC and USDT (ETH Blockchain)
+
 🔍 *What You Get:*
 - OTHub credits to create Knowledge Assets
 - Exclusive features on @othubbot
 - Access to create and transfer API for App Developers
 - And Much More!
-
-⚠️ *WARNING:* ⚠️
-- @othubbot only accepts USDC and USDT (ETH Blockchain)
-- Before sending funds,send a /start command to @othubbot
 
 📝 By continuing, you accept our /Terms.
 
