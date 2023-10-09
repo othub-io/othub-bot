@@ -16,7 +16,7 @@ const generalCommandList = require('./src/modules/generalCommandList.js')
 const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
 const eventMonitor = require('./src/modules/eventMonitor.js')
-const publishCommand = require('./src/modules/publishCommand.js');
+//const publishCommand = require('./src/modules/publishCommand.js');
 const createCommand = require('./src/modules/createCommand.js');
 const glossary = require ('./glossary.js');
 const sendInvoice = require('./src/modules/sendInvoice');
@@ -673,7 +673,7 @@ bot.command('nodestats', async ctx => {
 createCommand(bot);
 sendInvoice(bot);
 balanceOperations(bot);
-publishCommand(bot);
+//publishCommand(bot);
 
 schedule.scheduleJob('*/1 * * * *', fetchTransactions);
 
