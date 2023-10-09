@@ -181,8 +181,14 @@ module.exports = function createCommand(bot) {
 
         const { public_address, network, txn_data, txn_description, keywords, epochs } = data;
 
-        let URL = `https://api.othub.io/dkg/create_n_transfer?api_key=${process.env.API_KEY}&network=${network}&public_address=${public_address}&txn_data=${txn_data}`;
-        
+        let URL = `https://api.othub.io/dkg/create_n_transfer`;
+
+        let postData = {
+            network: network,
+            public_address: public_address,
+            txn_data: txn_data
+        };
+
         if(txn_description) {
             URL += `&txn_description=${txn_description}`;
         }
@@ -194,6 +200,13 @@ module.exports = function createCommand(bot) {
         if(epochs) {
             URL += `&epochs=${epochs}`;
         }
+
+        let config = {
+            headers: {
+                'x-api-key': process.env.API_KEY
+            },
+            timeout: 0
+        };
 
 //         const previewMessage = `
 // Publish preview:
@@ -228,7 +241,7 @@ module.exports = function createCommand(bot) {
             const totalCostInUsd= tracPriceUsd + crowdfundInUsd
             console.log(telegram_id, tracPriceUsd, assertionId, assetSize, bidSuggestionString, costInTrac, costInUsd, crowdfundInUsd, totalCostInUsd)
             
-            axios.post(URL, { timeout: 0 })
+            axios.post(URL, postData, config)
                 .then(async (res) => {
                     await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
         

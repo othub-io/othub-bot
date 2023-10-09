@@ -43,7 +43,7 @@ const fetchTransactions = async () => {
       }
       const isTxComplete = await checkTxHash(txnData.hash);
       if (isTxComplete) {
-          if (['TRAC', 'USDC', 'USDT'].includes(txnData.tokenSymbol)) {
+          if (['USDC', 'USDT'].includes(txnData.tokenSymbol)) {
             const tokenDecimal = new BigNumber(10).pow(txnData.tokenDecimal);
             const actualValue = new BigNumber(txnData.value).div(tokenDecimal).toString();  
           const query = `

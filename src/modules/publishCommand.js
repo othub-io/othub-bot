@@ -180,8 +180,14 @@ Epochs: ${epochs || '5'}`;
         if (response === 'yes') {
           const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
           
-          let URL = `https://api.othub.io/otp/dkg/create?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
+          let URL = `https://api.othub.io/otp/dkg/create`;
           
+          let postData = {
+            public_address: public_address,
+            txn_data: txn_data,
+            network: network
+          };
+
           if(txn_description) {
             URL += `&txn_description=${txn_description}`;
           }
@@ -197,16 +203,21 @@ Epochs: ${epochs || '5'}`;
           if(epochs) {
             URL += `&epochs=${epochs}`;
           }
+
+          let config = {
+            headers: {
+              'x-api-key': process.env.API_KEY
+            }
+          };
   
           try {
-            const res = await axios.get(URL);
+            const res = await axios.post(URL, postData, config);
             ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(res.data)}`);
           } catch (err) {
             ctx.reply(`Oops, something went wrong. The error is: ${err.message}`);
           }
-          ctx.session.publishData = {}; // Reset data
+          ctx.session.publishData = {};
         } else {
-          // Provide the main optional parameters menu if the user replies 'no'
           ctx.reply('No problem, let\'s continue. Choose the next optional parameter to change.', Markup
             .keyboard(['Publish', ...Object.values(optionalQuestions), '/cancel'])
             .oneTime()
@@ -238,27 +249,39 @@ Epochs: ${epochs || '5'}`;
         if (data.confirm) {
         const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
 
-        let URL = `https://api.othub.io/otp/dkg/create?public_address=${public_address}&api_key=${process.env.API_KEY}&txn_data=${txn_data}&network=${network}`;
-        
-        if(txn_description) {
-          URL += `&txn_description=${txn_description}`;
-        }
-        
-        if(keywords) {
-          URL += `&keywords=${keywords}`;
-        }
-        
-        if(trac_fee) {
-          URL += `&trac_fee=${trac_fee}`;
-        }
-        
-        if(epochs) {
-          URL += `&epochs=${epochs}`;
-        }
+        let URL = `https://api.othub.io/otp/dkg/create`;
+          
+          let postData = {
+            public_address: public_address,
+            txn_data: txn_data,
+            network: network
+          };
 
-        try {
-          const res = await axios.get(URL);
-          ctx.session.publishData = {}; // Reset data
+          if(txn_description) {
+            URL += `&txn_description=${txn_description}`;
+          }
+          
+          if(keywords) {
+            URL += `&keywords=${keywords}`;
+          }
+          
+          if(trac_fee) {
+            URL += `&trac_fee=${trac_fee}`;
+          }
+          
+          if(epochs) {
+            URL += `&epochs=${epochs}`;
+          }
+
+          let config = {
+            headers: {
+              'x-api-key': process.env.API_KEY
+            }
+          };
+  
+          try {
+            const res = await axios.post(URL, postData, config);
+          ctx.session.publishData = {};
           ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(res.data)}`);
         } catch (err) {
           ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
