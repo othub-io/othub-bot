@@ -11,8 +11,66 @@ const connection = mysql.createConnection({
     database: process.env.PAYMENT_DB,
 });
 
+async function executeQuery(query, params) {
+  return new Promise((resolve, reject) => {
+    connection.query(query, params, (err, results) => {
+      if (err) reject(err);
+      else resolve(results);
+    });
+  });
+}
 
 module.exports = function start(bot) {
+  bot.command('fund', async (ctx) => {
+    // command = 'balance'
+    // spamCheck = await queryTypes.spamCheck()
+    // telegram_id = ctx.message.from.id
+    
+    // permission = await spamCheck
+    //   .getData(command, telegram_id)
+    //   .then(async ({ permission }) => {
+    //     return permission
+    //   })
+    //   .catch(error => console.log(`Error : ${error}`))
+  
+    // if (permission != `allow`) {
+    //   await ctx.deleteMessage()
+    //   return
+    // }
+    // setTimeout(async () => {
+    //   try {
+    //     await ctx.deleteMessage();
+    //   } catch (error) {
+    //     console.error('Error deleting message:', error);
+    //   }
+    // }, process.env.DELETE_TIMER);
+
+    telegram_id = ctx.message.from.id;
+    const username = ctx.from.username;
+
+    const query = `
+    INSERT IGNORE INTO fund_records (telegram_id, txn_hash, block_number, timestamp, from_address, to_address, value, currency, txn_fee, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+    const result = await executeQuery(query, [
+      telegram_id, '', '', '', '', '', '100', 'USDC', '', 'success'
+    ]);
+    if (result.affectedRows > 0) {
+      connection.query('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [telegram_id], async function (error, rows, fields) {
+        if (error) {
+          console.error('Failed to execute query: ', error);
+          return;
+        }
+        if (rows.length > 0) {
+          const balance = rows[0].balance;
+          ctx.reply(`⚖️ ${username}, your new test balance is: *$${balance.toFixed(2)}*`,{parse_mode: 'Markdown'});
+        } else {
+          ctx.reply('No balance found.');
+        }
+      });
+    }
+  });
+
   bot.command('balance', async (ctx) => {
     // command = 'balance'
     // spamCheck = await queryTypes.spamCheck()
