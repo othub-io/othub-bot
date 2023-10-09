@@ -39,7 +39,7 @@ module.exports = function start(bot) {
 
     telegram_id = ctx.message.from.id
 
-    connection.query('SELECT balance FROM v_user_balance WHERE userId = ?', [telegram_id], async function (error, rows, fields) {
+    connection.query('SELECT USD_balance FROM v_user_balance WHERE userId = ?', [telegram_id], async function (error, rows, fields) {
       if (error) {
         console.error('Failed to execute query: ', error);
         return;

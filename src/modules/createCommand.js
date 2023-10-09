@@ -327,11 +327,11 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
     
     async function checkBalance(userId) {
         return new Promise((resolve, reject) => {
-            const query = 'SELECT balance FROM v_user_balance WHERE userId = ?';
+            const query = 'SELECT USD_balance FROM v_user_balance WHERE userId = ?';
             connection.query(query, [userId], (error, results, fields) => {
                 if (error) return reject(error);
                 if (results.length === 0) return resolve(0);
-                const balance = results[0].balance;  
+                const balance = results[0].USD_balance;  
                 resolve(balance);  
             });
         });
