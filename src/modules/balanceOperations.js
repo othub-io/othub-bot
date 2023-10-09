@@ -141,7 +141,8 @@ module.exports = function start(bot) {
 Create */Knowledge_Assets* to harness the power of structured AI-ready data!
 
 🔽 Send *USDC* or *USDT* to: 🔽
-*${process.env.OTHUB_WALLET}*
+OTHub wallet not available yet.
+For testing, use /fund
 
 🔍 *What You Get:*
 - OTHub credits to create Knowledge Assets
@@ -157,7 +158,7 @@ Create */Knowledge_Assets* to harness the power of structured AI-ready data!
 
 👤 Press */knowledge* to begin...
 ⚖️ Press */balance* for current balance...`
-
+//*${process.env.OTHUB_WALLET}*
     await ctx.replyWithPhoto('https://runtime.othub.io/images?src=OTHub-Logo.png', {
         width: 200,
         height: 200,
