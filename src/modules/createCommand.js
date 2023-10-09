@@ -86,6 +86,7 @@ module.exports = function createCommand(bot) {
 
         const input = ctx.message.text.split(' ').slice(1);
         if (input.length === 0) {
+            //consider removing description because that is for the bot, and keywords extract them myself from txn_data
             return ctx.reply(
                 '💫 *Knowledge Asset Creation Hub* 💫\n\n' +
                 '🛠 To */create* a Knowledge Asset, please provide the following:\n\n' +

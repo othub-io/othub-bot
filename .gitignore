@@ -1,6 +1,7 @@
 .env
 test_bot.js
 test.js
+dkgtest.js
 database/bot.db
 node_modules
 telegramBotMenu
