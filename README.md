@@ -113,7 +113,7 @@ Here is a list of functional commands:
 
 /glossary - A list of terms and definitions to better understand the OriginTrail Ecosystem
 
-##### Mini App Sample Description
+##### Mini App Description
 
 @othubbot serves as the Telegram Community's gateway to harnessing the power of the Decentralized Knowledge Graph. The DKG, a backend protocol, employs knowledge graphs and blockchain technology to transform data ownership and usage by AI. For the first time, the community can generate structured data, termed Knowledge Assets, reclaiming control over their identity. Additionally, @othubbot users can query live advanced DKG metrics. 
 
