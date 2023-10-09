@@ -20,9 +20,21 @@ async function executeQuery(query, params) {
   });
 }
 
+function queryAsync(sql, params) {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, params, (error, rows, fields) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve([rows, fields]);
+      }
+    });
+  });
+}
+
 module.exports = function start(bot) {
   bot.command('fund', async (ctx) => {
-    // command = 'balance'
+    command = 'fund'
     // spamCheck = await queryTypes.spamCheck()
     // telegram_id = ctx.message.from.id
     
@@ -45,6 +57,9 @@ module.exports = function start(bot) {
     //   }
     // }, process.env.DELETE_TIMER);
 
+    const max = 9999999;
+    const randomInt = Math.floor(Math.random() * (max + 1));
+    
     telegram_id = ctx.message.from.id;
     const username = ctx.from.username;
 
@@ -53,22 +68,19 @@ module.exports = function start(bot) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
     const result = await executeQuery(query, [
-      telegram_id, '', '', '', '', '', '100', 'USDC', '', 'success'
+      telegram_id, randomInt, '', '', '', '', '100', 'USDC', '', 'success'
     ]);
-    if (result.affectedRows > 0) {
-      connection.query('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [telegram_id], async function (error, rows, fields) {
-        if (error) {
-          console.error('Failed to execute query: ', error);
-          return;
-        }
+      try {
+        const [rows, fields] = await queryAsync('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [telegram_id]);
         if (rows.length > 0) {
-          const balance = rows[0].balance;
-          ctx.reply(`⚖️ ${username}, your new test balance is: *$${balance.toFixed(2)}*`,{parse_mode: 'Markdown'});
+          const balance = rows[0].USD_balance;
+          ctx.reply(`⚖️ @${username}, your test balance is now *$${balance.toFixed(2)}*`, { parse_mode: 'Markdown' });
         } else {
           ctx.reply('No balance found.');
         }
-      });
-    }
+      } catch (error) {
+        console.error('Failed to execute query: ', error);
+      }
   });
 
   bot.command('balance', async (ctx) => {
@@ -97,18 +109,17 @@ module.exports = function start(bot) {
 
     telegram_id = ctx.message.from.id
 
-    connection.query('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [telegram_id], async function (error, rows, fields) {
-      if (error) {
-        console.error('Failed to execute query: ', error);
-        return;
-      }
+    try {
+      const [rows, fields] = await queryAsync('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [telegram_id]);
       if (rows.length > 0) {
-        const balance = rows[0].balance;
-        ctx.reply(`⚖️ Current Balance: *$${balance.toFixed(2)}*`,{parse_mode: 'Markdown'});
+        const balance = rows[0].USD_balance;
+        ctx.reply(`⚖️ Current Balance: *$${balance.toFixed(2)}*`, { parse_mode: 'Markdown' });
       } else {
         ctx.reply('No balance found.');
       }
-    });
+    } catch (error) {
+      console.error('Failed to execute query: ', error);
+    }
   });
 
   bot.command('othub', async (ctx) => {
@@ -267,7 +278,8 @@ For testing, use /fund
           [telegramId, 'telegram', data.public_address, data.public_address]
         );
         ctx.session.balanceOperations = {}
-        ctx.reply(`✅ User profile updated with your public address!\n\nFunding address:\n\n${process.env.OTHUB_WALLET}\n\nPlease double check the address and only send USDC or USDT (ETH blockchain).\n\nOnce the funding is complete, please wait a minute before you check your /balance.`)
+        ctx.reply(`✅ User profile updated with your public address!\n\nFunding address:\n\nOTHub wallet not available yet. For testing, use /fund.\n\nPlease double check the address and only send USDC or USDT (ETH blockchain).\n\nOnce the funding is complete, please wait a minute before you check your /balance.`)
+        //${process.env.OTHUB_WALLET}
         }
     }
   });
