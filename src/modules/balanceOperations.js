@@ -74,7 +74,7 @@ module.exports = function start(bot) {
         const [rows, fields] = await queryAsync('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [telegram_id]);
         if (rows.length > 0) {
           const balance = rows[0].USD_balance;
-          await ctx.reply(`⚖️ @${username}, your test balance is now $${balance.toFixed(2)}\n\n/create Knowledge Assets now with @othubbot!`);
+          await ctx.reply(`⚖️ @${username}, your test balance is now $${balance.toFixed(2)}\n\n🟢 /create Knowledge Assets now with @othubbot!`);
         } else {
           ctx.reply('No balance found.');
         }
@@ -277,7 +277,7 @@ For testing, use /fund
           [telegramId, 'telegram', data.public_address, data.public_address]
         );
         ctx.session.balanceOperations = {}
-        ctx.reply(`✅ User profile updated with your public address!\n\nFunding address:\n\nOTHub wallet not available yet. For testing, use /fund.\n\nYou can /create Knowledge Assets once your account is funded!`)
+        ctx.reply(`✅ User profile updated with your public address!\n\n💰 Funding address:\n🚫 OTHub wallet not available yet. For testing, use /fund.\n\n🟢 You can /create Knowledge Assets once your account is funded!`)
         //${process.env.OTHUB_WALLET}
         }
     }
