@@ -29,20 +29,27 @@ Below is the list of essential parameters:
 | Params            | Description                                |
 |-------------------|-------------------------------------------|
 | BOT_TOKEN         | Telegram BOT token obtained through [@BotFather](https://t.me/BotFather) |
-| GROUP             | Telegram Chat ID                            |
+| OTHUB_ID          | Telegram Chat ID                            |
+| ORIGINTRAIL_ID    | Official OriginTrail Telegram Chat ID       |
 | API_KEY           | OTHub API Key                               |
+| OTHUB_WALLET      | OTHub's wallet address                      |
 | ADMIN_GROUP       | Telegram ID of group admins                 |
 | DBHOST            | Hostname of the database server             |
-| USER              | Username for accessing the database         |
-| PASSWORD          | Password for accessing the database         |
-| OTHUB_DB          | Bot database name                           |
+| DBUSER            | Username for accessing the database         |
+| DBPASSWORD        | Password for accessing the database         |
+| OTHUB_DB          | Main database                               |
 | SYNC_DB           | Sync database, refer to [otp-sync](https://github.com/othub-io/otp-sync) for details               |
+| PAYMENT_DB        | Payment database                            |
 | COOLDOWN          | Minimum cooldown for query spam check       |
 | DELETE_TIMER      | Time before messages disappear              |
 
 Set up your MySQL database
 ```
 apt-get install mysql-server -y
+```
+Restore the schema.sql to your server
+```
+mysql -u <username> -p < schema.sql
 ```
 Copy the service file and start the bot
 ```
