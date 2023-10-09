@@ -2,9 +2,8 @@ const { ethers } = require('ethers');
 const mysql = require('mysql');
 const queryTypes = require('../util/queryTypes');
 const axios = require('axios');
-const assertionMetadata = require('./assertionMetadata');
 const { getCoinPrice } = require('./getCoinPrice');
-const DKG = require('dkg.js');
+const assertionMetadata = require('./assertionMetadata');
 
 const connection = mysql.createConnection({
   host: process.env.DBHOST,
@@ -12,27 +11,35 @@ const connection = mysql.createConnection({
   password: process.env.DBPASSWORD,
   database: process.env.PAYMENT_DB,
 });
-  
-async function dkg(txn_data, epochs) {
-    const dkgInstance = new DKG({
-        endpoint: process.env.OT_NODE_HOSTNAME,
-        port: process.env.OT_NODE_TESTNET_PORT,
-        useSSL: true,
-        maxNumberOfRetries: 100,
-        blockchain: {
-            name: 'otp::testnet',
-            publicKey: process.env.PUBLIC_KEY,
-            privateKey: process.env.PRIVATE_KEY,
-        },
-    });
 
-    const knowledgeAssetContent = txn_data
-    const assertionId = await dkgInstance.assertion.getPublicAssertionId(knowledgeAssetContent);
-    const size = await dkgInstance.assertion.getSizeInBytes(knowledgeAssetContent);
-    const bidSuggestion = await dkgInstance.network.getBidSuggestion(assertionId, size, { epochsNum: epochs });
-  
-    return { assertionId, size, bidSuggestion };
+function extractJSON(str) {
+    const stack = [];
+    let jsonStartIndex = -1;
+    let jsonEndIndex = -1;
+    
+    for (let i = 0; i < str.length; i++) {
+        if (str[i] === '{') {
+            if (stack.length === 0) {
+                jsonStartIndex = i;
+            }
+            stack.push('{');
+        } else if (str[i] === '}') {
+            stack.pop();
+            if (stack.length === 0) {
+                jsonEndIndex = i;
+                break;
+            }
+        }
+    }
+
+    if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
+        const jsonStr = str.slice(jsonStartIndex, jsonEndIndex + 1);
+        return JSON.parse(jsonStr);
+    } else {
+        return null;
+    }
 }
+
 
 module.exports = function createCommand(bot) {
     bot.command('create', async (ctx) => {
@@ -93,39 +100,25 @@ module.exports = function createCommand(bot) {
         }
 
         const inputString = ctx.message.text;
-        const flagMatch = inputString.match(/(-A|--asset)(\s+)/i);
+        const jsonString = extractJSON(inputString);
 
-        if (!flagMatch) {
-            return ctx.reply('Missing -A or --asset flag. For help, try /Schema_Markup.');
-        }
-
-        const flagIndex = flagMatch.index;
-        const jsonStartIndex = flagIndex + flagMatch[0].length;
-        const substring = inputString.slice(jsonStartIndex).trim();
-        let openIndex = substring.indexOf('{');
-        let closeIndex = substring.lastIndexOf('}');
-
-        if (openIndex === -1 || closeIndex === -1 || closeIndex <= openIndex) {
-            return ctx.reply('Invalid JSON data. For help, try /Schema_Markup.');
-        }
-
-        const jsonObjectString = substring.slice(openIndex, closeIndex + 1).trim();
-        const modifiedInputString = inputString.slice(0, flagIndex) + substring.slice(closeIndex + 1);
-        const modifiedInput = modifiedInputString.split(' ').slice(1);  // Split into array and remove the command name
-
-        const txndata = {
-            public: {
-                ...JSON.parse(jsonObjectString),
-            },
-        };
-        
         const data = {
             txn_description: '',
             keywords: '',
             epochs: '5',
             network: 'otp::testnet',
-            txn_data: txndata
+            txn_data: jsonString
         };
+        
+        const flagMatch = inputString.match(/(-A|--asset)(\s+)/i);
+        if (!flagMatch) {
+            return ctx.reply('Missing -A or --asset flag. For help, try /Schema_Markup.');
+        }
+        const flagIndex = flagMatch.index;
+        const jsonStartIndex = flagIndex + flagMatch[0].length;
+        const substring = inputString.slice(jsonStartIndex).trim();
+        const modifiedInputString = inputString.slice(0, flagIndex) + substring.slice(substring.lastIndexOf('}') + 1);
+        const modifiedInput = modifiedInputString.split(' ').slice(1);
 
         for (let i = 0; i < modifiedInput.length; i++) {
             const flag = modifiedInput[i];
@@ -181,31 +174,21 @@ module.exports = function createCommand(bot) {
 
         const { public_address, network, txn_data, txn_description, keywords, epochs } = data;
 
-        let URL = `https://api.othub.io/dkg/create_n_transfer`;
+        let URL = 'https://api.othub.io/dkg/create_n_transfer';
 
         let postData = {
             network: network,
-            public_address: public_address,
-            txn_data: txn_data
+            receiver: public_address,
+            asset: txn_data,
+            epochs: epochs,
+            txn_description: txn_description,
+            keywords: keywords
         };
-
-        if(txn_description) {
-            URL += `&txn_description=${txn_description}`;
-        }
-        
-        if(keywords) {
-            URL += `&keywords=${keywords}`;
-        }
-        
-        if(epochs) {
-            URL += `&epochs=${epochs}`;
-        }
 
         let config = {
             headers: {
                 'x-api-key': process.env.API_KEY
-            },
-            timeout: 0
+            }
         };
 
 //         const previewMessage = `
@@ -215,32 +198,52 @@ module.exports = function createCommand(bot) {
 // Data: ${txn_data}
 // Description: ${txn_description}
 // Keywords: ${keywords}
-// Epochs: ${epochs}
-// Asset size: ${assertionMetadata.getAssertionSizeInBytes(txn_data)}`;
+// Epochs: ${epochs}`;
 
 //         ctx.reply(previewMessage);
 
         try {
             const processingMessage = await ctx.reply(`Your current balance is: ${balance.toFixed(2)}USD.\nProcessing your request, please wait a few minutes...`);
 
+            const epochNumber = epochs
+            let bidSuggestionUrl = 'https://api.othub.io/dkg/getBidSuggestion';
+
+            let bidSuggestionPostData = {
+                network: network,
+                asset: txn_data,
+                epochs: epochNumber
+            };
+            
+            let bidSuggestionConfig = {
+                headers: {
+                    'x-api-key': process.env.API_KEY
+                }
+            };
+            
+            async function getBidSuggestion() {
+                try {
+                    const response = await axios.post(bidSuggestionUrl, bidSuggestionPostData, bidSuggestionConfig);
+                    return response.data;
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+            const bidSuggestion = await getBidSuggestion();
+
             const telegram_id = ctx.message.from.id
             const tracPriceUsd = await getCoinPrice('TRAC');
-            const dkgResult = await dkg(txn_data, epochs);
-            console.log(dkgResult);
-            const assertionId = dkgResult.assertionId;
-            const bidSuggestionBigInt = dkgResult.bidSuggestion;
-            const bidSuggestionNumber = Number(bidSuggestionBigInt);  // Convert to a Number
-            const bidSuggestionString = bidSuggestionNumber.toString();  // Convert to a String
-            const assetSize = dkgResult.size;
-
-            //const assertionId = await dkg(txn_data, epochs).assertionId;
-            //const assetSize = await dkg(txn_data, epochs).size;
-            const costInTrac = assetSize * bidSuggestionString * epochs * 3; 
+            const assetSize = assertionMetadata.getAssertionSizeInBytes(txn_data);
+            const costInTrac = assetSize * bidSuggestion * epochs * 3; 
             const costInUsd = costInTrac * tracPriceUsd;
             const crowdfundInUsd = 0.10 * tracPriceUsd;
-            const totalCostInUsd= tracPriceUsd + crowdfundInUsd
-            console.log(telegram_id, tracPriceUsd, assertionId, assetSize, bidSuggestionString, costInTrac, costInUsd, crowdfundInUsd, totalCostInUsd)
-            
+            const totalCostInUsd = tracPriceUsd + crowdfundInUsd
+            console.log(`telegram_id: ${telegram_id}, tracPriceUsd: ${tracPriceUsd}, assetSize: ${assetSize}, bidSuggestion: ${bidSuggestion}, costInTrac: ${costInTrac}, costInUsd: ${costInUsd}, crowdfundInUsd: ${crowdfundInUsd}, totalCostInUsd: ${totalCostInUsd}`)
+            console.log(txn_data);
+            if (costInUsd >= balance) {
+                ctx.reply(`Insufficient balance to create Knowledge Asset.\n\nCost: ${costInUsd}\nCurrent Balance: ${balance}\n\nPlease use /start to refill your balance.`);
+                return;
+            }
+
             axios.post(URL, postData, config)
                 .then(async (res) => {
                     await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
@@ -263,15 +266,14 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
         
                         const query = `
                             INSERT INTO create_n_transfer_records
-                            (paymentDate, userId, recipient, assertionId, size, epochs, costInTrac, tracPriceUsd, costInUsd, crowdfundInUsd, totalCostInUsd, bid, UAL, status)
+                            (paymentDate, userId, recipient, size, epochs, costInTrac, tracPriceUsd, costInUsd, crowdfundInUsd, totalCostInUsd, bid, UAL, status)
                             VALUES
-                            (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         `;
         
                         connection.query(query, [
                             telegram_id,
                             public_address,
-                            assertionId,
                             assetSize,
                             epochs,
                             costInTrac,
@@ -279,7 +281,7 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
                             costInUsd,
                             crowdfundInUsd,
                             totalCostInUsd,
-                            bidSuggestionString,
+                            bidSuggestion,
                             UAL,
                             status,
                         ], (error, results, fields) => {
