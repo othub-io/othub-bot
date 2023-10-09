@@ -87,15 +87,28 @@ module.exports = function createCommand(bot) {
         const input = ctx.message.text.split(' ').slice(1);
         if (input.length === 0) {
             return ctx.reply(
-                'To use the /create command, please provide the following parameters:\n\n' +
-                'Required:\n' +
-                '-A, --data <data_to_publish_in_JSON_format>\n' +
-                '-N, --network <otp::mainnet_or_otp::testnet> (only otp::testnet available for now)\n' +
-                '-W, --wallet <recipient_public_address>\n\n' +
-                'Optional:\n' +
-                '-D, --description <transaction_description>\n' +
-                '-K, --keywords <keywords_separated_by_comma>\n' +
-                '-E, --epochs <epochs_number> (default: 5)'
+                '💫 *Knowledge Asset Creation Hub* 💫\n\n' +
+                '🛠 To */create* a Knowledge Asset, please provide the following:\n\n' +
+                '❗️ *Required:*\n' +
+                '-A, --data <data in JSON>\n' +
+                '-N, --network <otp::mainnet or otp::testnet> (only otp::testnet available for now)\n' +
+                '-W, --wallet <recipient address>\n\n' +
+                '⭕️ *Optional:*\n' +
+                '-D, --description <transaction description>\n' +
+                '-K, --keywords <keywords separated by comma>\n' +
+                '-E, --epochs <epochs number> (default: 5)\n\n' +
+                '❓ *Example:*\n' +
+`/create -A {
+    "@context": "https://schema.org",
+    "@id": "uuid:1",
+    "@type": "Nonprofit Organization",
+    "name": "OTHub.io",
+    "member": {
+        "@id": "uuid:user:1",
+        "@type": "Person"
+    }
+} -N otp::testnet -W 0x39AEE393E69aB9Ed3778f41c616fFb533d7be8B1
+`, { disable_web_page_preview: true, parse_mode: 'Markdown'}
             );
         }
 

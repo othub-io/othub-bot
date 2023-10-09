@@ -35,27 +35,27 @@ function queryAsync(sql, params) {
 module.exports = function start(bot) {
   bot.command('fund', async (ctx) => {
     command = 'fund'
-    // spamCheck = await queryTypes.spamCheck()
-    // telegram_id = ctx.message.from.id
+    spamCheck = await queryTypes.spamCheck()
+    telegram_id = ctx.message.from.id
     
-    // permission = await spamCheck
-    //   .getData(command, telegram_id)
-    //   .then(async ({ permission }) => {
-    //     return permission
-    //   })
-    //   .catch(error => console.log(`Error : ${error}`))
+    permission = await spamCheck
+      .getData(command, telegram_id)
+      .then(async ({ permission }) => {
+        return permission
+      })
+      .catch(error => console.log(`Error : ${error}`))
   
-    // if (permission != `allow`) {
-    //   await ctx.deleteMessage()
-    //   return
-    // }
-    // setTimeout(async () => {
-    //   try {
-    //     await ctx.deleteMessage();
-    //   } catch (error) {
-    //     console.error('Error deleting message:', error);
-    //   }
-    // }, process.env.DELETE_TIMER);
+    if (permission != `allow`) {
+      await ctx.deleteMessage()
+      return
+    }
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
 
     const max = 9999999;
     const randomInt = Math.floor(Math.random() * (max + 1));
@@ -68,13 +68,13 @@ module.exports = function start(bot) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
     const result = await executeQuery(query, [
-      telegram_id, randomInt, '', '', '', '', '100', 'USDC', '', 'success'
+      telegram_id, randomInt, '', '', '', '', '1000000', 'USDC', '', 'success'
     ]);
       try {
         const [rows, fields] = await queryAsync('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [telegram_id]);
         if (rows.length > 0) {
           const balance = rows[0].USD_balance;
-          ctx.reply(`⚖️ @${username}, your test balance is now *$${balance.toFixed(2)}*`, { parse_mode: 'Markdown' });
+          await ctx.reply(`⚖️ @${username}, your test balance is now $${balance.toFixed(2)}\n\n/create Knowledge Assets now with @othubbot!`);
         } else {
           ctx.reply('No balance found.');
         }
@@ -84,28 +84,28 @@ module.exports = function start(bot) {
   });
 
   bot.command('balance', async (ctx) => {
-    // command = 'balance'
-    // spamCheck = await queryTypes.spamCheck()
-    // telegram_id = ctx.message.from.id
+    command = 'balance'
+    spamCheck = await queryTypes.spamCheck()
+    telegram_id = ctx.message.from.id
     
-    // permission = await spamCheck
-    //   .getData(command, telegram_id)
-    //   .then(async ({ permission }) => {
-    //     return permission
-    //   })
-    //   .catch(error => console.log(`Error : ${error}`))
+    permission = await spamCheck
+      .getData(command, telegram_id)
+      .then(async ({ permission }) => {
+        return permission
+      })
+      .catch(error => console.log(`Error : ${error}`))
   
-    // if (permission != `allow`) {
-    //   await ctx.deleteMessage()
-    //   return
-    // }
-    // setTimeout(async () => {
-    //   try {
-    //     await ctx.deleteMessage();
-    //   } catch (error) {
-    //     console.error('Error deleting message:', error);
-    //   }
-    // }, process.env.DELETE_TIMER);
+    if (permission != `allow`) {
+      await ctx.deleteMessage()
+      return
+    }
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
 
     telegram_id = ctx.message.from.id
 
@@ -113,7 +113,7 @@ module.exports = function start(bot) {
       const [rows, fields] = await queryAsync('SELECT USD_balance FROM v_user_balance WHERE telegram_id = ?', [telegram_id]);
       if (rows.length > 0) {
         const balance = rows[0].USD_balance;
-        ctx.reply(`⚖️ Current Balance: *$${balance.toFixed(2)}*`, { parse_mode: 'Markdown' });
+        ctx.reply(`⚖️ Current Balance: *$${balance.toFixed(2)}*\n\n*/create* Knowledge Assets now!`, { parse_mode: 'Markdown' });
       } else {
         ctx.reply('No balance found.');
       }
@@ -163,7 +163,7 @@ For testing, use /fund
 
 ⚠️ *WARNING:* ⚠️
 - @othubbot only accepts USDC and USDT (ETH Blockchain)
-- Before sending funds, please enter your /profile
+- Before sending funds,send a /start command to @othubbot
 
 📝 By continuing, you accept our /Terms.
 
@@ -278,7 +278,7 @@ For testing, use /fund
           [telegramId, 'telegram', data.public_address, data.public_address]
         );
         ctx.session.balanceOperations = {}
-        ctx.reply(`✅ User profile updated with your public address!\n\nFunding address:\n\nOTHub wallet not available yet. For testing, use /fund.\n\nPlease double check the address and only send USDC or USDT (ETH blockchain).\n\nOnce the funding is complete, please wait a minute before you check your /balance.`)
+        ctx.reply(`✅ User profile updated with your public address!\n\nFunding address:\n\nOTHub wallet not available yet. For testing, use /fund.\n\nYou can /create Knowledge Assets once your account is funded!`)
         //${process.env.OTHUB_WALLET}
         }
     }
