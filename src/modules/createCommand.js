@@ -102,7 +102,7 @@ module.exports = function createCommand(bot) {
 `/create -A {
     "@context": "https://schema.org",
     "@id": "uuid:1",
-    "@type": "Nonprofit Organization",
+    "@type": "NGO",
     "name": "OTHub.io",
     "member": {
         "@id": "uuid:user:1",
@@ -222,20 +222,6 @@ module.exports = function createCommand(bot) {
 
         try {
             const processingMessage = await ctx.reply(`Your current balance is: ${balance.toFixed(2)}USD.\nProcessing your request, please wait a few minutes...`);
-
-            const txn_data = {
-                public: {
-                    '@context': ['https://schema.org'],
-                    '@id': 'uuid:1',
-                    company: 'OT',
-                    user: {
-                        '@id': 'uuid:user:1',
-                    },
-                    city: {
-                        '@id': 'uuid:belgrade',
-                    },
-                },
-            };
 
             let bidSuggestionUrl = 'https://api.othub.io/dkg/getBidSuggestion';
 
