@@ -107,6 +107,10 @@ module.exports = function createCommand(bot) {
     "member": {
         "@id": "uuid:user:1",
         "@type": "Person"
+    },
+    "location": {
+        "@id": "uuid:newyork",
+        "@type": "City"
     }
 } -N otp::testnet -W 0x39AEE393E69aB9Ed3778f41c616fFb533d7be8B1
 `, { disable_web_page_preview: true, parse_mode: 'Markdown'}
@@ -219,13 +223,26 @@ module.exports = function createCommand(bot) {
         try {
             const processingMessage = await ctx.reply(`Your current balance is: ${balance.toFixed(2)}USD.\nProcessing your request, please wait a few minutes...`);
 
-            const epochNumber = epochs
+            const txn_data = {
+                public: {
+                    '@context': ['https://schema.org'],
+                    '@id': 'uuid:1',
+                    company: 'OT',
+                    user: {
+                        '@id': 'uuid:user:1',
+                    },
+                    city: {
+                        '@id': 'uuid:belgrade',
+                    },
+                },
+            };
+
             let bidSuggestionUrl = 'https://api.othub.io/dkg/getBidSuggestion';
 
             let bidSuggestionPostData = {
                 network: network,
                 asset: txn_data,
-                epochs: epochNumber
+                epochs: epochs
             };
             
             let bidSuggestionConfig = {
@@ -236,7 +253,7 @@ module.exports = function createCommand(bot) {
             
             async function getBidSuggestion() {
                 try {
-                    const response = await axios.post(bidSuggestionUrl, bidSuggestionPostData, bidSuggestionConfig);
+                    const response = await axios.post(bidSuggestionUrl, bidSuggestionPostData, bidSuggestionConfig,{ timeout: 0 });
                     return response.data;
                 } catch (error) {
                     console.error(error.message);
@@ -258,7 +275,7 @@ module.exports = function createCommand(bot) {
                 return;
             }
 
-            axios.post(URL, postData, config)
+            axios.post(URL, postData, config, { timeout: 0 })
                 .then(async (res) => {
                     await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
         
