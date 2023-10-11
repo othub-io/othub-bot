@@ -270,10 +270,11 @@ module.exports = function createCommand(bot) {
                     if (responseData.status && responseData.status !== '200') {
                         ctx.reply(`API call returned an error: ${responseData.result}`);
                     } else {
-                        // ctx.reply(`API call Succeeded! The response is:\n${JSON.stringify(responseData)}`);
+                        const newBalance = await checkBalance(telegram_id);
+                        ctx.reply(`Your new balance is: ${newBalance.toFixed(2)}USD`);
                         const baseUrl = data.network === 'otp::testnet' ? 'https://dkg-testnet.origintrail.io' : 'https://dkg.origintrail.io';
                         const responseMessage = `
-The Knowledge Asset has been created successfully!
+Your Knowledge Asset has been created successfully!
 Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
                         ctx.reply(responseMessage);
     
@@ -305,10 +306,6 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
                             if (error) throw error;
                             console.log('Inserted record ID:', results.insertId);
                         });
-
-                        const newBalance = await checkBalance(telegram_id);
-                        ctx.reply(`Your new balance is: ${newBalance.toFixed(2)}USD`);
-
                     }
                 })
                 .catch(async (err) => {
