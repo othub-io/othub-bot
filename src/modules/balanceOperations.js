@@ -242,11 +242,11 @@ For testing, use /fund
 
     if (rows.length > 0) {
       savedPublicAddress = rows[0].public_address;
-      ctx.reply(`💰 Please enter your public address used for funding:`, Markup.keyboard([`${savedPublicAddress}`, '/cancel'])
+      ctx.reply(`💰 Fund your Telegram account to create Knowledge Assets!\nPlease enter your public wallet address used for funding:`, Markup.keyboard([`${savedPublicAddress}`, '/cancel'])
       .oneTime()
       .resize());
     } else {
-        ctx.reply(`💰 Please enter your funding public address used for funding:`, Markup.keyboard(['/cancel'])
+        ctx.reply(`💰 Fund your Telegram account to create Knowledge Assets!\nPlease enter your public wallet address used for funding:`, Markup.keyboard(['/cancel'])
         .oneTime()
         .resize());
       }
@@ -277,7 +277,7 @@ For testing, use /fund
           [telegramId, 'telegram', data.public_address, data.public_address]
         );
         ctx.session.balanceOperations = {}
-        ctx.reply(`✅ User profile updated with your public address!\n\n💰 Funding address:\n🚫 OTHub wallet not available yet. For testing, use /fund.\n\n🟢 You can /create Knowledge Assets once your account is funded!`)
+        ctx.reply(`✅ User profile updated with your wallet address!\n\n💰 Send USDC or USDT to:\n🚫 OTHub wallet not available yet. use /fund to test now.\n\n🟢 /create Knowledge Assets once your account is funded!`)
         //${process.env.OTHUB_WALLET}
         }
     }

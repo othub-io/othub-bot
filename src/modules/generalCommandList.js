@@ -1,5 +1,10 @@
 module.exports = {
-    'publish': 'Publish Knowledge Assets on the DKG',
+    'othub': '@othubbot landing page',
+    'knowledge': 'Start of the journey',
+    'start': 'Link your Telegram ID with your public wallet for funding',
+    'balance': 'Create Knowledge Assets on the DKG',
+    'fund': 'Fund your wallet with test balance',
+    'create': 'Create Knowledge Assets on the DKG',
     'pubsgraph': 'Show total network pubs over time',
     'networkgraph': 'TRAC spent on publishing, Assets published, Node payouts',
     'glossary': 'A list of terms and definitions to better understand the OriginTrail Ecosystem',

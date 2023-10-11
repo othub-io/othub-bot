@@ -12,6 +12,19 @@ const connection = mysql.createConnection({
   database: process.env.PAYMENT_DB,
 });
 
+function cleanJson(jsonString) {
+    // Step 1: Remove extra whitespace
+    let cleaned = jsonString.trim().replace(/\s+/g, ' ');
+
+    // Step 2: Remove line breaks
+    cleaned = cleaned.replace(/(\r\n|\n|\r)/gm, "");
+
+    // Step 3: Remove invisible characters
+    cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+    return cleaned;
+}
+
 function extractJSON(str) {
     const stack = [];
     let jsonStartIndex = -1;
@@ -34,7 +47,9 @@ function extractJSON(str) {
 
     if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
         const jsonStr = str.slice(jsonStartIndex, jsonEndIndex + 1);
-        return JSON.parse(jsonStr);
+        const cleanedJson = cleanJson(jsonStr);
+        return JSON.parse(cleanedJson);
+        //return JSON.parse(jsonStr);
     } else {
         return null;
     }
@@ -130,7 +145,7 @@ module.exports = function createCommand(bot) {
         
         const flagMatch = inputString.match(/(-A|--asset)(\s+)/i);
         if (!flagMatch) {
-            return ctx.reply('Missing -A or --asset flag. For help, try /Schema_Markup.');
+            return ctx.reply('Missing -A or --asset flag. For help, try /jsonld.');
         }
         const flagIndex = flagMatch.index;
         const jsonStartIndex = flagIndex + flagMatch[0].length;
@@ -175,7 +190,7 @@ module.exports = function createCommand(bot) {
         }
 
         if (!data.txn_data || !isValidJSON(data.txn_data)) {
-            return ctx.reply('Error 3: Invalid or missing JSON data. Try /Schema_Markup for help.');
+            return ctx.reply('Error 3: Invalid or missing JSON data. Try /jsonld for help.');
         }
 
         if (!['otp::testnet', 'otp::mainnet'].includes(data.network)) {
