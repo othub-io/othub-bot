@@ -41,11 +41,11 @@ async function getCoinPriceCMC(cryptoSymbol) {
 
 async function getCoinPrice(cryptoSymbol) {
     try {
-      const price = await getCoinPriceCoinAPI(cryptoSymbol);
+      const price = await getCoinPriceCMC(cryptoSymbol);
       return price;
     } catch (error) {
       try {
-        const price = await getCoinPriceCMC(cryptoSymbol);
+        const price = await getCoinPriceCoinAPI(cryptoSymbol);
         return price;
       } catch (error) {
         throw error;
