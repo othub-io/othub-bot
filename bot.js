@@ -23,6 +23,7 @@ const sendInvoice = require('./src/modules/sendInvoice');
 const balanceOperations = require('./src/modules/balanceOperations');
 const schedule = require('node-schedule');
 const fetchTransactions = require('./src/modules/transactionSync');
+const checkReceipt = require('./src/modules/checkReceipt');
 
 
 ////////////////easterEgg
@@ -674,6 +675,10 @@ createCommand(bot);
 sendInvoice(bot);
 balanceOperations(bot);
 //publishCommand(bot);
+
+schedule.scheduleJob('*/1 * * * *', () => {
+  checkReceipt(bot);
+});
 
 schedule.scheduleJob('*/1 * * * *', fetchTransactions);
 

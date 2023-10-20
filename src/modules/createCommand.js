@@ -4,6 +4,7 @@ const queryTypes = require('../util/queryTypes');
 const axios = require('axios');
 const { getCoinPrice } = require('./getCoinPrice');
 const assertionMetadata = require('./assertionMetadata');
+const { error } = require('shelljs');
 
 const connection = mysql.createConnection({
   host: process.env.DBHOST,
@@ -272,55 +273,59 @@ module.exports = function createCommand(bot) {
             console.log(`telegram_id: ${telegram_id}, tracPriceUsd: ${tracPriceUsd}, assetSize: ${assetSize}, bidSuggestion: ${bidSuggestion}, costInTrac: ${costInTrac}, costInUsd: ${costInUsd}, crowdfundInUsd: ${crowdfundInUsd}, totalCostInUsd: ${totalCostInUsd}`)
             console.log(txn_data);
             if (costInUsd >= balance) {
-                ctx.reply(`Insufficient balance to create Knowledge Asset.\n\nCost: ${costInUsd}\nCurrent Balance: ${balance}\n\nPlease use /start to refill your balance.`);
+                ctx.reply(`Insufficient balance to create Knowledge Asset.\n\nCost: ${costInUsd}\nCurrent Balance: ${balance.toFixed(2)}\n\nPlease use /start to refill your balance.`);
                 return;
             }
 
             axios.post(URL, postData, config, { timeout: 0 })
                 .then(async (res) => {
-                    await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
+                    // await ctx.telegram.deleteMessage(ctx.chat.id, processingMessage.message_id);
         
                     const responseData = res.data;
-        
-                    if (responseData.status && responseData.status !== '200') {
-                        ctx.reply(`API call returned an error: ${responseData.result}`);
-                    } else {
-                        const newBalance = await checkBalance(telegram_id);
-                        ctx.reply(`Your new balance is: ${newBalance.toFixed(2)}USD`);
-                        const baseUrl = data.network === 'otp::testnet' ? 'https://dkg-testnet.origintrail.io' : 'https://dkg.origintrail.io';
-                        const responseMessage = `
-Your Knowledge Asset has been created successfully!
-Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
-                        ctx.reply(responseMessage);
-    
-                        const UAL = responseData.ual;
-                        const status = 'Completed';
+                    const receipt = JSON.stringify(responseData.receipt);
+                    const receiptObject = JSON.parse(receipt);
 
+                    if (responseData.status && responseData.status !== '200') {
+                        ctx.reply(`API call returned an error: ${responseData}`);
+                    } else {
+                        const UAL = '';
+                        const status = 'pending';
         
-                        const query = `
-                            INSERT INTO create_n_transfer_records
-                            (paymentDate, userId, recipient, size, epochs, costInTrac, tracPriceUsd, costInUsd, crowdfundInUsd, totalCostInUsd, bid, UAL, status)
-                            VALUES
-                            (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        `;
-        
-                        connection.query(query, [
-                            telegram_id,
-                            public_address,
-                            assetSize,
-                            epochs,
-                            costInTrac,
-                            tracPriceUsd,
-                            costInUsd,
-                            crowdfundInUsd,
-                            totalCostInUsd,
-                            bidSuggestion,
-                            UAL,
-                            status,
-                        ], (error, results, fields) => {
-                            if (error) throw error;
-                            console.log('Inserted record ID:', results.insertId);
-                        });
+                        const insertRecord = () => {
+                            return new Promise((resolve, reject) => {
+                                const query = `
+                                    INSERT INTO create_n_transfer_records
+                                    (paymentDate, userId, receipt, recipient, size, epochs, costInTrac, tracPriceUsd, costInUsd, crowdfundInUsd, totalCostInUsd, bid, UAL, status)
+                                    VALUES
+                                    (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                `;
+            
+                                connection.query(query, [
+                                    telegram_id,
+                                    receiptObject,
+                                    public_address,
+                                    assetSize,
+                                    epochs,
+                                    costInTrac,
+                                    tracPriceUsd,
+                                    costInUsd,
+                                    crowdfundInUsd,
+                                    totalCostInUsd,
+                                    bidSuggestion,
+                                    UAL,
+                                    status,
+                                ], (error, results, fields) => {
+                                    if (error) return reject(error);
+                                    console.log('Inserted record ID:', results.insertId);
+                                    resolve();
+                                });
+                            });
+                        };
+                        await insertRecord();            
+
+                        const newBalance = await checkBalance(userId);
+                        await ctx.reply(`Transaction successfully queued!\n\nHere is your receipt:\n${receiptObject}\n\nNew Balance:\n${newBalance.toFixed(2)}\n\nPlease hold while the Knowledge Asset is being created...`)
+            
                     }
                 })
                 .catch(async (err) => {
@@ -330,6 +335,39 @@ Use this link to view your asset: ${baseUrl}/explore?ual=${responseData.ual}`;
             ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
         }        
     });
+
+    // const checkTransaction = async (receipt) => {
+    //     const URL = 'https://api.othub.io/dkg/checkTransaction';
+    //     const body = { receipt };
+    //     const headers = { 'x-api-key': process.env.API_KEY };
+      
+    //     try {
+    //       const responseData = await axios.post(URL, body, { headers });
+    //       if (responseData.status === 200) {
+    //         return responseData.data;
+    //       } else {
+    //         return null;
+    //       }
+    //     } catch (error) {
+    //       console.error('Error while checking receipt:', error);
+    //       return null;
+    //     }
+    //   };
+
+    //   const checkAllTransactions = async () => {
+    //     for (const [userID, transactions] of Object.entries(ongoingTransactions)) {
+    //       for (const transaction of transactions) {
+    //         if (transaction.status !== 'complete') {
+    //           const response = await checkTransaction(transaction.receipt);
+    //           if (response && response.status === 'COMPLETE') {
+    //             transaction.status = 'complete';
+    //             const newBalance = await checkBalance(userID);
+    //             bot.telegram.sendMessage(userID, `Your transaction with receipt ${transaction.receipt} is complete!\n\nNew Balance:\n${newBalance}\n\nThe UAL created is ${transaction.UAL}.\n\nFor more details, consult: ${transaction.othub}\nor\n${transaction.explorer}`);
+    //           }
+    //         }
+    //       }
+    //     }
+    //   };      
 
     function isValidJSON(input) {
         if (typeof input === 'object') {
