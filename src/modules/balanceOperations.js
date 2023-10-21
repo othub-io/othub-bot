@@ -225,8 +225,29 @@ For testing, use /fund
 
   bot.command('knowledge', async (ctx) => {
     command = 'knowledge'
-    telegram_id = ctx.message.from.id  
-    bot.telegram.sendMessage(telegram_id, `📗 Knowledge is Power.\n📚 Shared Knowledge is Power Multipled.\n💪 Bring the Power of Knowledge\n👥 Back to the People\n\n➡️ Enter your */wallet* to begin.`,{parse_mode: 'Markdown'});
+    telegram_id = ctx.message.from.id
+    spamCheck = await queryTypes.spamCheck()
+      
+      permission = await spamCheck
+        .getData(command, telegram_id)
+        .then(async ({ permission }) => {
+          return permission
+        })
+        .catch(error => console.log(`Error : ${error}`))
+    
+      if (permission != `allow`) {
+        await ctx.deleteMessage()
+        return
+      }
+      setTimeout(async () => {
+        try {
+          await ctx.deleteMessage();
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
+      
+    bot.telegram.sendMessage(telegram_id, `📗 Knowledge is Power.\n📚 Shared Knowledge is Power Multipled.\n💪 Bring the Power of Knowledge\n👥 Back to the People\n\n➡️ Press */wallet* to begin.`,{parse_mode: 'Markdown'});
   });
 
   bot.command('wallet', async (ctx) => {

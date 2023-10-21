@@ -39,7 +39,7 @@ module.exports = function checkReceipt(bot) {
                     ['complete', ual, receiptNumber],
                     (updateError) => {
                       if (updateError) throw updateError;
-                      bot.telegram.sendMessage(chatId, `✅Your transaction is complete!✅\n\nReceipt: ${receiptNumber}\n\nUse this link to view your Knowledge Asset: ${baseUrl}/explore?ual=${ual}`);
+                      bot.telegram.sendMessage(chatId, `✅Your transaction is complete!✅\n\n🧾Receipt: ${receiptNumber}\n\n🔎Use this link to view your Knowledge Asset: ${baseUrl}/explore?ual=${ual}`);
                     }
                   );
                 } else if (txnProgress === 'ABANDONED') {
