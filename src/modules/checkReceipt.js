@@ -39,7 +39,7 @@ module.exports = function checkReceipt(bot) {
                     ['complete', ual, receiptNumber],
                     (updateError) => {
                       if (updateError) throw updateError;
-                      bot.telegram.sendMessage(chatId, `Your transaction with receipt number ${receiptNumber} is now complete!\n\nUse this link to view your asset: ${baseUrl}/explore?ual=${ual}`);
+                      bot.telegram.sendMessage(chatId, `✅Your transaction is complete!✅\n\nReceipt: ${receiptNumber}\n\nUse this link to view your Knowledge Asset: ${baseUrl}/explore?ual=${ual}`);
                     }
                   );
                 } else if (txnProgress === 'ABANDONED') {
@@ -49,7 +49,7 @@ module.exports = function checkReceipt(bot) {
                     ['abandoned', receiptNumber],
                     (updateError) => {
                       if (updateError) throw updateError;
-                      bot.telegram.sendMessage(chatId, `Your transaction with receipt number ${receiptNumber} has been abandoned due to an error. Please try again.`);
+                      bot.telegram.sendMessage(chatId, `❌Your transaction failed!❌\n\nReceipt number ${receiptNumber} has been abandoned due to an error. Please try again.`);
                     }
                   );
                 } else {

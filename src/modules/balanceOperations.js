@@ -122,6 +122,52 @@ module.exports = function start(bot) {
     }
   });
 
+  bot.command('receipt', async (ctx) => {
+    const receiptNumber = ctx.message.text.split(' ')[1];
+    command = 'receipt' + ' ' + receiptNumber;
+    spamCheck = await queryTypes.spamCheck()
+    telegram_id = ctx.message.from.id
+    
+    permission = await spamCheck
+      .getData(command, telegram_id)
+      .then(async ({ permission }) => {
+        return permission
+      })
+      .catch(error => console.log(`Error : ${error}`))
+  
+    if (permission != `allow`) {
+      await ctx.deleteMessage()
+      return
+    }
+    setTimeout(async () => {
+      try {
+        await ctx.deleteMessage();
+      } catch (error) {
+        console.error('Error deleting message:', error);
+      }
+    }, process.env.DELETE_TIMER);
+
+    if (!receiptNumber) {
+      ctx.reply('Please enter a receipt number with the command.');
+      return;
+    }
+
+    try {
+      connection.query('SELECT * FROM paymentdb.create_n_transfer_records WHERE receipt = ?', [receiptNumber], (err, res) => {
+        if (err) throw err;
+
+        if (res.length > 0) {
+          const status = res[0].status;
+          ctx.reply(`The transaction with receipt number ${receiptNumber} is ${status}.`);
+        } else {
+          ctx.reply(`The transaction with receipt number ${receiptNumber} does not exist.`);
+        }
+      });
+    } catch (error) {
+      console.error('Failed to execute query: ', error);
+    }
+  });
+
   bot.command('othub', async (ctx) => {
       command = 'othub'
       spamCheck = await queryTypes.spamCheck()
@@ -168,7 +214,6 @@ For testing, use /fund
 
 👤 Press */knowledge* to begin...
 ⚖️ Press */balance* for current balance...`
-//*${process.env.OTHUB_WALLET}*
     await ctx.replyWithPhoto('https://runtime.othub.io/images?src=OTHub-Logo.png', {
         width: 200,
         height: 200,
@@ -181,19 +226,12 @@ For testing, use /fund
   bot.command('knowledge', async (ctx) => {
     command = 'knowledge'
     telegram_id = ctx.message.from.id  
-    bot.telegram.sendMessage(telegram_id, `📗 Knowledge is Power.\n📚 Shared Knowledge is Power Multipled.\n💪 Bring the Power of Knowledge\n👥 Back to the People\n\n➡️ */start* making a difference`,{parse_mode: 'Markdown'});
+    bot.telegram.sendMessage(telegram_id, `📗 Knowledge is Power.\n📚 Shared Knowledge is Power Multipled.\n💪 Bring the Power of Knowledge\n👥 Back to the People\n\n➡️ Enter your */wallet* to begin.`,{parse_mode: 'Markdown'});
   });
 
-  bot.hears('/cancel', (ctx) => {
-    if (ctx.session.balanceOperations && ctx.session.balanceOperations.inProgress) {
-      ctx.session.balanceOperations = {};
-      ctx.reply('🛑 You canceled the operation.');
-    }
-  });
-
-  bot.command('start', async (ctx) => {
+  bot.command('wallet', async (ctx) => {
     if (ctx.chat.type !== 'private') {
-      command = 'start'
+      command = 'wallet'
       spamCheck = await queryTypes.spamCheck()
       telegram_id = ctx.message.from.id
     
@@ -216,7 +254,7 @@ For testing, use /fund
         }
       }, process.env.DELETE_TIMER);
 
-      const noResultsMessage = await ctx.reply('The /start command is only available in private chat with @othubbot.');
+      const noResultsMessage = await ctx.reply('🟡The /wallet command is only available in private chat with @othubbot.');
       setTimeout(async () => {
         try {
           await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
@@ -226,157 +264,43 @@ For testing, use /fund
       }, process.env.DELETE_TIMER);
       return;
     }
-  
-    if (!ctx.session) {
-      ctx.session = {};
-    }
-    ctx.session.balanceOperations = { inProgress: true };
 
     telegram_id = ctx.message.from.id
+    const inputText = ctx.message.text.split(' ');
 
-    connection.query('SELECT * FROM user_profile WHERE user_id = ?', [telegram_id], async function (error, rows, fields) {
-      if (error) {
-        console.error('Failed to execute query: ', error);
-        return;
-      }
-
-    if (rows.length > 0) {
-      savedPublicAddress = rows[0].public_address;
-      ctx.reply(`💰 Fund your Telegram account to create Knowledge Assets!\nPlease enter your public wallet address used for funding:`, Markup.keyboard([`${savedPublicAddress}`, '/cancel'])
-      .oneTime()
-      .resize());
-    } else {
-        ctx.reply(`💰 Fund your Telegram account to create Knowledge Assets!\nPlease enter your public wallet address used for funding:`, Markup.keyboard(['/cancel'])
-        .oneTime()
-        .resize());
-      }
-    });
-  });
-
-  bot.on('text', async (ctx) => {
-    if (!ctx.session || !ctx.session.balanceOperations) return;
-    const response = ctx.message.text;
-    const data = ctx.session.balanceOperations;
-    const telegramId = ctx.from.id;
-  
-    if (!data || !data.inProgress) return;
-
-    if (!data.public_address) {
-      data.public_address = response;
-      if (!ethers.isAddress(data.public_address)) {
-        ctx.reply('🚫 Invalid address. Please provide a valid EVM public wallet address.', Markup
-          .keyboard(['/cancel'])
-          .oneTime()
-          .resize()
-        );
-        delete data.public_address;
-        return;
+    if (inputText.length < 2) {
+      const query = 'SELECT * FROM user_profile WHERE user_id = ?';
+      const [rows] = await queryAsync(query, [telegram_id]);
+      if (rows.length > 0) {
+        const savedPublicAddress = rows[0].public_address;
+        ctx.reply(`👝 Your current wallet address is\n${savedPublicAddress} 👝\nUse /wallet <new_public_address> to update.\n\n💰 Fund your Telegram account to create Knowledge Assets!💰`);
       } else {
-        await connection.query(
-          'INSERT INTO user_profile (user_id, platform, public_address) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE public_address = ?',
-          [telegramId, 'telegram', data.public_address, data.public_address]
-        );
-        ctx.session.balanceOperations = {}
-        ctx.reply(`✅ User profile updated with your wallet address!\n\n💰 Send USDC or USDT to:\n🚫 OTHub wallet not available yet. use /fund to test now.\n\n🟢 /create Knowledge Assets once your account is funded!`)
-        //${process.env.OTHUB_WALLET}
-        }
+        ctx.reply('🟡You don\'t have a wallet associated. Please use /wallet <public_address> to set one.');
+      }
+      return;
+    }
+  
+    const newAddress = inputText[1];
+  
+    // Validate the new address
+    if (!ethers.isAddress(newAddress)) {
+      ctx.reply('🔴Invalid address. Please provide a valid EVM public wallet address.');
+      return;
+    }
+  
+    // SQL query to insert or update the wallet address
+    const query = `
+      INSERT INTO user_profile (user_id, public_address, platform) 
+      VALUES (?, ?, ?) 
+      ON DUPLICATE KEY UPDATE public_address = VALUES(public_address);    
+    `;
+  
+    try {
+      await connection.query(query, [telegram_id, newAddress, 'telegram', newAddress]);
+      ctx.reply(`✅Wallet address updated to ${newAddress}`);
+    } catch (error) {
+      console.error('Failed to update the wallet address:', error);
+      ctx.reply('🔴An error occurred while updating your wallet address.');
     }
   });
 };
-
-//           ctx.reply('Please enter the transaction hash:', Markup
-//   //[transaction hash](https://etherscan.io/address/${data.public_address}#tokentxns) 
-//           .keyboard(['/cancel'])
-//           .oneTime()
-//           .resize()
-//           );
-//         }
-//       } else if (!data.txn_hash) {
-//         data.txn_hash = response;
-//         if (!await checkTxHash(data.txn_hash)) {
-//             ctx.reply('Invalid or failed transaction hash. Please make sure the transaction is complete and provide the transaction hash again.', Markup
-//             .keyboard(['/cancel'])
-//             .oneTime()
-//             .resize()
-//             );
-//             delete data.txn_hash;
-//             return;
-//         } else {
-//           const etherscanResponse = await axios.get(`https://api.etherscan.io/api?module=account&action=tokentx&address=${data.public_address}&startblock=0&endblock=27025780&sort=asc&apikey=${process.env.ETHERSCAN_API_KEY}`);
-//           const transactions = etherscanResponse.data.result;
-//           const txnData = transactions.find(txn => txn.hash === data.txn_hash);
-//           const toAddressCheck = await txnData.to.toLowerCase() === process.env.OTHUB_WALLET.toLowerCase()
-//           const fromAddressCheck = await txnData.from.toLowerCase() === data.public_address.toLowerCase()
-//           if (!await txnData) {
-//             ctx.reply('Transaction not found. Please check the transaction hash and try again.', Markup
-//             .keyboard(['/cancel'])
-//             .oneTime()
-//             .resize()
-//             );
-//             delete txnData;
-//             return;
-//           } else if (!toAddressCheck) {
-//               ctx.reply('Transaction was not sent to the correct address. Please check and try again.', Markup
-//               .keyboard(['/cancel'])
-//               .oneTime()
-//               .resize()
-//               );
-//               delete txnData;
-//               return;
-//             } else if (!fromAddressCheck) {
-//                 ctx.reply('Transaction was not initiated from the provided address. Please check and try again.', Markup
-//                 .keyboard(['/cancel'])
-//                 .oneTime()
-//                 .resize()
-//                 );
-//                 delete txnData;
-//                 return;
-//               } else {
-//                 connection.query('SELECT * FROM fund_records WHERE txn_hash = ?', [data.txn_hash], function(error, results, fields) {
-//                 if (error) {
-//                   console.error('Error fetching transaction data:', error);
-//                   return;
-//                 }
-//                 });
-//                 if (results.length !== 0 || !results.every(row => Object.values(row).every(value => value === null))) {
-//                   ctx.reply('This transaction has already been processed and credited.');
-//                   return;
-//                 } else {
-//                   ctx.reply('Your credit has been added to your balance.');
-
-//                   const tokenSymbol = txnData.tokenSymbol;
-
-//                   const query = `
-//                     INSERT INTO fund_records (telegram_id, txn_hash, block_number, timestamp, from_address, to_address, value, currency, txn_fee, status)
-//                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-//                   connection.query(query, [
-//                     telegramId, 
-//                     data.txn_hash, 
-//                     txnData.blockNumber, 
-//                     txnData.timeStamp, 
-//                     txnData.from, 
-//                     txnData.to, 
-//                     txnData.value, 
-//                     tokenSymbol,
-//                     txnData.gasUsed,
-//                     'success'
-//                   ]);
-
-//                   ctx.session.balanceOperations = {};
-//                 }
-//               }
-            
-          
-//         }
-//       }
-//     });
-//   async function checkTxHash(txHash) {
-//     try {
-//       const response = await axios.get(`https://api.etherscan.io/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}&apikey=${process.env.ETHERSCAN_API_KEY}`);
-//       return response.data.result.status === '1';
-//     } catch (error) {
-//       console.error('Error:', error);
-//       return false;
-//     }
-//   }
-// };

@@ -225,19 +225,8 @@ module.exports = function createCommand(bot) {
             }
         };
 
-//         const previewMessage = `
-// Publish preview:
-// Public Address: ${public_address}
-// Network: ${network}
-// Data: ${txn_data}
-// Description: ${txn_description}
-// Keywords: ${keywords}
-// Epochs: ${epochs}`;
-
-//         ctx.reply(previewMessage);
-
         try {
-            const processingMessage = await ctx.reply(`Your current balance is: ${balance.toFixed(2)}USD.\nProcessing your request, please wait a few minutes...`);
+            const processingMessage = await ctx.reply(`⚖️Your current balance is: ${balance.toFixed(2)}USD.\nProcessing your request, please wait a few minutes...`);
 
             let bidSuggestionUrl = 'https://api.othub.io/dkg/getBidSuggestion';
 
@@ -270,10 +259,10 @@ module.exports = function createCommand(bot) {
             const costInUsd = costInTrac * tracPriceUsd;
             const crowdfundInUsd = 0.10 * tracPriceUsd;
             const totalCostInUsd = tracPriceUsd + crowdfundInUsd
-            console.log(`telegram_id: ${telegram_id}, tracPriceUsd: ${tracPriceUsd}, assetSize: ${assetSize}, bidSuggestion: ${bidSuggestion}, costInTrac: ${costInTrac}, costInUsd: ${costInUsd}, crowdfundInUsd: ${crowdfundInUsd}, totalCostInUsd: ${totalCostInUsd}`)
+            console.log(`Command: create for telegram_id: ${telegram_id}\nAsset info:\ntracPriceUsd: ${tracPriceUsd}, assetSize: ${assetSize}, bidSuggestion: ${bidSuggestion}, costInTrac: ${costInTrac}, costInUsd: ${costInUsd}, crowdfundInUsd: ${crowdfundInUsd}, totalCostInUsd: ${totalCostInUsd}`)
             console.log(txn_data);
             if (costInUsd >= balance) {
-                ctx.reply(`Insufficient balance to create Knowledge Asset.\n\nCost: ${costInUsd}\nCurrent Balance: ${balance.toFixed(2)}\n\nPlease use /start to refill your balance.`);
+                ctx.reply(`🔴🔴 Insufficient balance to create Knowledge Asset !🔴🔴\n\n🪙Cost: ${costInUsd}\n⚖️Current Balance: ${balance.toFixed(2)}\n\nPlease use /start to refill your balance.`);
                 return;
             }
 
@@ -324,8 +313,8 @@ module.exports = function createCommand(bot) {
                         await insertRecord();            
 
                         const newBalance = await checkBalance(userId);
-                        await ctx.reply(`Transaction successfully queued!\n\nHere is your receipt:\n${receiptObject}\n\nNew Balance:\n${newBalance.toFixed(2)}\n\nPlease hold while the Knowledge Asset is being created...`)
-            
+                        await ctx.reply(`⚖️New Balance: ${newBalance.toFixed(2)}USD\n🪙Cost: ${costInUsd.toFixed(2)}USD`);
+                        await ctx.reply(`🟢 Transaction successfully queued\\!🟢\n\n🧾Here is your receipt\\:\n\`\`\`${receiptObject}\`\`\`\n\nCheck your /receipt or wait while your Knowledge Asset is being created\\.\\.\\.`, { parse_mode: 'MarkdownV2' });
                     }
                 })
                 .catch(async (err) => {
@@ -335,39 +324,6 @@ module.exports = function createCommand(bot) {
             ctx.reply(`Oops, something went wrong. The error is:\n${err.message}`);
         }        
     });
-
-    // const checkTransaction = async (receipt) => {
-    //     const URL = 'https://api.othub.io/dkg/checkTransaction';
-    //     const body = { receipt };
-    //     const headers = { 'x-api-key': process.env.API_KEY };
-      
-    //     try {
-    //       const responseData = await axios.post(URL, body, { headers });
-    //       if (responseData.status === 200) {
-    //         return responseData.data;
-    //       } else {
-    //         return null;
-    //       }
-    //     } catch (error) {
-    //       console.error('Error while checking receipt:', error);
-    //       return null;
-    //     }
-    //   };
-
-    //   const checkAllTransactions = async () => {
-    //     for (const [userID, transactions] of Object.entries(ongoingTransactions)) {
-    //       for (const transaction of transactions) {
-    //         if (transaction.status !== 'complete') {
-    //           const response = await checkTransaction(transaction.receipt);
-    //           if (response && response.status === 'COMPLETE') {
-    //             transaction.status = 'complete';
-    //             const newBalance = await checkBalance(userID);
-    //             bot.telegram.sendMessage(userID, `Your transaction with receipt ${transaction.receipt} is complete!\n\nNew Balance:\n${newBalance}\n\nThe UAL created is ${transaction.UAL}.\n\nFor more details, consult: ${transaction.othub}\nor\n${transaction.explorer}`);
-    //           }
-    //         }
-    //       }
-    //     }
-    //   };      
 
     function isValidJSON(input) {
         if (typeof input === 'object') {
