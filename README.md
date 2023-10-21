@@ -79,6 +79,8 @@ Here is a list of functional commands:
 
 /create - Create Knowledge Assets on the DKG
 
+/receipt - Check the receipt status of your Knowledge Asset
+
 ##### **Advanced Network Statistics**
 /pubsgraph - Show total network pubs over time
 
