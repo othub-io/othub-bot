@@ -4,7 +4,6 @@ const queryTypes = require('../util/queryTypes');
 const axios = require('axios');
 const { getCoinPrice } = require('./getCoinPrice');
 const assertionMetadata = require('./assertionMetadata');
-const { error } = require('shelljs');
 
 const connection = mysql.createConnection({
   host: process.env.DBHOST,
