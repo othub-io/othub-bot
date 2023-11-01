@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const { Telegraf,session } = require('telegraf')
+const { Telegraf,session,Markup } = require('telegraf')
 const bot = new Telegraf(process.env.BOT_TOKEN, { handlerTimeout: 1000_000 });
 const cron = require('node-cron')
 const fs = require('fs');
@@ -176,33 +176,118 @@ bot.on('new_chat_members', (ctx) => {
   if (ctx.chat.id == process.env.OTHUB_ID) {
     const firstName = ctx.message.new_chat_member.first_name;
 
-    const welcomeMessage = `Hello, ${firstName}! 👋\n\nWelcome to the Official OTHub Channel!\n
-Before you start, please take a moment to review the rules:\n
-1️⃣ Be respectful: Each member of this community is expected to maintain a respectful and considerate tone when communicating with others.
-2️⃣ Keep it professional: This is a professional community focused on OTHub's development. Please keep discussions focused on development topics and refrain from unrelated or inappropriate content.
-3️⃣ No spam or self-promotion: Spamming and self-promotion are not allowed. Please do not share irrelevant links or promote personal projects.
-4️⃣ Seek to contribute: Aim to contribute positively to the discussions. Your insights and experiences can be of great value to others!
+    const welcomeMessage = `👋Hello, @${firstName}\n\nWelcome to the Official OTHub Channel!\n
+📋Please take a moment to review the rules:\n
+📋<b>Please review the rules:</b>
+1️⃣ Be respectful: Zero tolerance to verbal harassment.
+2️⃣ Stay on topic: Keep discussions focused on OriginTrail.
+3️⃣ No spam or self-promotion.
 
-Remember, violation of these rules may result in your removal from the community. By remaining in this community, you agree to abide by these rules.
+❗️By remaining in this channel, you agree to abide by these rules.
 
-Useful links:
-1️⃣ <a href="https://othub.io">OTHub Official Website</a>
-2️⃣ <a href="https://github.com/othub-io">OTHub GitHub</a>
-3️⃣ <a href="https://origintrail.io">OriginTrail Official Website</a>
-4️⃣ <a href="https://dkg.origintrail.io/">DKG Explorer</a>
-5️⃣ <a href="https://origintrail.subscan.io/">OriginTrail Subscan</a>
-6️⃣ <a href="https://docs.origintrail.io/">OriginTrail Docs</a>
-7️⃣ <a href="https://deepdive.origintrail.club">OriginTrail DeepDive</a>
-8️⃣ <a href="https://tracverse.com">TracVerse</a>
+🎙️For our latest news, you can follow our Twitter!
 
-For more interactions with @othubbot, please type: /commands`;
+🤖For more interactions with @othubbot, press /commands`;
 
-  ctx.replyWithHTML(welcomeMessage).then((messageSent) => {
+ctx.replyWithHTML(welcomeMessage,Markup.inlineKeyboard([
+  [
+    Markup.button.url('OTHub', 'https://othub.io'),
+    Markup.button.url('Github', 'https://github.com/othub-io'),
+    Markup.button.url('Twitter', 'https://twitter.com/OTHub_io'),
+  ],
+  [
+    Markup.button.url('Postman', 'https://www.postman.com/crimson-crescent-721757/workspace/othub-api'),
+    Markup.button.url('Charts', 'https://othub.io/charts'),
+    Markup.button.url('Donations', 'https://othub.io/donations')
+  ],
+])).then((messageSent) => {
   setTimeout(() => {
       ctx.deleteMessage(messageSent.message_id);
   }, process.env.DELETE_TIMER);
   }).catch(console.error);
-  }
+  } else if (ctx.chat.id == process.env.ORIGINTRAIL_ID) {
+    const firstName = ctx.message.new_chat_member.first_name;
+
+    const welcomeMessage = `👋Hello, @${firstName}\n\n<b>Welcome to the Official OriginTrail Channel!</b>\n
+📋<b>Please review the rules:</b>
+1️⃣ Be respectful: Zero tolerance to verbal harassment.
+2️⃣ Stay on topic: Keep discussions focused on OriginTrail.
+3️⃣ No spam or self-promotion.
+4️⃣ No price talk.
+
+❗️By remaining in this channel, you agree to abide by these rules.
+
+🎙️For our latest news, you can follow our Twitter or Announcement Channel.`;
+
+ctx.replyWithHTML(welcomeMessage,Markup.inlineKeyboard([
+  [
+    Markup.button.url('Official', 'https://origintrail.io'),
+    Markup.button.url('Parachain', 'https://parachain.origintrail.io/'),
+    Markup.button.url('Whitepaper', 'https://www.origintrail.io/ecosystem/whitepaper')
+  ],
+  [
+    Markup.button.url('Docs', 'https://docs.origintrail.io'),
+    Markup.button.url('GitHub', 'https://github.com/origintrail'),
+    Markup.button.url('Explorer', 'https://dkg.origintrail.io/')
+  ],
+  [
+    Markup.button.url('Trace Labs', 'https://tracelabs.io/'),
+    Markup.button.url('Medium', 'https://medium.com/origintrail'),
+    Markup.button.url('YouTube', 'https://www.youtube.com/c/OriginTrail')
+  ],
+  [
+    Markup.button.url('Twitter', 'https://twitter.com/origin_trail'),
+    Markup.button.url('Discord', 'https://discord.com/invite/FCgYk2S'),
+    Markup.button.url('Reddit', 'https://www.reddit.com/r/OriginTrail/')
+  ],
+  [
+    Markup.button.url('Deepdive', 'https://deepdive.origintrail.club/'),
+    Markup.button.url('TracVerse', 'https://tracverse.com/'),
+    Markup.button.url('OTHub', 'https://othub.io')
+  ]
+])).then((messageSent) => {
+  setTimeout(() => {
+      ctx.deleteMessage(messageSent.message_id);
+  }, process.env.DELETE_TIMER);
+  }).catch(console.error);
+  } else if (ctx.chat.id == process.env.OTC_ID) {
+    const firstName = ctx.message.new_chat_member.first_name;
+    const welcomeMessage = `👋Hello, @${firstName}\n\n<b>Welcome to the OriginTrail Club Community Channel!</b>\n
+📋<b>Please review the rules:</b>
+1️⃣ Be respectful: Zero tolerance to verbal harassment.
+2️⃣ Stay on topic: Keep discussions focused on OriginTrail.
+3️⃣ No spam or self-promotion.
+
+❗️By remaining in this channel, you agree to abide by these rules.
+
+🤖For more interactions with @othubbot, press /commands`;
+ctx.replyWithHTML(welcomeMessage,Markup.inlineKeyboard([
+  [
+    Markup.button.url('Whitepaper', 'https://www.origintrail.io/ecosystem/whitepaper'),
+    Markup.button.url('$TRAC', 'https://www.coingecko.com/en/coins/origintrail'),
+    Markup.button.url('Official', 'https://origintrail.io'),
+  ],
+  [
+    Markup.button.url('DeepDive', 'https://deepdive.origintrail.club/'),
+    Markup.button.url('TracVerse', 'https://tracverse.com/'),
+    Markup.button.url('OTHub', 'https://othub.io')
+  ],
+  [
+    Markup.button.url('Etherscan', 'https://etherscan.io/token/0xaa7a9ca87d3694b5755f213b5d04094b8d0f0a6f'),
+    Markup.button.url('Gnosis', 'https://gnosisscan.io/token/0xeddd81e0792e764501aae206eb432399a0268db5'),
+    Markup.button.url('Subscan', 'https://origintrail.subscan.io/token/0xffffffff00000000000000000000000000000001')
+  ],
+  [
+    Markup.button.url('UniSwap', 'https://app.uniswap.org/swap?inputCurrency=0xaa7a9ca87d3694b5755f213b5d04094b8d0f0a6f&outputCurrency=ETH'),
+    Markup.button.url('Coinbase', 'https://pro.coinbase.com/trade/TRAC-USD'),
+    Markup.button.url('Kucoin', 'https://www.kucoin.com/trade/TRAC-USDT'),
+  ]
+])).then((messageSent) => {
+    setTimeout(() => {
+        ctx.deleteMessage(messageSent.message_id);
+    }, process.env.DELETE_TIMER);
+    }).catch(console.error);
+    } 
 });
 
 ////////////////Glossary
@@ -219,10 +304,14 @@ bot.command('glossary', async (ctx) => {
     await ctx.deleteMessage()
     return
   }
-  let message = "Here's a list of OriginTrail terms:\n";
+  let message = "📃Here's a list of OriginTrail terms:\n";
   for (let term in glossary) {
     message += `/${term.replace(" ", "_")}\n`;
   }
+  const lines = message.split('\n');
+  lines.splice(-4, 4); // This removes the last two elements of the array
+  message = lines.join('\n');
+
   const botmessage = await ctx.reply(message);
 });
 
