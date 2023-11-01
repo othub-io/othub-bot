@@ -1,8 +1,7 @@
 module.exports = {
-    'othub': '@othubbot landing page',
-    'knowledge': 'Start of the journey',
-    'start': 'Link your Telegram ID with your public wallet for funding',
-    'balance': 'Create Knowledge Assets on the DKG',
+    'othub': 'othubbot landing page',
+    'wallet': 'Link your Telegram ID with your public wallet for funding',
+    'balance': 'View your balance',
     'fund': 'Fund your wallet with test balance',
     'create': 'Create Knowledge Assets on the DKG',
     'pubsgraph': 'Show total network pubs over time',
