@@ -173,7 +173,7 @@ bot.command('kitty', async ctx => {
 
 ////////////////New Chat Member Welcome Message
 bot.on('new_chat_members', (ctx) => {
-  if (ctx.chat.id == process.env.OTHUB_ID) {
+  if ( ctx.chat.id == process.env.OTHUB_ID ) {
     const firstName = ctx.message.new_chat_member.first_name;
 
     const welcomeMessage = `👋Hello, @${firstName}\n\nWelcome to the Official OTHub Channel!\n
@@ -205,7 +205,7 @@ ctx.replyWithHTML(welcomeMessage,Markup.inlineKeyboard([
       ctx.deleteMessage(messageSent.message_id);
   }, process.env.DELETE_TIMER);
   }).catch(console.error);
-  } else if (ctx.chat.id == process.env.ORIGINTRAIL_ID) {
+  } else if (ctx.chat.id == process.env.ORIGINTRAIL_ID ) {
     const firstName = ctx.message.new_chat_member.first_name;
 
     const welcomeMessage = `👋Hello, @${firstName}\n\n<b>Welcome to the Official OriginTrail Channel!</b>\n
