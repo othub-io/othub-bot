@@ -10,7 +10,7 @@ const pool = mysql.createPool({
 
 function getLastHourStats() {
   return new Promise((resolve, reject) => {
-    pool.query('SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM otp_sync_rpc.v_pubs_stats_last1h', (error, results) => {
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM v_pubs_stats_last1h`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -22,7 +22,7 @@ function getLastHourStats() {
 
 function getLast24HourStats() {
   return new Promise((resolve, reject) => {
-    pool.query('SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM otp_sync_rpc.v_pubs_stats_last24h', (error, results) => {
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM v_pubs_stats_last24h`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -34,7 +34,7 @@ function getLast24HourStats() {
 
 function getLastWeekStats() {
   return new Promise((resolve, reject) => {
-    pool.query('SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM otp_sync_rpc.v_pubs_stats_last7d', (error, results) => {
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM v_pubs_stats_last7d`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -46,7 +46,7 @@ function getLastWeekStats() {
 
 function getLastMonthStats() {
   return new Promise((resolve, reject) => {
-    pool.query('SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM otp_sync_rpc.v_pubs_stats_last30d', (error, results) => {
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM v_pubs_stats_last30d`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -58,7 +58,7 @@ function getLastMonthStats() {
 
 function getTotalStats() {
   return new Promise((resolve, reject) => {
-    pool.query('select avg(size) as avgPubSize, avg(epochs_number) as avgEpochsNumber, avg(token_amount) as avgPubPrice, avg(bid)  as avgBid, count(*) as totalPubs, sum(token_amount) as totalTracSpent from v_pubs', (error, results) => {
+    pool.query(`select avg(size) as avgPubSize, avg(epochs_number) as avgEpochsNumber, avg(token_amount) as avgPubPrice, avg(bid)  as avgBid, count(*) as totalPubs, sum(token_amount) as totalTracSpent from v_pubs`, (error, results) => {
       if (error) {
         reject(error);
       } else {
