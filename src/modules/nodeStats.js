@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
 
 exports.lastHourNodeStats = (tokenSymbol, callback) => {
     connection.query(
-      `SELECT * FROM otp_sync_rpc.v_nodes_stats_last1h WHERE tokenSymbol = ?`,
+      `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last1h WHERE tokenSymbol = ?`,
       [tokenSymbol],
       (error, results, fields) => {
         if (error) {
@@ -36,7 +36,7 @@ exports.lastHourNodeStats = (tokenSymbol, callback) => {
 
 exports.lastDayNodeStats = (tokenSymbol, callback) => {
     connection.query(
-      `SELECT * FROM otp_sync_rpc.v_nodes_stats_last24h WHERE tokenSymbol = ?`,
+      `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last24h WHERE tokenSymbol = ?`,
       [tokenSymbol],
       (error, results, fields) => {
         if (error) {
@@ -64,7 +64,7 @@ exports.lastDayNodeStats = (tokenSymbol, callback) => {
   
 exports.lastWeekNodeStats = (tokenSymbol, callback) => {
   connection.query(
-    `SELECT * FROM otp_sync_rpc.v_nodes_stats_last7d WHERE tokenSymbol = ?`,
+    `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last7d WHERE tokenSymbol = ?`,
     [tokenSymbol],
     (error, results, fields) => {
       if (error) {
@@ -92,7 +92,7 @@ exports.lastWeekNodeStats = (tokenSymbol, callback) => {
   
 exports.lastMonthNodeStats = (tokenSymbol, callback) => {
   connection.query(
-    `SELECT * FROM otp_sync_rpc.v_nodes_stats_last30d WHERE tokenSymbol = ?`,
+    `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last30d WHERE tokenSymbol = ?`,
     [tokenSymbol],
     (error, results, fields) => {
       if (error) {
@@ -120,7 +120,7 @@ exports.lastMonthNodeStats = (tokenSymbol, callback) => {
 
 exports.NodeStats = (tokenSymbol, callback) => {
   connection.query(
-    `SELECT * FROM otp_sync_rpc.v_nodes_stats_latest WHERE tokenSymbol = ?`,
+    `SELECT * FROM sync_otp_mainnet.v_nodes_stats_latest WHERE tokenSymbol = ?`,
     [tokenSymbol],
     (error, results, fields) => {
       if (error) {
