@@ -12,9 +12,9 @@ const connection = mysql.createConnection({
   database: process.env.PAYMENT_DB,
 });
 
-function cleanJson(jsonString) {
+function cleanJson(jsonStringParsed) {
     // Step 1: Remove extra whitespace
-    let cleaned = jsonString.trim().replace(/\s+/g, ' ');
+    let cleaned = jsonStringParsed.trim().replace(/\s+/g, ' ');
 
     // Step 2: Remove line breaks
     cleaned = cleaned.replace(/(\r\n|\n|\r)/gm, "");
@@ -23,6 +23,36 @@ function cleanJson(jsonString) {
     cleaned = cleaned.replace(/[\u200B-\u200D\uFEFF]/g, '');
 
     return cleaned;
+}
+
+function extractJSONparsed(str) {
+    const stack = [];
+    let jsonStartIndex = -1;
+    let jsonEndIndex = -1;
+    
+    for (let i = 0; i < str.length; i++) {
+        if (str[i] === '{') {
+            if (stack.length === 0) {
+                jsonStartIndex = i;
+            }
+            stack.push('{');
+        } else if (str[i] === '}') {
+            stack.pop();
+            if (stack.length === 0) {
+                jsonEndIndex = i;
+                break;
+            }
+        }
+    }
+
+    if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
+        const jsonStr = str.slice(jsonStartIndex, jsonEndIndex + 1);
+        const cleanedJson = cleanJson(jsonStr);
+        return JSON.parse(cleanedJson);
+        //return JSON.parse(jsonStr);
+    } else {
+        return null;
+    }
 }
 
 function extractJSON(str) {
@@ -48,8 +78,7 @@ function extractJSON(str) {
     if (jsonStartIndex !== -1 && jsonEndIndex !== -1) {
         const jsonStr = str.slice(jsonStartIndex, jsonEndIndex + 1);
         const cleanedJson = cleanJson(jsonStr);
-        return JSON.parse(cleanedJson);
-        //return JSON.parse(jsonStr);
+        return cleanedJson;
     } else {
         return null;
     }
@@ -133,6 +162,7 @@ module.exports = function createCommand(bot) {
         }
 
         const inputString = ctx.message.text;
+        const jsonStringParsed = extractJSONparsed(inputString);
         const jsonString = extractJSON(inputString);
 
         const data = {
@@ -140,7 +170,7 @@ module.exports = function createCommand(bot) {
             keywords: '',
             epochs: '5',
             network: 'otp::testnet',
-            txn_data: jsonString
+            txn_data: jsonStringParsed
         };
         
         const flagMatch = inputString.match(/(-A|--asset)(\s+)/i);
@@ -231,7 +261,7 @@ module.exports = function createCommand(bot) {
 
             let bidSuggestionPostData = {
                 network: network,
-                asset: txn_data,
+                asset: jsonString,
                 epochs: epochs
             };
             
