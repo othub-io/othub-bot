@@ -136,7 +136,7 @@ module.exports = function createCommand(bot) {
                 '🛠 To */create* a Knowledge Asset, please provide the following:\n\n' +
                 '❗️ *Required:*\n' +
                 '-A, --data <data in JSON>\n' +
-                '-N, --network <otp::mainnet or otp::testnet> (only otp::testnet available for now)\n' +
+                '-N, --network <otp::20430 or gnosis::10200> (only otp and gnosis testnets available for now)\n' +
                 '-W, --wallet <recipient address>\n\n' +
                 '⭕️ *Optional:*\n' +
                 '-D, --description <transaction description>\n' +

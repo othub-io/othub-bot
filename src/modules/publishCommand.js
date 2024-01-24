@@ -15,7 +15,6 @@ const connection = mysql.createConnection({
 const optionalQuestions = {
   txn_description: 'Transaction Description',
   keywords: 'Keywords',
-  trac_fee: 'TRAC Fee',
   epochs: 'Epochs (default: 5)',
 };
 
@@ -123,8 +122,8 @@ module.exports = function publishCommand(bot) {
           [telegramId, 'publish', 'telegram', data.public_address, data.public_address]
         );
       };
-      ctx.reply('Please select the network (otp::testnet or otp::mainnet).', Markup
-        .keyboard(['otp::testnet', 'otp::mainnet', '/cancel'])
+      ctx.reply('Please select the network (OTP testnet, OTP mainnet, Gnosis testnet, Gnosis mainnet respectively).', Markup
+        .keyboard(['otp::20430', 'otp::2043', 'gnosis::10200', 'gnosis::100', '/cancel'])
         .oneTime()
         .resize()
       );
@@ -163,13 +162,12 @@ module.exports = function publishCommand(bot) {
       const previewText = `
 Please confirm the following data before publishing:
       
-Public Address: ${public_address}
+Approver: ${public_address}
 Network: ${network}
-Transaction Data:
+Asset:
 ${formattedTxnData}
 Transaction Description: ${txn_description || 'None'}
 Keywords: ${keywords || 'None'}
-TRAC Fee: ${trac_fee || 'Default'}
 Epochs: ${epochs || '5'}`;
       ctx.reply(previewText, Markup
         .keyboard(['yes', 'no', '/cancel'])
@@ -178,13 +176,13 @@ Epochs: ${epochs || '5'}`;
       );
     } else if (response === 'yes' || response === 'no') {
         if (response === 'yes') {
-          const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
+          const { public_address, network, txn_data, txn_description, keywords, epochs } = data;
           
-          let URL = `https://api.othub.io/otp/dkg/create`;
+          let URL = `https://api.othub.io/dkg/create`;
           
           let postData = {
-            public_address: public_address,
-            txn_data: txn_data,
+            approver: public_address,
+            asset: txn_data,
             network: network
           };
 
@@ -194,10 +192,6 @@ Epochs: ${epochs || '5'}`;
           
           if(keywords) {
             URL += `&keywords=${keywords}`;
-          }
-          
-          if(trac_fee) {
-            URL += `&trac_fee=${trac_fee}`;
           }
           
           if(epochs) {
@@ -247,13 +241,13 @@ Epochs: ${epochs || '5'}`;
 
       if (data.confirm !== undefined) {
         if (data.confirm) {
-        const { public_address, network, txn_data, txn_description, keywords, trac_fee, epochs } = data;
+        const { public_address, network, txn_data, txn_description, keywords, epochs } = data;
 
-        let URL = `https://api.othub.io/otp/dkg/create`;
+        let URL = `https://api.othub.io/dkg/create`;
           
           let postData = {
-            public_address: public_address,
-            txn_data: txn_data,
+            approver: public_address,
+            asset: txn_data,
             network: network
           };
 
@@ -263,10 +257,6 @@ Epochs: ${epochs || '5'}`;
           
           if(keywords) {
             URL += `&keywords=${keywords}`;
-          }
-          
-          if(trac_fee) {
-            URL += `&trac_fee=${trac_fee}`;
           }
           
           if(epochs) {
