@@ -123,7 +123,7 @@ module.exports = function publishCommand(bot) {
         );
       };
       ctx.reply('Please select the network (OTP testnet, OTP mainnet, Gnosis testnet, Gnosis mainnet respectively).', Markup
-        .keyboard(['otp::20430', 'otp::2043', 'gnosis::10200', 'gnosis::100', '/cancel'])
+        .keyboard(['otp:20430', 'otp:2043', 'gnosis:10200', 'gnosis:100', '/cancel'])
         .oneTime()
         .resize()
       );

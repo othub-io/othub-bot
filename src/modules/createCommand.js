@@ -136,7 +136,7 @@ module.exports = function createCommand(bot) {
                 '🛠 To */create* a Knowledge Asset, please provide the following:\n\n' +
                 '❗️ *Required:*\n' +
                 '-A, --data <data in JSON>\n' +
-                '-N, --network <otp::20430 or gnosis::10200> (only otp and gnosis testnets available for now)\n' +
+                '-N, --network <otp:20430 or gnosis:10200> (only otp and gnosis testnets available for now)\n' +
                 '-W, --wallet <recipient address>\n\n' +
                 '⭕️ *Optional:*\n' +
                 '-D, --description <transaction description>\n' +
@@ -223,8 +223,8 @@ module.exports = function createCommand(bot) {
             return ctx.reply('Error 3: Invalid or missing JSON data. Try /jsonld for help.');
         }
 
-        if (!['otp::testnet', 'otp::mainnet'].includes(data.network)) {
-            return ctx.reply('Invalid network. Choose either otp::testnet or otp::mainnet.');
+        if (!['otp:20430', 'gnosis:10200'].includes(data.network)) {
+            return ctx.reply('Invalid network. Choose either otp:20430 or gnosis:10200.');
         }
 
         if (data.keywords && !isValidKeywords(data.keywords)) {
