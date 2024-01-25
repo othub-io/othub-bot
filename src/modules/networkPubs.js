@@ -5,12 +5,12 @@ const pool = mysql.createPool({
   host: process.env.DBHOST,
   user: process.env.DBUSER,
   password: process.env.DBPASSWORD,
-  database: process.env.SYNC_DB,
+  database: process.env.DKG_DB,
 });
 
 function getLastHourStats() {
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM v_pubs_stats_last1h`, (error, results) => {
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last1h`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -22,7 +22,7 @@ function getLastHourStats() {
 
 function getLast24HourStats() {
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM v_pubs_stats_last24h`, (error, results) => {
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last24h`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -34,7 +34,7 @@ function getLast24HourStats() {
 
 function getLastWeekStats() {
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM v_pubs_stats_last7d`, (error, results) => {
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last7d`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -46,7 +46,7 @@ function getLastWeekStats() {
 
 function getLastMonthStats() {
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent FROM v_pubs_stats_last30d`, (error, results) => {
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last30d`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -58,7 +58,7 @@ function getLastMonthStats() {
 
 function getTotalStats() {
   return new Promise((resolve, reject) => {
-    pool.query(`select avg(size) as avgPubSize, avg(epochs_number) as avgEpochsNumber, avg(token_amount) as avgPubPrice, avg(bid)  as avgBid, count(*) as totalPubs, sum(token_amount) as totalTracSpent from v_pubs`, (error, results) => {
+    pool.query(`SELECT * FROM v_pubs_stats_total`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -78,6 +78,7 @@ async function fetchAndSendHourlyPubs(ctx) {
   const avgPubSize = parseFloat(lastHourStats.avgPubSize).toFixed(2);
   const avgBid = parseFloat(lastHourStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(lastHourStats.avgEpochsNumber);
+  const privatePubsPercentage = parseInt(lastHourStats.privatePubsPercentage);
 
   let totalPubsEmoji = totalPubs > 900 ? '🚀' : totalPubs >= 700 ? '✈️' : totalPubs >= 500 ? '🚁' : totalPubs >= 300 ? '🎈' : '☠️';
   let totalTracSpentEmoji = totalTracSpent > 125 ? '🤑' : totalTracSpent >= 100 ? '💰' : totalTracSpent >= 75 ? '💸' : totalTracSpent >= 50 ? '💵' : '🪙';
@@ -90,7 +91,8 @@ ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-⏰Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}
+👀Private Pubs: ${privatePubsPercentage}%`;
 
   await ctx.reply(message);
 }
@@ -103,6 +105,7 @@ async function fetchAndSendDailyPubs(ctx) {
   const avgPubSize = parseFloat(last24HourStats.avgPubSize).toFixed(2);
   const avgBid = parseFloat(last24HourStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(last24HourStats.avgEpochsNumber);
+  const privatePubsPercentage = parseInt(last24HourStats.privatePubsPercentage);
 
   let totalPubsEmoji = totalPubs > 20000 ? '🚀' : totalPubs >= 15000 ? '✈️' : totalPubs >= 10000 ? '🚁' : totalPubs >= 5000 ? '🎈' : '☠️';
   let totalTracSpentEmoji = totalTracSpent > 3000 ? '🤑' : totalTracSpent >= 2400 ? '💰' : totalTracSpent >= 1800 ? '💸' : totalTracSpent >= 1200 ? '💵' : '🪙';
@@ -115,7 +118,8 @@ ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-⏰Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}
+👀Private Pubs: ${privatePubsPercentage}%`;
 
   await ctx.reply(message);
 }
@@ -128,6 +132,7 @@ async function fetchAndSendWeeklyPubs(ctx) {
   const avgPubSize = parseFloat(lastWeekStats.avgPubSize).toFixed(2);
   const avgBid = parseFloat(lastWeekStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(lastWeekStats.avgEpochsNumber);
+  const privatePubsPercentage = parseInt(lastWeekStats.privatePubsPercentage);
 
   let totalPubsEmoji = totalPubs > 140000 ? '🚀' : totalPubs >= 105000 ? '✈️' : totalPubs >= 70000 ? '🚁' : totalPubs >= 35000 ? '🎈' : '☠️';
   let totalTracSpentEmoji = totalTracSpent > 21000 ? '🤑' : totalTracSpent >= 16800 ? '💰' : totalTracSpent >= 12600 ? '💸' : totalTracSpent >= 8400 ? '💵' : '🪙';
@@ -140,7 +145,8 @@ ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-⏰Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}
+👀Private Pubs: ${privatePubsPercentage}%`;
 
   await ctx.reply(message);
 }
@@ -153,6 +159,7 @@ async function fetchAndSendMonthlyPubs(ctx) {
   const avgPubSize = parseFloat(lastMonthStats.avgPubSize).toFixed(2);
   const avgBid = parseFloat(lastMonthStats.avgBid).toFixed(2);
   const avgEpochs = Math.round(lastMonthStats.avgEpochsNumber);
+  const privatePubsPercentage = parseInt(lastMonthStats.privatePubsPercentage);
 
   let totalPubsEmoji = totalPubs > 600000 ? '🚀' : totalPubs >= 450000 ? '✈️' : totalPubs >= 300000 ? '🚁' : totalPubs >= 150000 ? '🎈' : '☠️';
   let totalTracSpentEmoji = totalTracSpent > 90000 ? '🤑' : totalTracSpent >= 72000 ? '💰' : totalTracSpent >= 54000 ? '💸' : totalTracSpent >= 36000 ? '💵' : '🪙';
@@ -165,19 +172,21 @@ ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-⏰Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}
+👀Private Pubs: ${privatePubsPercentage}%`;
 
   await ctx.reply(message);
 }
 
 async function fetchAndSendTotalPubs(ctx) {
-  const lastTotalStats = await getTotalStats();
-  const totalPubs = lastTotalStats.totalPubs;
-  const totalTracSpent = parseInt(lastTotalStats.totalTracSpent);
-  const avgPubPrice = parseFloat(lastTotalStats.avgPubPrice).toFixed(2);
-  const avgPubSize = parseFloat(lastTotalStats.avgPubSize).toFixed(2);
-  const avgBid = parseFloat(lastTotalStats.avgBid).toFixed(2);
-  const avgEpochs = Math.round(lastTotalStats.avgEpochsNumber);
+  const TotalStats = await getTotalStats();
+  const totalPubs = TotalStats.totalPubs;
+  const totalTracSpent = parseInt(TotalStats.totalTracSpent);
+  const avgPubPrice = parseFloat(TotalStats.avgPubPrice).toFixed(2);
+  const avgPubSize = parseFloat(TotalStats.avgPubSize).toFixed(2);
+  const avgBid = parseFloat(TotalStats.avgBid).toFixed(2);
+  const avgEpochs = Math.round(TotalStats.avgEpochsNumber);
+  const privatePubsPercentage = TotalStats.privatePubsPercentage;
 
   let totalPubsEmoji = totalPubs > 700000 ? '🚀' : totalPubs >= 600000 ? '✈️' : totalPubs >= 500000 ? '🚁' : totalPubs >= 400000 ? '🎈' : '☠️';
   let totalTracSpentEmoji = totalTracSpent > 800000 ? '🤑' : totalTracSpent >= 700000 ? '💰' : totalTracSpent >= 600000 ? '💸' : totalTracSpent >= 500000 ? '💵' : '🪙';
@@ -190,7 +199,8 @@ ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
 ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⚖️Bid: ${avgBid}
-⏰Epochs: ${avgEpochs}`;
+⏰Epochs: ${avgEpochs}
+👀Private Pubs: ${privatePubsPercentage}%`;
 
   await ctx.reply(message);
 }

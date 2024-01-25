@@ -7,7 +7,7 @@ const connection = mysql.createConnection({
     host: process.env.DBHOST,
     user: process.env.DBUSER,
     password: process.env.DBPASSWORD,
-    database: process.env.SYNC_DB,
+    database: process.env.DKG_DB,
 });
 
 function query(sql, args) {
@@ -28,7 +28,7 @@ function bufferToStream(buffer) {
 
 function fetchDateTotalPubs() {
   return new Promise((resolve, reject) => {
-    connection.query('select * from v_pubs_stats where date != (select block_date from v_sys_staging_date) order by date', (error, results) => {
+    connection.query('select * from v_pubs_stats_daily where date != (select block_date from sync_otp_mainnet.v_sys_staging_date) order by date', (error, results) => {
       if (error) reject(error);
       resolve(results);
     });
@@ -37,7 +37,7 @@ function fetchDateTotalPubs() {
 
 function fetchDateCumulativeTracSpent() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT date, SUM(totalTracSpent) OVER (ORDER BY date ASC) AS cumulativeTotalTracSpent FROM v_pubs_stats ORDER BY date ASC', (error, results) => {
+    connection.query('SELECT date, SUM(totalTracSpent) OVER (ORDER BY date ASC) AS cumulativeTotalTracSpent FROM v_pubs_stats_daily ORDER BY date ASC', (error, results) => {
       if (error) reject(error);
       resolve(results);
     });
@@ -46,7 +46,7 @@ function fetchDateCumulativeTracSpent() {
 
 function fetchDateCumulativePubs() {
   return new Promise((resolve, reject) => {
-    connection.query('SELECT date, SUM(totalPubs) OVER (ORDER BY date ASC) AS cumulativePubs FROM v_pubs_stats ORDER BY date ASC', (error, results) => {
+    connection.query('SELECT date, SUM(totalPubs) OVER (ORDER BY date ASC) AS cumulativePubs FROM v_pubs_stats_daily ORDER BY date ASC', (error, results) => {
       if (error) reject(error);
       resolve(results);
     });
@@ -55,7 +55,7 @@ function fetchDateCumulativePubs() {
 
 function fetchDateCumulativePayouts() {
   return new Promise((resolve, reject) => {
-    connection.query(`WITH RECURSIVE dates_cte AS (select (select cast(convert_tz(from_unixtime(timestamp),_utf8mb4'SYSTEM',_utf8mb4'UTC') as date) from block order by number asc limit 1) as date_val UNION ALL SELECT DATE_ADD(date_val, INTERVAL 1 DAY) FROM dates_cte WHERE date_val < (select block_date from v_sys_staging_date)), dates_cte_2 as (select a.date_val from dates_cte as a left join (select distinct block_date from staging_proof_submitted) as b on a.date_val=b.block_date where b.block_date is null) SELECT a.date ,SUM(value) OVER (ORDER BY date ASC) AS cumulativePayout FROM (select block_date as date, sum(value) as value from staging_proof_submitted group by block_date UNION ALL select date_val,0 from dates_cte_2) as a ORDER BY date ASC`, (error, results) => {
+    connection.query(`WITH RECURSIVE dates_cte AS (select (select cast(convert_tz(from_unixtime(timestamp),_utf8mb4'SYSTEM',_utf8mb4'UTC') as date) from block order by number asc limit 1) as date_val UNION ALL SELECT DATE_ADD(date_val, INTERVAL 1 DAY) FROM dates_cte WHERE date_val < (select block_date from sync_otp_mainnet.v_sys_staging_date)), dates_cte_2 as (select a.date_val from dates_cte as a left join (select distinct block_date from sync_otp_mainnet.staging_proof_submitted) as b on a.date_val=b.block_date where b.block_date is null) SELECT a.date ,SUM(value) OVER (ORDER BY date ASC) AS cumulativePayout FROM (select block_date as date, sum(value) as value from sync_otp_mainnet.staging_proof_submitted group by block_date UNION ALL select date_val,0 from dates_cte_2) as a ORDER BY date ASC`, (error, results) => {
       if (error) reject(error);
       resolve(results);
     });
@@ -87,12 +87,12 @@ function getReadableTime(days) {
 }
 
 async function fetchNetworkStatistics(ctx) {
-  const pubStats = await query('SELECT SUM(totalTracSpent) AS totalTracSpent, SUM(totalPubs) AS totalPubs, (SELECT AVG(avgPubPrice) FROM v_pubs_stats WHERE date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)) AS avgPubPriceLast30Days FROM v_pubs_stats');
+  const pubStats = await query('SELECT * FROM v_pubs_stats_total;');
   const nodeStats = await query('SELECT ROUND(AVG(nodeAsk), 3) AS avgNodeAsk, SUM(nodeStake) AS totalNodeStake, COUNT(*) AS totalNodes FROM v_nodes WHERE nodeStake >= 50000');
 
   const totalTracSpent = Number(pubStats[0].totalTracSpent).toLocaleString('en-US', {maximumFractionDigits: 0});
   const totalPubs = Number(pubStats[0].totalPubs).toLocaleString('en-US', {maximumFractionDigits: 0});
-  const avgPubPrice = Number(pubStats[0].avgPubPriceLast30Days).toFixed(2);
+  const avgPubPrice = Number(pubStats[0].avgPubPrice).toFixed(2);
   const totalNodes = Number(nodeStats[0].totalNodes).toLocaleString('en-US', {maximumFractionDigits: 0});
   const totalNodeStake = Number(nodeStats[0].totalNodeStake).toLocaleString('en-US', {maximumFractionDigits: 0});
   const avgNodeAsk = Number(nodeStats[0].avgNodeAsk);
@@ -140,7 +140,7 @@ async function KnowledgeAssetsOverTime(dates, totalPubsValues) {
     data: {
       labels: xLabels,
       datasets: [{
-        label: 'Knowledge Assets published per day',
+        label: 'Knowledge Assets created per day',
         data: totalPubsValues,
         backgroundColor: '#6168ED',
         borderColor: '#6168ED',

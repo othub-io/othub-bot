@@ -38,7 +38,7 @@ Below is the list of essential parameters:
 | DBUSER            | Username for accessing the database         |
 | DBPASSWORD        | Password for accessing the database         |
 | OTHUB_DB          | Main database                               |
-| SYNC_DB           | Sync database, refer to [otp-sync](https://github.com/othub-io/otp-sync) for details               |
+| SYNC_OTP_DB           | Sync database, refer to [otp-sync](https://github.com/othub-io/otp-sync) for details               |
 | PAYMENT_DB        | Payment database                            |
 | COOLDOWN          | Minimum cooldown for query spam check       |
 | DELETE_TIMER      | Time before messages disappear              |

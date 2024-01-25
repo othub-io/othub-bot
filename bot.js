@@ -345,13 +345,14 @@ for (let term in glossary) {
 
 ////////////////eventMonitor
 cron.schedule(process.env.DAILY, function() {
-  eventMonitor.NewPublishers(eventMonitor.notifyTelegramNewPublisher);
-  eventMonitor.contractsChange(eventMonitor.notifyTelegramContractsChange);
+  eventMonitor.otpContractsChange(eventMonitor.notifyTelegramOtpContractsChange);
+  eventMonitor.gnosisContractsChange(eventMonitor.notifyTelegramGnosisContractsChange);
   eventMonitor.dailyHighPubs(eventMonitor.notifyTelegramDailyHighPubs);
 });
 
 cron.schedule(process.env.HOURLY, function(){
-  eventMonitor.stagingUpdateStatus(eventMonitor.notifyTelegramStagingUpdateStatus);
+  eventMonitor.gnosisStagingUpdateStatus(eventMonitor.notifyTelegramGnosisStagingUpdateStatus);
+  eventMonitor.otpStagingUpdateStatus(eventMonitor.notifyTelegramOtpStagingUpdateStatus);
 });
 
 ////////////////networkStats
