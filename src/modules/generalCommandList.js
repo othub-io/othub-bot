@@ -12,6 +12,7 @@ module.exports = {
     'weeklypubs': 'Show network pubs for the last week',
     'monthlypubs': 'Show network pubs for the last month',
     'totalpubs': 'Show total network pubs',
+    'record': 'Show DKG record statistics',
     'networkstats': 'Show total network stats',
     'nodestats <tokenSymbol>': 'Show cumulative node stats for provided tokenSymbol',
     'nodestatslasthour <tokenSymbol>': 'Show node stats for provided tokenSymbol for the last hour',

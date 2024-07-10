@@ -425,6 +425,23 @@ bot.command('networkgraph', async ctx => {
 })
 
 ////////////////networkPubs
+bot.command('record', async ctx => {
+  command = 'record'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+  await ctx.deleteMessage();
+  await networkPubs.fetchAndSendRecordStats(ctx)
+})
+
 bot.command('totalpubs', async ctx => {
   command = 'totalpubs'
   spamCheck = await queryTypes.spamCheck()

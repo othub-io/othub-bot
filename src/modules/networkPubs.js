@@ -68,6 +68,61 @@ function getTotalStats() {
   });
 }
 
+function getRecordStats() {
+  return new Promise((resolve, reject) => {
+    pool.query(`SELECT * FROM v_pubs_stats_records`, (error, results) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
+async function fetchAndSendRecordStats(ctx) {
+  const recordStats = await getRecordStats();
+  
+  let message = "== DKG Record Statistics \u{1F3C6} ==\n\n";
+  
+  // Create an object to store the formatted records
+  let formattedRecords = {
+    'Top TRAC spent (hour)': '',
+    'Top TRAC spent (day)': '',
+    'Top assets published (hour)': '',
+    'Top assets published (day)': ''
+  };
+  
+  recordStats.forEach(record => {
+    const date = new Date(record.datetime).toISOString().split('T')[0];
+    const time = new Date(record.datetime).toISOString().split('T')[1].slice(0, 5);
+    const value = record.value.toLocaleString();
+    
+    let key;
+    if (record.event === 'top_trac_spent') {
+      key = `Top TRAC spent (${record.timeResolution})`;
+    } else if (record.event === 'top_assets_published') {
+      key = `Top assets published (${record.timeResolution})`;
+    }
+    
+    if (key) {
+      if (record.timeResolution === 'hour') {
+        formattedRecords[key] = `${value} on ${date} at ${time}`;
+      } else {
+        formattedRecords[key] = `${value} on ${date}`;
+      }
+    }
+  });
+  
+  // Add the formatted records to the message in the desired order with line breaks
+  message += `💰 Top TRAC spent (hour):\n${formattedRecords['Top TRAC spent (hour)']}\n\n`;
+  message += `💰 Top TRAC spent (day):\n${formattedRecords['Top TRAC spent (day)']}\n\n`;
+  message += `📊 Top assets published (hour):\n${formattedRecords['Top assets published (hour)']}\n\n`;
+  message += `📊 Top assets published (day):\n${formattedRecords['Top assets published (day)']}`;
+  
+  await ctx.reply(message);
+}
+
 
 async function fetchAndSendHourlyPubs(ctx) {
   const lastHourStats = await getLastHourStats();
@@ -210,5 +265,6 @@ module.exports = {
   fetchAndSendDailyPubs,
   fetchAndSendWeeklyPubs,
   fetchAndSendMonthlyPubs,
-  fetchAndSendTotalPubs
+  fetchAndSendTotalPubs,
+  fetchAndSendRecordStats
 };
