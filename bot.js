@@ -24,6 +24,24 @@ const balanceOperations = require('./src/modules/balanceOperations');
 const schedule = require('node-schedule');
 const fetchTransactions = require('./src/modules/transactionSync');
 const checkReceipt = require('./src/modules/checkReceipt');
+const recordAlerts = require('./src/modules/recordAlerts.js');
+
+////////////////recordAlerts
+networkPubs.getRecordStats().then(initialRecords => {
+  recordAlerts.initializeLastKnownRecords(initialRecords);
+});
+
+cron.schedule('*/60 * * * *', async () => {
+  const currentRecords = await networkPubs.getRecordStats();
+  recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
+});
+
+// For testing purposes, invoke the check function immediately on startup
+// (async () => {
+//   console.log('Initial check for new records...');
+//   const currentRecords = await networkPubs.getRecordStats();
+//   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
+// })();
 
 
 ////////////////easterEgg

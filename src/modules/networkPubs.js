@@ -266,5 +266,6 @@ module.exports = {
   fetchAndSendWeeklyPubs,
   fetchAndSendMonthlyPubs,
   fetchAndSendTotalPubs,
-  fetchAndSendRecordStats
+  fetchAndSendRecordStats,
+  getRecordStats
 };
