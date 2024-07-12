@@ -97,7 +97,7 @@ const CHAT_IDS = [
         // console.log('Posting initial record:', message);
         // postTweet(message);
     });
-    console.log('Initialized last known records:', lastKnownRecords);
+    //console.log('Initialized last known records:', lastKnownRecords);
 }
   module.exports = {
     checkAndBroadcastNewRecords,

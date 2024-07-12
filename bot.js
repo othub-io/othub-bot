@@ -36,11 +36,11 @@ cron.schedule('*/60 * * * *', async () => {
   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
 });
 
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('0 18 * * *', async () => {
   console.log('Running daily publication stats...');
   await networkPubs.postDailyPublicationStats();
 }, {
-  timezone: 'UTC'
+  timezone: 'America/New_York'
 });
 
 // For testing purposes, invoke the check function immediately on startup
