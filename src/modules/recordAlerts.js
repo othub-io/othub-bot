@@ -36,7 +36,7 @@ const CHAT_IDS = [
   
   function formatNewRecordMessage(record) {
     const date = new Date(record.datetime).toISOString().split('T')[0];
-    const time = new Date(record.datetime).toISOString().split('T')[1].slice(0, 5);
+    //const time = new Date(record.datetime).toISOString().split('T')[1].slice(0, 5);
     const value = record.value.toLocaleString();
     
     let recordType;
@@ -46,7 +46,7 @@ const CHAT_IDS = [
       recordType = `assets published (${record.timeResolution})`;
     }
   
-    return `🚨 New @origin_trail Record Alert! 🚨\n\n🏆 New record for ${recordType}:\n${value} on ${date} at ${time}\n\n👉 Visit OTHub.io for more statistics!`;
+    return `🚨 New @origin_trail Record Alert! 🚨\n\n🏆 New record for ${recordType}:\n${value} on ${date}\n\n👉 Follow us for more alerts and statistics!`;
   }
   
   async function broadcastMessage(bot, message) {
