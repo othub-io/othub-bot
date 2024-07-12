@@ -515,7 +515,7 @@ bot.command('dailypubs', async ctx => {
     return
   }
   await ctx.deleteMessage();
-  await networkPubs.fetchAndSendDailyPubs()
+  await networkPubs.fetchAndSendDailyPubs(ctx)
 })
 
 bot.command('weeklypubs', async ctx => {
