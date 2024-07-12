@@ -1,11 +1,69 @@
 const axios = require('axios');
 require('dotenv').config();
-CMC_API_KEY='20e26f82-93b6-4289-9e1a-83a42319c701'
-COIN_API_KEY='5EA0664E-6AEE-48B1-AF13-39018DCD984A'
-ETHERSCAN_API_KEY='6AD4IUKRAIS1MKX83SREI1UJ2NGK3JVSEE'
 
+// Function to get the coin price from CoinMarketCap
+async function getCoinPriceCMC(cryptoSymbol) {
+  const cmcKey = process.env.CMC_API_KEY;
+  const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${cryptoSymbol}`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "X-CMC_PRO_API_KEY": cmcKey
+      }
+    });
+
+    const data = response.data.data[cryptoSymbol].quote.USD;
+    return data.price.toFixed(2);
+  } catch (error) {
+    console.error('Error fetching coin price from CoinMarketCap:', error);
+    throw error;
+  }
+}
+
+// Function to get the coin market cap from CoinMarketCap
+async function getCoinCapCMC(cryptoSymbol) {
+  const cmcKey = process.env.CMC_API_KEY;
+  const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${cryptoSymbol}`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "X-CMC_PRO_API_KEY": cmcKey
+      }
+    });
+
+    const data = response.data.data[cryptoSymbol].quote.USD;
+    return data.market_cap.toFixed(2);
+  } catch (error) {
+    console.error('Error fetching coin market cap from CoinMarketCap:', error);
+    throw error;
+  }
+}
+
+// Function to get the coin volume from CoinMarketCap
+async function getCoinVolumeCMC(cryptoSymbol) {
+  const cmcKey = process.env.CMC_API_KEY; // Make sure you have this in your .env file
+  const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${cryptoSymbol}`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        "X-CMC_PRO_API_KEY": cmcKey
+      }
+    });
+
+    const data = response.data.data[cryptoSymbol].quote.USD;
+    return data.volume_24h.toFixed(2);
+  } catch (error) {
+    console.error('Error fetching coin volume from CoinMarketCap:', error);
+    throw error;
+  }
+}
+
+// Function to get the coin price from CoinAPI
 async function getCoinPriceCoinAPI(cryptoSymbol) {
-  const coinKey = COIN_API_KEY;
+  const coinKey = process.env.COIN_API_KEY; // Make sure you have this in your .env file
   const url = `https://rest.coinapi.io/v1/exchangerate/${cryptoSymbol}/USD`;
 
   try {
@@ -16,53 +74,57 @@ async function getCoinPriceCoinAPI(cryptoSymbol) {
     });
 
     const data = response.data.rate;
-    return data;
+    return data.toFixed(2);
   } catch (error) {
     console.error('Error fetching coin price from CoinAPI:', error);
     throw error;
   }
 }
 
-async function getCoinPriceCMC(cryptoSymbol) {
-  const cmcKey = CMC_API_KEY;
-  const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${cryptoSymbol}`;
-
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        "X-CMC_PRO_API_KEY": cmcKey
-      }
-    });
-
-    const data = response.data.data[cryptoSymbol].quote.USD.price;
-    return data;
-  } catch (error) {
-    console.error('Error fetching coin price from CoinMarketCap:', error);
-    throw error;
-  }
-}
-
+// Aggregated function to get the coin price with fallback
 async function getCoinPrice(cryptoSymbol) {
   try {
     const price = await getCoinPriceCMC(cryptoSymbol);
-    return price.toFixed(2);
+    return price;
   } catch (error) {
     try {
       const price = await getCoinPriceCoinAPI(cryptoSymbol);
-      return price.toFixed(2);
+      return price;
     } catch (error) {
       throw error;
     }
   }
 }
-  
-module.exports = { getCoinPrice };
+
+// Aggregated function to get the coin market cap with fallback (using only CMC here)
+async function getCoinCap(cryptoSymbol) {
+  try {
+    const cap = await getCoinCapCMC(cryptoSymbol);
+    return cap;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Aggregated function to get the coin volume with fallback (using only CMC here)
+async function getCoinVolume(cryptoSymbol) {
+  try {
+    const volume = await getCoinVolumeCMC(cryptoSymbol);
+    return volume;
+  } catch (error) {
+    throw error;
+  }
+}
+
+module.exports = { getCoinPrice, getCoinCap, getCoinVolume };
 
 // async function test() {
 //   try {
 //     const symbol = 'TRAC';
 //     const price = await getCoinPrice(symbol);
-//     console.log(`The price of ${symbol} is $${price}`);
+//     const cap = await getCoinCap(symbol);
+//     const volume = await getCoinVolume(symbol);
+//     console.log(`The price of ${symbol} is $${price}, market cap is $${cap}, and 24h volume is $${volume}`);
 //   } catch (error) {
 //     console.error('Error:', error);
 //   }

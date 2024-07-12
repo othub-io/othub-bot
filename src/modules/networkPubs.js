@@ -325,5 +325,3 @@ module.exports = {
   getRecordStats,
   postDailyPublicationStats
 };
-
-//postDailyPublicationStats()
