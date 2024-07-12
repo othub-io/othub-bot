@@ -1,5 +1,7 @@
 require('dotenv').config();
 const mysql = require('mysql');
+const { TwitterApi } = require('twitter-api-v2');
+const { getCoinPrice } = require('./getCoinPrice.js');
 
 const pool = mysql.createPool({
   host: process.env.DBHOST,
@@ -7,6 +9,15 @@ const pool = mysql.createPool({
   password: process.env.DBPASSWORD,
   database: process.env.DKG_DB,
 });
+
+const client = new TwitterApi({
+  appKey: process.env.TWITTER_CONSUMER_KEY,
+  appSecret: process.env.TWITTER_CONSUMER_SECRET,
+  accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
+  accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
+});
+
+const twitterClient = client.readWrite;
 
 function getLastHourStats() {
   return new Promise((resolve, reject) => {
@@ -176,7 +187,26 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 ⏰Epochs: ${avgEpochs}
 👀Private Pubs: ${privatePubsPercentage}%`;
 
-  await ctx.reply(message);
+await ctx.reply(message);
+}
+
+async function dailyPubs() {
+  const last24HourStats = await getLast24HourStats();
+  const totalPubs = last24HourStats.totalPubs;
+  const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
+  const avgPubSize = parseFloat(last24HourStats.avgPubSize).toFixed(2);
+  const privatePubsPercentage = parseInt(last24HourStats.privatePubsPercentage);
+
+  let totalPubsEmoji = totalPubs > 20000 ? '🚀' : totalPubs >= 15000 ? '✈️' : totalPubs >= 10000 ? '🚁' : totalPubs >= 5000 ? '🎈' : '☠️';
+  let totalTracSpentEmoji = totalTracSpent > 3000 ? '🤑' : totalTracSpent >= 2400 ? '💰' : totalTracSpent >= 1800 ? '💸' : totalTracSpent >= 1200 ? '💵' : '🪙';
+  let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
+
+  const message = `== Last 24H \u{1F4CA} ==
+${totalPubsEmoji}Total pubs: ${totalPubs}
+${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
+${avgPubSizeEmoji}Avg size: ${avgPubSize}kB`;
+
+return message;
 }
 
 async function fetchAndSendWeeklyPubs(ctx) {
@@ -260,6 +290,31 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
   await ctx.reply(message);
 }
 
+async function postTweet(message) {
+  try {
+      const { data: createdTweet } = await twitterClient.v2.tweet({ text: message });
+      console.log('Tweet', createdTweet.id, ':', createdTweet.text);
+  } catch (error) {
+      console.error('Error posting tweet:', error);
+  }
+}
+
+async function postDailyPublicationStats() {
+  try {
+    const message = await dailyPubs();
+    const symbol = 'TRAC';
+    const price = await getCoinPrice(symbol);
+    const totalTracSpentMatch = message.match(/TRAC spent: (\d+)/);
+    const totalTracSpent = parseInt(totalTracSpentMatch[1]);
+    const usdValue = (price * totalTracSpent).toFixed(2);
+
+    const tweetMessage = `@origin_trail ecosystem revenue on display👇\n\n${message}\n\n💰${usdValue}$ has entered the DKG ecosystem in the last 24H!\n\n📊 For more stats: OTHub.io`;
+    await postTweet(tweetMessage);
+  } catch (error) {
+    console.error('Error posting daily publication stats:', error);
+  }
+}
+
 module.exports = {
   fetchAndSendHourlyPubs,
   fetchAndSendDailyPubs,
@@ -267,5 +322,8 @@ module.exports = {
   fetchAndSendMonthlyPubs,
   fetchAndSendTotalPubs,
   fetchAndSendRecordStats,
-  getRecordStats
+  getRecordStats,
+  postDailyPublicationStats
 };
+
+//postDailyPublicationStats()

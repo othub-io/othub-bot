@@ -36,6 +36,13 @@ cron.schedule('*/60 * * * *', async () => {
   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
 });
 
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running daily publication stats...');
+  await networkPubs.postDailyPublicationStats();
+}, {
+  timezone: 'UTC'
+});
+
 // For testing purposes, invoke the check function immediately on startup
 // (async () => {
 //   console.log('Initial check for new records...');
@@ -508,7 +515,7 @@ bot.command('dailypubs', async ctx => {
     return
   }
   await ctx.deleteMessage();
-  await networkPubs.fetchAndSendDailyPubs(ctx)
+  await networkPubs.fetchAndSendDailyPubs()
 })
 
 bot.command('weeklypubs', async ctx => {
