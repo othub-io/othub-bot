@@ -190,7 +190,6 @@ function getLast24HourStats() {
 
       const message = `== Daily $TRAC Record 📈 ==
 💎Assets created: ${totalPubs}
-⚖️Avg size: ${avgPubSize}kB
 💵TRAC spent 24H: ${networkStats.dailyTracSpentFormatted}
 💰TRAC spent total: ${networkStats.totalTracSpentFormatted} ($${networkStats.totalTracSpentUsdFormatted})
 🥩TVL: ${networkStats.tvlFormatted} ($${networkStats.tvlUsdFormatted})
