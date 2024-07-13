@@ -47,7 +47,7 @@ cron.schedule('0 18 * * *', async () => {
 // Call the function directly to test it
 // (async () => {
 //   console.log('Running daily publication stats...');
-//   await networkPubs.postDailyPublicationStats();
+//   await autoTweet.postDailyStatistics();
 // })();
 
 // For testing purposes, invoke the check function immediately on startup
