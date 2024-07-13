@@ -184,9 +184,9 @@ function getLast24HourStats() {
     try {
       const networkStats = await postNetworkStatistics();
       const last24HourStats = await getLast24HourStats();
-      const totalPubs = last24HourStats.totalPubs;
+      const totalPubs = last24HourStats.totalPubs.toLocaleString('en-US', {maximumFractionDigits: 0});
       const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
-      const avgPubSize = parseFloat(last24HourStats.avgPubSize).toFixed(2);
+      //const avgPubSize = parseFloat(last24HourStats.avgPubSize).toFixed(2);
 
       const message = `== Daily $TRAC Record 📈 ==
 💎Assets created: ${totalPubs}
