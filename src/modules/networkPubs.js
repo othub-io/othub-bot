@@ -1,7 +1,5 @@
 require('dotenv').config();
 const mysql = require('mysql');
-const { TwitterApi } = require('twitter-api-v2');
-const { getCoinPrice } = require('./getCoinPrice.js');
 
 const pool = mysql.createPool({
   host: process.env.DBHOST,
@@ -9,15 +7,6 @@ const pool = mysql.createPool({
   password: process.env.DBPASSWORD,
   database: process.env.DKG_DB,
 });
-
-const client = new TwitterApi({
-  appKey: process.env.TWITTER_CONSUMER_KEY,
-  appSecret: process.env.TWITTER_CONSUMER_SECRET,
-  accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
-  accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-});
-
-const twitterClient = client.readWrite;
 
 function getLastHourStats() {
   return new Promise((resolve, reject) => {
@@ -79,62 +68,6 @@ function getTotalStats() {
   });
 }
 
-function getRecordStats() {
-  return new Promise((resolve, reject) => {
-    pool.query(`SELECT * FROM v_pubs_stats_records`, (error, results) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(results);
-      }
-    });
-  });
-}
-
-async function fetchAndSendRecordStats(ctx) {
-  const recordStats = await getRecordStats();
-  
-  let message = "== DKG Record Statistics \u{1F3C6} ==\n\n";
-  
-  // Create an object to store the formatted records
-  let formattedRecords = {
-    'Top TRAC spent (hour)': '',
-    'Top TRAC spent (day)': '',
-    'Top assets published (hour)': '',
-    'Top assets published (day)': ''
-  };
-  
-  recordStats.forEach(record => {
-    const date = new Date(record.datetime).toISOString().split('T')[0];
-    const time = new Date(record.datetime).toISOString().split('T')[1].slice(0, 5);
-    const value = record.value.toLocaleString();
-    
-    let key;
-    if (record.event === 'top_trac_spent') {
-      key = `Top TRAC spent (${record.timeResolution})`;
-    } else if (record.event === 'top_assets_published') {
-      key = `Top assets published (${record.timeResolution})`;
-    }
-    
-    if (key) {
-      if (record.timeResolution === 'hour') {
-        formattedRecords[key] = `${value} on ${date} at ${time}`;
-      } else {
-        formattedRecords[key] = `${value} on ${date}`;
-      }
-    }
-  });
-  
-  // Add the formatted records to the message in the desired order with line breaks
-  message += `💰 Top TRAC spent (hour):\n${formattedRecords['Top TRAC spent (hour)']}\n\n`;
-  message += `💰 Top TRAC spent (day):\n${formattedRecords['Top TRAC spent (day)']}\n\n`;
-  message += `📊 Top assets published (hour):\n${formattedRecords['Top assets published (hour)']}\n\n`;
-  message += `📊 Top assets published (day):\n${formattedRecords['Top assets published (day)']}`;
-  
-  await ctx.reply(message);
-}
-
-
 async function fetchAndSendHourlyPubs(ctx) {
   const lastHourStats = await getLastHourStats();
 
@@ -188,25 +121,6 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 👀Private Pubs: ${privatePubsPercentage}%`;
 
 await ctx.reply(message);
-}
-
-async function dailyPubs() {
-  const last24HourStats = await getLast24HourStats();
-  const totalPubs = last24HourStats.totalPubs;
-  const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
-  const avgPubSize = parseFloat(last24HourStats.avgPubSize).toFixed(2);
-  const privatePubsPercentage = parseInt(last24HourStats.privatePubsPercentage);
-
-  let totalPubsEmoji = totalPubs > 20000 ? '🚀' : totalPubs >= 15000 ? '✈️' : totalPubs >= 10000 ? '🚁' : totalPubs >= 5000 ? '🎈' : '☠️';
-  let totalTracSpentEmoji = totalTracSpent > 3000 ? '🤑' : totalTracSpent >= 2400 ? '💰' : totalTracSpent >= 1800 ? '💸' : totalTracSpent >= 1200 ? '💵' : '🪙';
-  let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
-
-  const message = `== Last 24H \u{1F4CA} ==
-${totalPubsEmoji}Total pubs: ${totalPubs}
-${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
-${avgPubSizeEmoji}Avg size: ${avgPubSize}kB`;
-
-return message;
 }
 
 async function fetchAndSendWeeklyPubs(ctx) {
@@ -290,38 +204,10 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
   await ctx.reply(message);
 }
 
-async function postTweet(message) {
-  try {
-      const { data: createdTweet } = await twitterClient.v2.tweet({ text: message });
-      console.log('Tweet', createdTweet.id, ':', createdTweet.text);
-  } catch (error) {
-      console.error('Error posting tweet:', error);
-  }
-}
-
-async function postDailyPublicationStats() {
-  try {
-    const message = await dailyPubs();
-    const symbol = 'TRAC';
-    const price = await getCoinPrice(symbol);
-    const totalTracSpentMatch = message.match(/TRAC spent: (\d+)/);
-    const totalTracSpent = parseInt(totalTracSpentMatch[1]);
-    const usdValue = (price * totalTracSpent).toLocaleString('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0});
-
-    const tweetMessage = `Daily $TRAC Record👇\n\n${message}\n\n💰${usdValue}$ has entered the DKG ecosystem in the last 24H!\n\n📊 For more stats: OTHub.io`;
-    await postTweet(tweetMessage);
-  } catch (error) {
-    console.error('Error posting daily publication stats:', error);
-  }
-}
-
 module.exports = {
   fetchAndSendHourlyPubs,
   fetchAndSendDailyPubs,
   fetchAndSendWeeklyPubs,
   fetchAndSendMonthlyPubs,
-  fetchAndSendTotalPubs,
-  fetchAndSendRecordStats,
-  getRecordStats,
-  postDailyPublicationStats
+  fetchAndSendTotalPubs
 };

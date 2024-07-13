@@ -10,6 +10,7 @@ bot.use(session({ ttl: 10 }))
 
 const queryTypes = require('./src/util/queryTypes')
 const networkPubs = require('./src/modules/networkPubs.js')
+const autoTweet = require ('./src/modules/autoTweet.js')
 const { isAdmin , adminCommand } = require('./src/modules/systemCommands.js')
 const adminCommandList = require('./src/modules/adminCommandList.js')
 const generalCommandList = require('./src/modules/generalCommandList.js')
@@ -22,23 +23,23 @@ const glossary = require ('./glossary.js');
 const sendInvoice = require('./src/modules/sendInvoice');
 const balanceOperations = require('./src/modules/balanceOperations');
 const schedule = require('node-schedule');
-const fetchTransactions = require('./src/modules/transactionSync');
+//const fetchTransactions = require('./src/modules/transactionSync');
 const checkReceipt = require('./src/modules/checkReceipt');
 const recordAlerts = require('./src/modules/recordAlerts.js');
 
-////////////////recordAlerts
-networkPubs.getRecordStats().then(initialRecords => {
+////////////////Auto Tweets
+autoTweet.getRecordStats().then(initialRecords => {
   recordAlerts.initializeLastKnownRecords(initialRecords);
 });
 
 cron.schedule('*/60 * * * *', async () => {
-  const currentRecords = await networkPubs.getRecordStats();
+  const currentRecords = await autoTweet.getRecordStats();
   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
 });
 
 cron.schedule('0 18 * * *', async () => {
   console.log('Running daily publication stats...');
-  await networkPubs.postDailyPublicationStats();
+  await autoTweet.postDailyStatistics();
 }, {
   timezone: 'America/New_York'
 });
@@ -52,7 +53,7 @@ cron.schedule('0 18 * * *', async () => {
 // For testing purposes, invoke the check function immediately on startup
 // (async () => {
 //   console.log('Initial check for new records...');
-//   const currentRecords = await networkPubs.getRecordStats();
+//   const currentRecords = await autoTweet.getRecordStats();
 //   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
 // })();
 
@@ -818,7 +819,7 @@ schedule.scheduleJob('*/1 * * * *', () => {
   checkReceipt(bot);
 });
 
-schedule.scheduleJob('*/1 * * * *', fetchTransactions);
+//schedule.scheduleJob('*/1 * * * *', fetchTransactions);
 
 //-----------------------END---------------------------
 

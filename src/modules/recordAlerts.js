@@ -1,27 +1,6 @@
-const { TwitterApi } = require('twitter-api-v2');
 require('dotenv').config();
 const { getCoinPrice } = require('./getCoinPrice.js');
-const { postNetworkStatistics } = require('./networkStats.js');
-
-const client = new TwitterApi({
-  appKey: process.env.TWITTER_CONSUMER_KEY,
-  appSecret: process.env.TWITTER_CONSUMER_SECRET,
-  accessToken: process.env.TWITTER_ACCESS_TOKEN_KEY,
-  accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-});
-
-const bearer = new TwitterApi(process.env.TWITTER_BEARER_TOKEN);
-
-const twitterClient = client.readWrite;
-
-async function postTweet(message) {
-  try {
-    const { data: createdTweet } = await twitterClient.v2.tweet({ text: message });
-    console.log('===\nTweet', createdTweet.id, 'posted :\n', createdTweet.text, '\n===');
-  } catch (error) {
-    console.error('Error posting tweet:', error);
-  }
-}
+const { postTweet, postNetworkStatistics } = require('./autoTweet.js')
 
 const CHAT_IDS = [
   process.env.TEST_ID
@@ -83,7 +62,15 @@ async function formatNewRecordMessage(record) {
     }
   }
 
-  return `🚨 New $TRAC Record! 🚨\n🏆 ${value} ${recordType} ${time}, equivalent to ${annualizedEstimateFormatted} annually! \n\n${networkStatsMessage}`;
+  return `🚨 New $TRAC Record! 🚨
+🏆 ${value} ${recordType} ${time}, equivalent to ${annualizedEstimateFormatted} annually!
+
+== Network Stats 📊 ==
+💻Active nodes: ${networkStatsMessage.totalNodesFormatted}
+🥩TVL: ${networkStatsMessage.tvlFormatted} ($${networkStatsMessage.tvlUsdFormatted})
+💵TRAC spent 24H: ${networkStatsMessage.dailyTracSpentFormatted} ($${networkStatsMessage.dailyTracSpentUsdFormatted})
+💰TRAC spent total: ${networkStatsMessage.totalTracSpentFormatted} ($${networkStatsMessage.totalTracSpentUsdFormatted})
+⚖️Mcap: $${networkStatsMessage.marketCapFormatted} | Volume: $${networkStatsMessage.volumeFormatted}`;
 }
 
 async function broadcastMessage(bot, message) {
