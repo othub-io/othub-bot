@@ -209,8 +209,6 @@ function getLast24HourStats() {
     }
   }
 
-  postDailyStatistics()
-
 // postNetworkStatistics().then(message => {
 //       console.log(message);
 // });
