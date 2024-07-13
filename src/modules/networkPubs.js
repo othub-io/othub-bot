@@ -306,9 +306,9 @@ async function postDailyPublicationStats() {
     const price = await getCoinPrice(symbol);
     const totalTracSpentMatch = message.match(/TRAC spent: (\d+)/);
     const totalTracSpent = parseInt(totalTracSpentMatch[1]);
-    const usdValue = (price * totalTracSpent).toFixed(2);
+    const usdValue = (price * totalTracSpent).toLocaleString('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0});
 
-    const tweetMessage = `@origin_trail ecosystem revenue on display👇\n\n${message}\n\n💰${usdValue}$ has entered the DKG ecosystem in the last 24H!\n\n📊 For more stats: OTHub.io`;
+    const tweetMessage = `Daily $TRAC Record👇\n\n${message}\n\n💰${usdValue}$ has entered the DKG ecosystem in the last 24H!\n\n📊 For more stats: OTHub.io`;
     await postTweet(tweetMessage);
   } catch (error) {
     console.error('Error posting daily publication stats:', error);

@@ -175,7 +175,7 @@ async function postNetworkStatistics() {
 💻Active nodes: ${totalNodesFormatted}
 🥩TVL: ${tvlFormatted} ($${tvlUsdFormatted})
 💵TRAC spent 24H: ${dailyTracSpentFormatted} ($${dailyTracSpentUsdFormatted})
-💰TRAC Spent total: ${totalTracSpentFormatted} ($${totalTracSpentUsdFormatted})
+💰TRAC spent total: ${totalTracSpentFormatted} ($${totalTracSpentUsdFormatted})
 ⚖️Mcap: $${marketCapFormatted} | Volume: $${volumeFormatted}`;
 
   return message;

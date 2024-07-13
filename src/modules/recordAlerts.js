@@ -74,11 +74,11 @@ async function formatNewRecordMessage(record) {
     recordType = `assets published`;
     if (record.timeResolution === 'day') {
       annualizedNumber = (Number(record.value) * 365);
-      annualizedEstimateFormatted = `${formatCurrency(Number(annualizedNumber))}`;
+      annualizedEstimateFormatted = `${formatCurrency(Number(annualizedNumber))} assets`;
       time = 'daily';
     } else if (record.timeResolution === 'hour') {
       annualizedNumber = (Number(record.value) * 8760);
-      annualizedEstimateFormatted = `${formatCurrency(Number(annualizedNumber))}`;
+      annualizedEstimateFormatted = `${formatCurrency(Number(annualizedNumber))} assets`;
       time = 'hourly';
     }
   }
@@ -110,8 +110,8 @@ async function checkAndBroadcastNewRecords(bot, currentRecords) {
   for (const record of currentRecords) {
     const recordKey = `${record.event}_${record.timeResolution}`;
     //testing purposes
-    if (record.value > 0 ) {
-    // if (record.value > lastKnownRecords[recordKey]) {
+    // if (record.value > 0 ) {
+    if (record.value > lastKnownRecords[recordKey]) {
       // New record detected
       const message = await formatNewRecordMessage(record);
       console.log('New record detected!');

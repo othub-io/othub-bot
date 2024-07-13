@@ -43,12 +43,18 @@ cron.schedule('0 18 * * *', async () => {
   timezone: 'America/New_York'
 });
 
+// Call the function directly to test it
+// (async () => {
+//   console.log('Running daily publication stats...');
+//   await networkPubs.postDailyPublicationStats();
+// })();
+
 // For testing purposes, invoke the check function immediately on startup
-(async () => {
-  console.log('Initial check for new records...');
-  const currentRecords = await networkPubs.getRecordStats();
-  recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
-})();
+// (async () => {
+//   console.log('Initial check for new records...');
+//   const currentRecords = await networkPubs.getRecordStats();
+//   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
+// })();
 
 
 ////////////////easterEgg
