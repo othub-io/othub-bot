@@ -51,11 +51,11 @@ cron.schedule('0 18 * * *', async () => {
 // })();
 
 // For testing purposes, invoke the check function immediately on startup
-// (async () => {
-//   console.log('Initial check for new records...');
-//   const currentRecords = await autoTweet.getRecordStats();
-//   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
-// })();
+(async () => {
+  console.log('Initial check for new records...');
+  const currentRecords = await autoTweet.getRecordStats();
+  recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
+})();
 
 
 ////////////////easterEgg
@@ -471,7 +471,7 @@ bot.command('record', async ctx => {
     return
   }
   await ctx.deleteMessage();
-  await networkPubs.fetchAndSendRecordStats(ctx)
+  await autoTweet.fetchAndSendRecordStats(ctx)
 })
 
 bot.command('totalpubs', async ctx => {

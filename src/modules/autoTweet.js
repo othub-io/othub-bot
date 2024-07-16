@@ -188,7 +188,7 @@ function getLast24HourStats() {
       const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
       //const avgPubSize = parseFloat(last24HourStats.avgPubSize).toFixed(2);
 
-      const message = `== Daily $TRAC Record 📈 ==
+      const message = `== Daily $TRAC Stats 📈 ==
 💎Assets created: ${totalPubs}
 💵TRAC spent 24H: ${networkStats.dailyTracSpentFormatted}
 💰TRAC spent total: ${networkStats.totalTracSpentFormatted} ($${networkStats.totalTracSpentUsdFormatted})

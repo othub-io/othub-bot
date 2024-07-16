@@ -121,7 +121,7 @@ async function initializeLastKnownRecords(initialRecords) {
     // Post the initial record as a new record
     // const message = await formatNewRecordMessage(record);
     // console.log('New record detected:', message);
-    // await postTweetAndLog(message);
+    // await postTweet(message);
   }
   // console.log('Initialized last known records:', lastKnownRecords);
 }
