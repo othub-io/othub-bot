@@ -8,9 +8,16 @@ const pool = mysql.createPool({
   database: process.env.DKG_DB,
 });
 
-function getLastHourStats() {
+function getLastHourStats(dbName) {
+  const dbNameMapping = {
+    DKG_DB: process.env.DKG_DB,
+    OTP_DB: process.env.OTP_DB,
+    NEURO_DB: process.env.NEURO_DB,
+  };
+
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last1h`, (error, results) => {
+    const selectedDb = dbNameMapping[dbName] || process.env.DKG_DB;
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM ${selectedDb}.v_pubs_stats_last1h`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -20,9 +27,17 @@ function getLastHourStats() {
   });
 }
 
-function getLast24HourStats() {
+function getLast24HourStats(dbName) {
+  const dbNameMapping = {
+    DKG_DB: process.env.DKG_DB,
+    OTP_DB: process.env.OTP_DB,
+    NEURO_DB: process.env.NEURO_DB,
+  };
+
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last24h`, (error, results) => {
+    const selectedDb = dbNameMapping[dbName] || process.env.DKG_DB;
+    const query = `SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM ${selectedDb}.v_pubs_stats_last24h`;
+    pool.query(query, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -32,9 +47,15 @@ function getLast24HourStats() {
   });
 }
 
-function getLastWeekStats() {
+function getLastWeekStats(dbName) {
+  const dbNameMapping = {
+    DKG_DB: process.env.DKG_DB,
+    OTP_DB: process.env.OTP_DB,
+    NEURO_DB: process.env.NEURO_DB,
+  };
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last7d`, (error, results) => {
+    const selectedDb = dbNameMapping[dbName] || process.env.DKG_DB;
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM ${selectedDb}.v_pubs_stats_last7d`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -44,9 +65,15 @@ function getLastWeekStats() {
   });
 }
 
-function getLastMonthStats() {
+function getLastMonthStats(dbName) {
+  const dbNameMapping = {
+    DKG_DB: process.env.DKG_DB,
+    OTP_DB: process.env.OTP_DB,
+    NEURO_DB: process.env.NEURO_DB,
+  };
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last30d`, (error, results) => {
+    const selectedDb = dbNameMapping[dbName] || process.env.DKG_DB;
+    pool.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM ${selectedDb}.v_pubs_stats_last30d`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -56,9 +83,15 @@ function getLastMonthStats() {
   });
 }
 
-function getTotalStats() {
+function getTotalStats(dbName) {
+  const dbNameMapping = {
+    DKG_DB: process.env.DKG_DB,
+    OTP_DB: process.env.OTP_DB,
+    NEURO_DB: process.env.NEURO_DB,
+  };
   return new Promise((resolve, reject) => {
-    pool.query(`SELECT * FROM v_pubs_stats_total`, (error, results) => {
+    const selectedDb = dbNameMapping[dbName] || process.env.DKG_DB;
+    pool.query(`SELECT * FROM ${selectedDb}.v_pubs_stats_total`, (error, results) => {
       if (error) {
         reject(error);
       } else {
@@ -68,8 +101,8 @@ function getTotalStats() {
   });
 }
 
-async function fetchAndSendHourlyPubs(ctx) {
-  const lastHourStats = await getLastHourStats();
+async function fetchAndSendHourlyPubs(ctx, dbName = 'DKG_DB') {
+  const lastHourStats = await getLastHourStats(dbName);
 
   const totalPubs = lastHourStats.totalPubs;
   const totalTracSpent = parseInt(lastHourStats.totalTracSpent);
@@ -83,8 +116,18 @@ async function fetchAndSendHourlyPubs(ctx) {
   let totalTracSpentEmoji = totalTracSpent > 125 ? '🤑' : totalTracSpent >= 100 ? '💰' : totalTracSpent >= 75 ? '💸' : totalTracSpent >= 50 ? '💵' : '🪙';
   let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
-
-  const message = `== Last Hour \u{1F4CA} ==
+  let dbLabel;
+  switch (dbName) {
+    case 'GNO_DB':
+      dbLabel = '(Gnosis)';
+      break;
+    case 'NEURO_DB':
+      dbLabel = '(Neuro)';
+      break;
+    default:
+      dbLabel = '';
+  }
+  const message = `== Last Hour ${dbLabel} \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
@@ -96,8 +139,8 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
   await ctx.reply(message);
 }
 
-async function fetchAndSendDailyPubs(ctx) {
-  const last24HourStats = await getLast24HourStats();
+async function fetchAndSendDailyPubs(ctx, dbName = 'DKG_DB') {
+  const last24HourStats = await getLast24HourStats(dbName);
   const totalPubs = last24HourStats.totalPubs;
   const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
   const avgPubPrice = parseFloat(last24HourStats.avgPubPrice).toFixed(2);
@@ -110,8 +153,18 @@ async function fetchAndSendDailyPubs(ctx) {
   let totalTracSpentEmoji = totalTracSpent > 3000 ? '🤑' : totalTracSpent >= 2400 ? '💰' : totalTracSpent >= 1800 ? '💸' : totalTracSpent >= 1200 ? '💵' : '🪙';
   let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
-
-  const message = `== Last 24H \u{1F4CA} ==
+  let dbLabel;
+  switch (dbName) {
+    case 'GNO_DB':
+      dbLabel = '(Gnosis)';
+      break;
+    case 'NEURO_DB':
+      dbLabel = '(Neuro)';
+      break;
+    default:
+      dbLabel = '';
+  }
+  const message = `== Last 24H ${dbLabel} \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
@@ -123,8 +176,8 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
 await ctx.reply(message);
 }
 
-async function fetchAndSendWeeklyPubs(ctx) {
-  const lastWeekStats = await getLastWeekStats();
+async function fetchAndSendWeeklyPubs(ctx, dbName = 'DKG_DB') {
+  const lastWeekStats = await getLastWeekStats(dbName);
   const totalPubs = lastWeekStats.totalPubs;
   const totalTracSpent = parseInt(lastWeekStats.totalTracSpent);
   const avgPubPrice = parseFloat(lastWeekStats.avgPubPrice).toFixed(2);
@@ -137,8 +190,18 @@ async function fetchAndSendWeeklyPubs(ctx) {
   let totalTracSpentEmoji = totalTracSpent > 21000 ? '🤑' : totalTracSpent >= 16800 ? '💰' : totalTracSpent >= 12600 ? '💸' : totalTracSpent >= 8400 ? '💵' : '🪙';
   let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
-
-  const message = `== Last Week \u{1F4CA} ==
+  let dbLabel;
+  switch (dbName) {
+    case 'GNO_DB':
+      dbLabel = '(Gnosis)';
+      break;
+    case 'NEURO_DB':
+      dbLabel = '(Neuro)';
+      break;
+    default:
+      dbLabel = '';
+  }
+  const message = `== Last Week ${dbLabel} \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
@@ -150,8 +213,8 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
   await ctx.reply(message);
 }
 
-async function fetchAndSendMonthlyPubs(ctx) {
-  const lastMonthStats = await getLastMonthStats();
+async function fetchAndSendMonthlyPubs(ctx, dbName = 'DKG_DB') {
+  const lastMonthStats = await getLastMonthStats(dbName);
   const totalPubs = lastMonthStats.totalPubs;
   const totalTracSpent = parseInt(lastMonthStats.totalTracSpent);
   const avgPubPrice = parseFloat(lastMonthStats.avgPubPrice).toFixed(2);
@@ -164,8 +227,18 @@ async function fetchAndSendMonthlyPubs(ctx) {
   let totalTracSpentEmoji = totalTracSpent > 90000 ? '🤑' : totalTracSpent >= 72000 ? '💰' : totalTracSpent >= 54000 ? '💸' : totalTracSpent >= 36000 ? '💵' : '🪙';
   let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
-
-  const message = `== Last Month \u{1F4CA} ==
+  let dbLabel;
+  switch (dbName) {
+    case 'GNO_DB':
+      dbLabel = '(Gnosis)';
+      break;
+    case 'NEURO_DB':
+      dbLabel = '(Neuro)';
+      break;
+    default:
+      dbLabel = '';
+  }
+  const message = `== Last Month ${dbLabel} \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB
@@ -177,8 +250,8 @@ ${avgPubPriceEmoji}Pub price: ${avgPubPrice}
   await ctx.reply(message);
 }
 
-async function fetchAndSendTotalPubs(ctx) {
-  const TotalStats = await getTotalStats();
+async function fetchAndSendTotalPubs(ctx, dbName = 'DKG_DB') {
+  const TotalStats = await getTotalStats(dbName);
   const totalPubs = TotalStats.totalPubs;
   const totalTracSpent = parseInt(TotalStats.totalTracSpent);
   const avgPubPrice = parseFloat(TotalStats.avgPubPrice).toFixed(2);
@@ -191,8 +264,18 @@ async function fetchAndSendTotalPubs(ctx) {
   let totalTracSpentEmoji = totalTracSpent > 800000 ? '🤑' : totalTracSpent >= 700000 ? '💰' : totalTracSpent >= 600000 ? '💸' : totalTracSpent >= 500000 ? '💵' : '🪙';
   let avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
-
-  const message = `== Total Pubs \u{1F4CA} ==
+  let dbLabel;
+  switch (dbName) {
+    case 'GNO_DB':
+      dbLabel = '(Gnosis)';
+      break;
+    case 'NEURO_DB':
+      dbLabel = '(Neuro)';
+      break;
+    default:
+      dbLabel = '';
+  }
+  const message = `== Total Pubs ${dbLabel} \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
 ${totalTracSpentEmoji}TRAC spent: ${totalTracSpent}
 ${avgPubSizeEmoji}Size: ${avgPubSize}kB

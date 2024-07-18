@@ -474,90 +474,51 @@ bot.command('record', async ctx => {
   await autoTweet.fetchAndSendRecordStats(ctx)
 })
 
-bot.command('totalpubs', async ctx => {
-  command = 'totalpubs'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
+async function handleCommand(ctx, command, fetchFunction) {
+  const spamCheck = await queryTypes.spamCheck();
+  const telegram_id = ctx.message.from.id;
+  const { permission } = await spamCheck.getData(command, telegram_id).catch(error => {
+    console.log(`Error: ${error}`);
+    return { permission: 'deny' };
+  });
+
+  if (permission !== 'allow') {
+    await ctx.deleteMessage();
+    return;
   }
+
+  const dbMapping = {
+    'gnosis': 'GNO_DB',
+    'neuro': 'NEURO_DB',
+    'global': 'DKG_DB', // Default option
+  };
+
+  const userInput = ctx.message.text.split(' ')[1]?.toLowerCase() || 'global';
+  const dbName = dbMapping[userInput] || 'DKG_DB';  
   await ctx.deleteMessage();
-  await networkPubs.fetchAndSendTotalPubs(ctx)
-})
+  await fetchFunction(ctx, dbName);
+}
+
+bot.command('totalpubs', async ctx => {
+  await handleCommand(ctx, 'totalpubs', networkPubs.fetchAndSendTotalPubs);
+});
 
 bot.command('hourlypubs', async ctx => {
-  command = 'hourlypubs'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  await ctx.deleteMessage();
-  await networkPubs.fetchAndSendHourlyPubs(ctx)
-})
+  await handleCommand(ctx, 'hourlypubs', networkPubs.fetchAndSendHourlyPubs);
+});
 
 bot.command('dailypubs', async ctx => {
-  command = 'dailypubs'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  await ctx.deleteMessage();
-  await networkPubs.fetchAndSendDailyPubs(ctx)
-})
+  await handleCommand(ctx, 'dailypubs', networkPubs.fetchAndSendDailyPubs);
+});
 
 bot.command('weeklypubs', async ctx => {
-  command = 'weeklypubs'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  await ctx.deleteMessage();
-  await networkPubs.fetchAndSendWeeklyPubs(ctx)
-})
+  await handleCommand(ctx, 'weeklypubs', networkPubs.fetchAndSendWeeklyPubs);
+});
 
 bot.command('monthlypubs', async ctx => {
-  command = 'monthlypubs'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  await ctx.deleteMessage();
-  await networkPubs.fetchAndSendMonthlyPubs(ctx)
-})
+  await handleCommand(ctx, 'monthlypubs', networkPubs.fetchAndSendMonthlyPubs);
+});
+
 
 ////////////////systemCommands
 bot.command('commands', async (ctx) => {

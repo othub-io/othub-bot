@@ -4,8 +4,7 @@ const queryOTNodeAPI = require('../queries/queryOTNodeAPI')
 const queryTypes = [
   {
     name: 'spamCheck',
-    getData: () => spamCheck(command, telegram_id)
-  },
+    getData: (command, telegram_id) => spamCheck(command, telegram_id)  },
   {
     name: 'queryOTNodeAPI',
     getData: () => getOTNode(ext)
