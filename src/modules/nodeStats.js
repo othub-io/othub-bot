@@ -1,147 +1,54 @@
 const mysql = require('mysql');
-const connection = mysql.createConnection({
+
+const pool = mysql.createPool({
   host: process.env.DBHOST,
   user: process.env.DBUSER,
   password: process.env.DBPASSWORD,
   database: process.env.OTHUB_DB
 });
 
-exports.lastHourNodeStats = (tokenSymbol, callback) => {
-    connection.query(
-      `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last1h WHERE tokenSymbol = ?`,
-      [tokenSymbol],
-      (error, results, fields) => {
-        if (error) {
-          return callback(error);
-        }
-  
-        if (results.length > 0) {
-          let res = results[0];
-          let stats = `
-            == Last Hour Node 📊 ==
-🆔nodeId: ${res.nodeId}
-🔠tokenSymbol: ${res.tokenSymbol}
-🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
-🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
-💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings1stEpochOnly).toFixed(3)}
-🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
-          return callback(null, stats);
-        } else {
-          return callback();
-        }
-      }
-    );
-  };  
-
-exports.lastDayNodeStats = (tokenSymbol, callback) => {
-    connection.query(
-      `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last24h WHERE tokenSymbol = ?`,
-      [tokenSymbol],
-      (error, results, fields) => {
-        if (error) {
-          return callback(error);
-        }
-  
-        if (results.length > 0) {
-          let res = results[0];
-          let stats = `
-            == Last Day Node 📊 ==
-🆔nodeId: ${res.nodeId}
-🔠tokenSymbol: ${res.tokenSymbol}
-🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
-🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
-💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings1stEpochOnly).toFixed(3)}
-🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
-          return callback(null, stats);
-        } else {
-          return callback();
-        }
-      }
-    );
-  };
-  
-exports.lastWeekNodeStats = (tokenSymbol, callback) => {
-  connection.query(
-    `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last7d WHERE tokenSymbol = ?`,
-    [tokenSymbol],
-    (error, results, fields) => {
-      if (error) {
-        return callback(error);
-      }
-
-      if (results.length > 0) {
-        let res = results[0];
-        let stats = `
-          == Last 7 Days Node 📊 ==
-🆔nodeId: ${res.nodeId}
-🔠tokenSymbol: ${res.tokenSymbol}
-🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
-🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
-💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings1stEpochOnly).toFixed(3)}
-🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
-        return callback(null, stats);
-      } else {
-        return callback();
-      }
+const queryNodeStats = (query, tokenSymbol) => {
+  return new Promise((resolve, reject) => {
+    if (typeof tokenSymbol !== 'string' || tokenSymbol.trim() === '') {
+      return reject(new Error('Invalid tokenSymbol'));
     }
-  );
-};
-  
-exports.lastMonthNodeStats = (tokenSymbol, callback) => {
-  connection.query(
-    `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last30d WHERE tokenSymbol = ?`,
-    [tokenSymbol],
-    (error, results, fields) => {
+        
+    pool.query(query, [tokenSymbol], (error, results) => {
       if (error) {
-        return callback(error);
+        console.error(`Query error: ${error.message}`);
+        return reject(error);
       }
+      
+      if (results.length === 0) return resolve(null);
 
-      if (results.length > 0) {
-        let res = results[0];
-        let stats = `
-          == Last 30 Days Node 📊 ==
+      const res = results[0];
+      const stats = `
+        == Node Stats 📊 ==
 🆔nodeId: ${res.nodeId}
 🔠tokenSymbol: ${res.tokenSymbol}
 🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
 🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
 💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings1stEpochOnly).toFixed(3)}
+💰estimatedEarnings: ${parseFloat(res.estimatedEarnings || res.estimatedEarnings1stEpochOnly).toFixed(3)}
 🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
-        return callback(null, stats);
-      } else {
-        return callback();
-      }
-    }
-  );
+        
+      resolve(stats);
+    });
+  });
 };
 
-exports.NodeStats = (tokenSymbol, callback) => {
-  connection.query(
-    `SELECT * FROM sync_otp_mainnet.v_nodes_stats_latest WHERE tokenSymbol = ?`,
-    [tokenSymbol],
-    (error, results, fields) => {
-      if (error) {
-        return callback(error);
-      }
+const nodeQueries = {
+  lastHour: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last1h WHERE tokenSymbol = ?`,
+  lastDay: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last24h WHERE tokenSymbol = ?`,
+  lastWeek: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last7d WHERE tokenSymbol = ?`,
+  lastMonth: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last30d WHERE tokenSymbol = ?`,
+  latest: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_latest WHERE tokenSymbol = ?`
+};
 
-      if (results.length > 0) {
-        let res = results[0];
-        let stats = `
-          == Total Node 📊 ==
-🆔nodeId: ${res.nodeId}
-🔠tokenSymbol: ${res.tokenSymbol}
-🥩nodeStake: ${parseFloat(res.nodeStake).toFixed(0)}
-🫰nodeAsk: ${parseFloat(res.nodeAsk).toFixed(3)}
-💲nodePayouts: ${parseFloat(res.cumulativePayouts).toFixed(3)}
-💰estimatedEarnings: ${parseFloat(res.estimatedEarnings).toFixed(3)}
-🍺newPubs: ${res.pubsCommited1stEpochOnly}`;
-        return callback(null, stats);
-      } else {
-        return callback();
-      }
-    }
-  );
+module.exports = {
+  lastHourNodeStats: (tokenSymbol) => queryNodeStats(nodeQueries.lastHour, tokenSymbol),
+  lastDayNodeStats: (tokenSymbol) => queryNodeStats(nodeQueries.lastDay, tokenSymbol),
+  lastWeekNodeStats: (tokenSymbol) => queryNodeStats(nodeQueries.lastWeek, tokenSymbol),
+  lastMonthNodeStats: (tokenSymbol) => queryNodeStats(nodeQueries.lastMonth, tokenSymbol),
+  NodeStats: (tokenSymbol) => queryNodeStats(nodeQueries.latest, tokenSymbol)
 };

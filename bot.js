@@ -8,7 +8,7 @@ const path = require('path');
 
 bot.use(session({ ttl: 10 }))
 
-const queryTypes = require('./src/util/queryTypes')
+const queryTypes = require('./src/util/queryTypes');
 const networkPubs = require('./src/modules/networkPubs.js')
 const autoTweet = require ('./src/modules/autoTweet.js')
 const { isAdmin , adminCommand } = require('./src/modules/systemCommands.js')
@@ -26,6 +26,56 @@ const schedule = require('node-schedule');
 //const fetchTransactions = require('./src/modules/transactionSync');
 const checkReceipt = require('./src/modules/checkReceipt');
 const recordAlerts = require('./src/modules/recordAlerts.js');
+
+const handleCommand = async (ctx, command, actionFunction) => {
+  try {
+    const telegramId = ctx.message.from.id;
+    const { permission } = await queryTypes.spamCheck().getData(command, telegramId);
+
+    if (permission !== 'allow') {
+      await ctx.deleteMessage();
+      return;
+    }
+
+    const userInput = ctx.message.text.split(' ')[1]?.toLowerCase();
+
+    // if (!userInput || typeof userInput !== 'string' || userInput.trim() === '') {
+    //   await ctx.reply('Please provide a valid token symbol.');
+    //   return;
+    // }
+
+    if (Array.isArray(actionFunction)) {
+      for (const action of actionFunction) {
+        await action(ctx, userInput);
+      }
+    } else {
+      await actionFunction(ctx, userInput);
+    }
+  } catch (error) {
+    console.error(`Error handling command: ${error.message}`);
+    await ctx.reply(`Error handling command: ${error.message}`);
+  } finally {
+    await ctx.deleteMessage();
+  }
+};
+
+const createNodeStatsCommand = (commandName, nodeStatsFunction) => {
+  bot.command(commandName, ctx => handleCommand(ctx, commandName, async (ctx, tokenSymbol) => {
+    try {
+      const stats = await nodeStatsFunction(tokenSymbol);
+      if (stats) {
+        await ctx.reply(stats);
+      } else {
+        await ctx.reply('No data found for the given token symbol.');
+      }
+    } catch (error) {
+      console.error(`Error retrieving node stats: ${error.message}`);
+      await ctx.reply(`Error retrieving node stats: ${error.message}`);
+    }
+  }));
+};
+
+bot.command('networkstats', ctx => handleCommand(ctx, 'networkstats', networkStats.fetchNetworkStatistics));
 
 ////////////////Auto Tweets
 autoTweet.getRecordStats().then(initialRecords => {
@@ -51,20 +101,106 @@ cron.schedule('0 18 * * *', async () => {
 // })();
 
 // For testing purposes, invoke the check function immediately on startup
-(async () => {
-  console.log('Initial check for new records...');
-  const currentRecords = await autoTweet.getRecordStats();
-  recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
-})();
+// (async () => {
+//   console.log('Initial check for new records...');
+//   const currentRecords = await autoTweet.getRecordStats();
+//   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
+// })();
 
+////////////////Glossary
 
-////////////////easterEgg
-bot.command('whereisamos', async ctx => {
-  if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
-    ctx.deleteMessage(ctx.message.message_id); 
+bot.command('glossary', async (ctx) => {
+  const command = 'glossary'
+  const telegramId = ctx.message.from.id
+  const { permission } = await spamCheck(command, telegramId);
+
+  if (permission !== 'allow') {
+    await ctx.deleteMessage();
     return;
   }
-  command = 'whereisamos'
+  let message = "📃Here's a list of OriginTrail terms:\n";
+  for (let term in glossary) {
+    message += `/${term.replace(" ", "_")}\n`;
+  }
+  const lines = message.split('\n');
+  lines.splice(-4, 4); // This removes the last two elements of the array
+  message = lines.join('\n');
+});
+
+for (let term in glossary) {
+  const commandName = term.replace(" ", "_");
+  bot.command(commandName, async (ctx) => {
+    const command = commandName
+    const telegramId = ctx.message.from.id
+    const { permission } = await spamCheck(command, telegramId);
+
+    if (permission != `allow`) {
+      await ctx.deleteMessage()
+      return
+    }
+    const botmessage = await ctx.reply(glossary[term]);
+    
+    const gifPath = path.join(__dirname, 'glossary', `${term}.gif`);
+    const imagePath = path.join(__dirname, 'glossary', `${term}`);
+    
+    if (fs.existsSync(gifPath)) {
+      await ctx.replyWithAnimation({ source: gifPath });
+    } else if (fs.existsSync(imagePath)) {
+      await ctx.replyWithPhoto({ source: imagePath });
+    }
+  });
+}
+
+cron.schedule(process.env.DAILY, function() {
+  eventMonitor.otpContractsChange(eventMonitor.notifyTelegramOtpContractsChange);
+  eventMonitor.gnosisContractsChange(eventMonitor.notifyTelegramGnosisContractsChange);
+  eventMonitor.dailyHighPubs(eventMonitor.notifyTelegramDailyHighPubs);
+});
+
+cron.schedule(process.env.HOURLY, function(){
+  eventMonitor.gnosisStagingUpdateStatus(eventMonitor.notifyTelegramGnosisStagingUpdateStatus);
+  eventMonitor.otpStagingUpdateStatus(eventMonitor.notifyTelegramOtpStagingUpdateStatus);
+});
+bot.command('pubsgraph', ctx => handleCommand(ctx, 'pubsgraph', [
+  async ctx => {
+    const data = await networkStats.fetchDateTotalPubs();
+    const dates = data.map(row => row.date);
+    const totalPubsValues = data.map(row => row.totalPubs);
+    const imageBuffer = await networkStats.KnowledgeAssetsOverTime(dates, totalPubsValues);
+    const imageStream = networkStats.bufferToStream(imageBuffer);
+    await ctx.replyWithPhoto({ source: imageStream });
+  },
+]));
+bot.command('networkgraph', ctx => handleCommand(ctx, 'networkgraph', [
+  async ctx => {
+    const cumulativeTracSpentData = await networkStats.fetchDateCumulativeTracSpent();
+    const cumulativePubsData = await networkStats.fetchDateCumulativePubs();
+    const cumulativePayoutsData = await networkStats.fetchDateCumulativePayouts();
+    const dates = cumulativeTracSpentData.map(row => row.date);
+    const cumulativePubsValues = cumulativePubsData.map(row => row.cumulativePubs);
+    const cumulativePayoutsValues = cumulativePayoutsData.map(row => row.cumulativePayout);
+    const cumulativeTotalTracSpentValues = cumulativeTracSpentData.map(row => row.cumulativeTotalTracSpent);
+    const imageBuffer = await networkStats.cumulativeGraph(dates, cumulativeTotalTracSpentValues, cumulativePubsValues, cumulativePayoutsValues);
+    const imageStream = networkStats.bufferToStream(imageBuffer);
+    await ctx.replyWithPhoto({ source: imageStream });
+  }
+]));
+bot.command('record', ctx => handleCommand(ctx, 'record', autoTweet.fetchAndSendRecordStats));
+bot.command('hourlypubs', ctx => handleCommand(ctx, 'totalpubs', networkPubs.fetchAndSendHourlyPubs));
+bot.command('dailypubs', ctx => handleCommand(ctx, 'totalpubs', networkPubs.fetchAndSendDailyPubs));
+bot.command('weeklypubs', ctx => handleCommand(ctx, 'totalpubs', networkPubs.fetchAndSendWeeklyPubs));
+bot.command('monthlypubs', ctx => handleCommand(ctx, 'totalpubs', networkPubs.fetchAndSendMonthlyPubs));
+bot.command('totalpubs', ctx => handleCommand(ctx, 'totalpubs', networkPubs.fetchAndSendTotalPubs));
+
+createNodeStatsCommand('nodestatslasthour', nodeStats.lastHourNodeStats);
+createNodeStatsCommand('nodestatslastday', nodeStats.lastDayNodeStats);
+createNodeStatsCommand('nodestatslastweek', nodeStats.lastWeekNodeStats);
+createNodeStatsCommand('nodestatslastmonth', nodeStats.lastMonthNodeStats);
+createNodeStatsCommand('nodestats', nodeStats.NodeStats);
+
+////////////////systemCommands
+bot.command('commands', async (ctx) => {
+  command = 'commands'
   spamCheck = await queryTypes.spamCheck()
   telegram_id = ctx.message.from.id
   permission = await spamCheck
@@ -75,6 +211,80 @@ bot.command('whereisamos', async ctx => {
   if (permission != `allow`) {
     await ctx.deleteMessage()
     return
+  }
+  let message = 'Here are the general commands:\n\n';
+  for (const [command, description] of Object.entries(generalCommandList)) {
+    message += `/${command} - ${description}\n`;
+  }
+  await ctx.deleteMessage();
+  const botmessage = await ctx.reply(message);
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
+});
+
+adminCommand(bot);
+bot.command('admincommands', async (ctx) => {
+  command = 'admincommands'
+  spamCheck = await queryTypes.spamCheck()
+  telegram_id = ctx.message.from.id
+  permission = await spamCheck
+    .getData(command, telegram_id)
+    .then(async ({ permission }) => {
+      return permission })
+    .catch(error => console.log(`Error : ${error}`))
+  if (permission != `allow`) {
+    await ctx.deleteMessage()
+    return
+  }
+  if (!isAdmin(ctx)) {
+    const botmessage = await ctx.reply('You are not authorized to execute this command.');
+    if (botmessage) {
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+        } catch (error) {
+          console.error('Error deleting message:', error)
+        }
+      }, process.env.DELETE_TIMER)
+    }    return;
+  }
+  let message = 'Here are the admin commands:\n\n';
+  for (const [commandName, commandDetails] of Object.entries(adminCommandList)) {
+    message += `/${commandName} - ${commandDetails.description}\n`;
+  }
+  await ctx.deleteMessage();
+  const botmessage = await ctx.reply(message);
+  if (botmessage) {
+    setTimeout(async () => {
+      try {
+        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
+      } catch (error) {
+        console.error('Error deleting message:', error)
+      }
+    }, process.env.DELETE_TIMER)
+  }
+});
+
+////////////////easterEgg
+bot.command('whereisamos', async ctx => {
+  if (ctx.message.chat.id === process.env.ORIGINTRAIL_ID) {
+    ctx.deleteMessage(ctx.message.message_id); 
+    return;
+  }
+  const command = 'whereisamos'
+  const telegramId = ctx.message.from.id
+  const { permission } = await spamCheck.getData(command, telegramId);
+
+  if (permission !== 'allow') {
+    await ctx.deleteMessage();
+    return;
   }
 
   const easterEgg = 'Locating @TriniZoneAmos...\n...\n...\n...\nRequesting next vlog update...'
@@ -95,17 +305,14 @@ bot.command('totalpubsovertime', async ctx => {
     ctx.deleteMessage(ctx.message.message_id); 
     return;
   }
-  command = 'totalpubsovertime'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
+  const command = 'totalpubsovertime'
+  const telegramId = ctx.message.from.id
+
+  const { permission } = await spamCheck.getData(command, telegramId);
+
+  if (permission !== 'allow') {
+    await ctx.deleteMessage();
+    return;
   }
 
   const easterEgg = 'You just reduced the lifetime amount of pubs by 5%.'
@@ -126,17 +333,13 @@ bot.command('cumgraph', async ctx => {
     ctx.deleteMessage(ctx.message.message_id); 
     return;
   }
-  command = 'cumgraph'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
+  const command = 'cumgraph'
+  const telegramId = ctx.message.from.id
+  const { permission } = await spamCheck.getData(command, telegramId);
+
+  if (permission !== 'allow') {
+    await ctx.deleteMessage();
+    return;
   }
   const easterEgg = `⠀⠀⠀⠀⢀⣠⠤⠤⠤⠤⣄
 ⠀⠀⢀⣴⠋⠀⠀⠀⠀⠀⠈⢳⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -168,17 +371,13 @@ bot.command('kitty', async ctx => {
     ctx.deleteMessage(ctx.message.message_id); 
     return;
   }
-  command = 'kitty'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
+  const command = 'kitty'
+  const telegramId = ctx.message.from.id
+  const { permission } = await spamCheck.getData(command, telegramId);
+
+  if (permission !== 'allow') {
+    await ctx.deleteMessage();
+    return;
   }
   const easterEgg = `⠀⠀⠀⠀⠀⠀⣠⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
   ⠀⠀⠀⠀⣠⠎⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -322,454 +521,6 @@ ctx.replyWithHTML(welcomeMessage,Markup.inlineKeyboard([
     } 
 });
 
-////////////////Glossary
-bot.command('glossary', async (ctx) => {
-  command = 'glossary'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  let message = "📃Here's a list of OriginTrail terms:\n";
-  for (let term in glossary) {
-    message += `/${term.replace(" ", "_")}\n`;
-  }
-  const lines = message.split('\n');
-  lines.splice(-4, 4); // This removes the last two elements of the array
-  message = lines.join('\n');
-
-  const botmessage = await ctx.reply(message);
-});
-
-for (let term in glossary) {
-  const commandName = term.replace(" ", "_");
-  bot.command(commandName, async (ctx) => {
-    command = commandName
-    spamCheck = await queryTypes.spamCheck()
-    telegram_id = ctx.message.from.id
-    permission = await spamCheck
-      .getData(command, telegram_id)
-      .then(async ({ permission }) => {
-        return permission })
-      .catch(error => console.log(`Error : ${error}`))
-    if (permission != `allow`) {
-      await ctx.deleteMessage()
-      return
-    }
-    const botmessage = await ctx.reply(glossary[term]);
-    
-    const gifPath = path.join(__dirname, 'glossary', `${term}.gif`);
-    const imagePath = path.join(__dirname, 'glossary', `${term}`);
-    
-    if (fs.existsSync(gifPath)) {
-      await ctx.replyWithAnimation({ source: gifPath });
-    } else if (fs.existsSync(imagePath)) {
-      await ctx.replyWithPhoto({ source: imagePath });
-    }
-  });
-}
-
-////////////////eventMonitor
-cron.schedule(process.env.DAILY, function() {
-  eventMonitor.otpContractsChange(eventMonitor.notifyTelegramOtpContractsChange);
-  eventMonitor.gnosisContractsChange(eventMonitor.notifyTelegramGnosisContractsChange);
-  eventMonitor.dailyHighPubs(eventMonitor.notifyTelegramDailyHighPubs);
-});
-
-cron.schedule(process.env.HOURLY, function(){
-  eventMonitor.gnosisStagingUpdateStatus(eventMonitor.notifyTelegramGnosisStagingUpdateStatus);
-  eventMonitor.otpStagingUpdateStatus(eventMonitor.notifyTelegramOtpStagingUpdateStatus);
-});
-
-////////////////networkStats
-bot.command('networkstats', async ctx => {
-  command = 'networkstats'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-
-  await networkStats.fetchNetworkStatistics(ctx)
-  await ctx.deleteMessage();
-})
-
-bot.command('pubsgraph', async ctx => {
-  command = 'pubsgraph'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-
-  const data = await networkStats.fetchDateTotalPubs();
-  const dates = data.map(row => row.date);
-  const totalPubsValues = data.map(row => row.totalPubs);
-  const imageBuffer = await networkStats.KnowledgeAssetsOverTime(dates, totalPubsValues);
-  const imageStream = networkStats.bufferToStream(imageBuffer);
-  await ctx.replyWithPhoto({ source: imageStream });
-  await ctx.deleteMessage();
-})
-
-bot.command('networkgraph', async ctx => {
-  command = 'networkgraph'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-
-  const cumulativeTracSpentData = await networkStats.fetchDateCumulativeTracSpent();
-  const cumulativePubsData = await networkStats.fetchDateCumulativePubs();
-  const cumulativePayoutsData = await networkStats.fetchDateCumulativePayouts();
-  const dates = cumulativeTracSpentData.map(row => row.date);
-  const cumulativePubsValues = cumulativePubsData.map(row => row.cumulativePubs);
-  const cumulativePayoutsValues = cumulativePayoutsData.map(row => row.cumulativePayout);
-  const cumulativeTotalTracSpentValues = cumulativeTracSpentData.map(row => row.cumulativeTotalTracSpent);
-  const imageBuffer = await networkStats.cumulativeGraph(dates, cumulativeTotalTracSpentValues, cumulativePubsValues, cumulativePayoutsValues);
-  const imageStream = networkStats.bufferToStream(imageBuffer);
-  await ctx.replyWithPhoto({ source: imageStream });
-  await ctx.deleteMessage();
-})
-
-////////////////networkPubs
-bot.command('record', async ctx => {
-  command = 'record'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  await ctx.deleteMessage();
-  await autoTweet.fetchAndSendRecordStats(ctx)
-})
-
-async function handleCommand(ctx, command, fetchFunction) {
-  const spamCheck = await queryTypes.spamCheck();
-  const telegram_id = ctx.message.from.id;
-  const { permission } = await spamCheck.getData(command, telegram_id).catch(error => {
-    console.log(`Error: ${error}`);
-    return { permission: 'deny' };
-  });
-
-  if (permission !== 'allow') {
-    await ctx.deleteMessage();
-    return;
-  }
-
-  const dbMapping = {
-    'gnosis': 'GNO_DB',
-    'neuro': 'NEURO_DB',
-    'global': 'DKG_DB', // Default option
-  };
-
-  const userInput = ctx.message.text.split(' ')[1]?.toLowerCase() || 'global';
-  const dbName = dbMapping[userInput] || 'DKG_DB';  
-  await ctx.deleteMessage();
-  await fetchFunction(ctx, dbName);
-}
-
-bot.command('totalpubs', async ctx => {
-  await handleCommand(ctx, 'totalpubs', networkPubs.fetchAndSendTotalPubs);
-});
-
-bot.command('hourlypubs', async ctx => {
-  await handleCommand(ctx, 'hourlypubs', networkPubs.fetchAndSendHourlyPubs);
-});
-
-bot.command('dailypubs', async ctx => {
-  await handleCommand(ctx, 'dailypubs', networkPubs.fetchAndSendDailyPubs);
-});
-
-bot.command('weeklypubs', async ctx => {
-  await handleCommand(ctx, 'weeklypubs', networkPubs.fetchAndSendWeeklyPubs);
-});
-
-bot.command('monthlypubs', async ctx => {
-  await handleCommand(ctx, 'monthlypubs', networkPubs.fetchAndSendMonthlyPubs);
-});
-
-
-////////////////systemCommands
-bot.command('commands', async (ctx) => {
-  command = 'commands'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  let message = 'Here are the general commands:\n\n';
-  for (const [command, description] of Object.entries(generalCommandList)) {
-    message += `/${command} - ${description}\n`;
-  }
-  await ctx.deleteMessage();
-  const botmessage = await ctx.reply(message);
-  if (botmessage) {
-    setTimeout(async () => {
-      try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
-      } catch (error) {
-        console.error('Error deleting message:', error)
-      }
-    }, process.env.DELETE_TIMER)
-  }
-});
-
-adminCommand(bot);
-bot.command('admincommands', async (ctx) => {
-  command = 'admincommands'
-  spamCheck = await queryTypes.spamCheck()
-  telegram_id = ctx.message.from.id
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(async ({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`))
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  if (!isAdmin(ctx)) {
-    const botmessage = await ctx.reply('You are not authorized to execute this command.');
-    if (botmessage) {
-      setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
-        } catch (error) {
-          console.error('Error deleting message:', error)
-        }
-      }, process.env.DELETE_TIMER)
-    }    return;
-  }
-  let message = 'Here are the admin commands:\n\n';
-  for (const [commandName, commandDetails] of Object.entries(adminCommandList)) {
-    message += `/${commandName} - ${commandDetails.description}\n`;
-  }
-  await ctx.deleteMessage();
-  const botmessage = await ctx.reply(message);
-  if (botmessage) {
-    setTimeout(async () => {
-      try {
-        await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id)
-      } catch (error) {
-        console.error('Error deleting message:', error)
-      }
-    }, process.env.DELETE_TIMER)
-  }
-});
-
-////////////////nodeStats
-bot.command('nodestatslasthour', async ctx => {
-  const tokenSymbol = ctx.message.text.split(' ')[1];
-  command = 'nodestatslasthour' + '_' + tokenSymbol;
-  spamCheck = await queryTypes.spamCheck();
-  telegram_id = ctx.message.from.id;
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`));
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  nodeStats.lastHourNodeStats(tokenSymbol, async (err, result) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    if (result) {
-      await ctx.reply(result); 
-    } else {
-      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
-      setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
-        } catch (error) {
-          console.error('Error deleting message:', error);
-        }
-      }, process.env.DELETE_TIMER);
-    }
-    await ctx.deleteMessage();
-  });
-});
-
-bot.command('nodestatslastday', async ctx => {
-  const tokenSymbol = ctx.message.text.split(' ')[1];
-  command = 'nodestatslastday' + '_' + tokenSymbol;
-  spamCheck = await queryTypes.spamCheck();
-  telegram_id = ctx.message.from.id;
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`));
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  nodeStats.lastDayNodeStats(tokenSymbol, async (err, result) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    if (result) {
-      await ctx.reply(result); 
-    } else {
-      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
-      setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
-        } catch (error) {
-          console.error('Error deleting message:', error);
-        }
-      }, process.env.DELETE_TIMER);
-    }
-    await ctx.deleteMessage();
-  });
-});
-
-bot.command('nodestatslastweek', async ctx => {
-  const tokenSymbol = ctx.message.text.split(' ')[1];
-  command = 'nodestatslastweek' + '_' + tokenSymbol;
-  spamCheck = await queryTypes.spamCheck();
-  telegram_id = ctx.message.from.id;
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`));
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  nodeStats.lastWeekNodeStats(tokenSymbol, async (err, result) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    if (result) {
-      await ctx.reply(result); 
-    } else {
-      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
-      setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
-        } catch (error) {
-          console.error('Error deleting message:', error);
-        }
-      }, process.env.DELETE_TIMER);
-    }
-    await ctx.deleteMessage();
-  });
-});
-
-bot.command('nodestatslastmonth', async ctx => {
-  const tokenSymbol = ctx.message.text.split(' ')[1];
-  command = 'nodestatslastmonth' + '_' + tokenSymbol;
-  spamCheck = await queryTypes.spamCheck();
-  telegram_id = ctx.message.from.id;
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`));
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  nodeStats.lastMonthNodeStats(tokenSymbol, async (err, result) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    if (result) {
-      await ctx.reply(result); 
-    } else {
-      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
-      setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
-        } catch (error) {
-          console.error('Error deleting message:', error);
-        }
-      }, process.env.DELETE_TIMER);
-    }
-    await ctx.deleteMessage();
-  });
-});
-
-bot.command('nodestats', async ctx => {
-  const tokenSymbol = ctx.message.text.split(' ')[1];
-  command = 'nodestats' + '_' + tokenSymbol;
-  spamCheck = await queryTypes.spamCheck();
-  telegram_id = ctx.message.from.id;
-  permission = await spamCheck
-    .getData(command, telegram_id)
-    .then(({ permission }) => {
-      return permission })
-    .catch(error => console.log(`Error : ${error}`));
-  if (permission != `allow`) {
-    await ctx.deleteMessage()
-    return
-  }
-  nodeStats.NodeStats(tokenSymbol, async (err, result) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    if (result) {
-      await ctx.reply(result); 
-    } else {
-      const noResultsMessage = await ctx.reply('Invalid entry. Please try again with your tokenSymbol.');
-      setTimeout(async () => {
-        try {
-          await ctx.telegram.deleteMessage(ctx.chat.id, noResultsMessage.message_id);
-        } catch (error) {
-          console.error('Error deleting message:', error);
-        }
-      }, process.env.DELETE_TIMER);
-    }
-    await ctx.deleteMessage();
-  });
-});
-
 ////////////////Publish Command
 createCommand(bot);
 sendInvoice(bot);
@@ -786,6 +537,5 @@ schedule.scheduleJob('*/1 * * * *', () => {
 
 bot.launch()
 
-// Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))

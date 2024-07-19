@@ -10,9 +10,9 @@ const pool = mysql.createPool({
 
 function getLastHourStats(dbName) {
   const dbNameMapping = {
-    DKG_DB: process.env.DKG_DB,
-    OTP_DB: process.env.OTP_DB,
-    NEURO_DB: process.env.NEURO_DB,
+    '': process.env.DKG_DB,
+    'neuro': process.env.OTP_DB,
+    'gnosis': process.env.NEURO_DB,
   };
 
   return new Promise((resolve, reject) => {
@@ -29,9 +29,9 @@ function getLastHourStats(dbName) {
 
 function getLast24HourStats(dbName) {
   const dbNameMapping = {
-    DKG_DB: process.env.DKG_DB,
-    OTP_DB: process.env.OTP_DB,
-    NEURO_DB: process.env.NEURO_DB,
+    '': process.env.DKG_DB,
+    'neuro': process.env.OTP_DB,
+    'gnosis': process.env.NEURO_DB,
   };
 
   return new Promise((resolve, reject) => {
@@ -49,9 +49,9 @@ function getLast24HourStats(dbName) {
 
 function getLastWeekStats(dbName) {
   const dbNameMapping = {
-    DKG_DB: process.env.DKG_DB,
-    OTP_DB: process.env.OTP_DB,
-    NEURO_DB: process.env.NEURO_DB,
+    '': process.env.DKG_DB,
+    'neuro': process.env.OTP_DB,
+    'gnosis': process.env.NEURO_DB,
   };
   return new Promise((resolve, reject) => {
     const selectedDb = dbNameMapping[dbName] || process.env.DKG_DB;
@@ -67,9 +67,9 @@ function getLastWeekStats(dbName) {
 
 function getLastMonthStats(dbName) {
   const dbNameMapping = {
-    DKG_DB: process.env.DKG_DB,
-    OTP_DB: process.env.OTP_DB,
-    NEURO_DB: process.env.NEURO_DB,
+    '': process.env.DKG_DB,
+    'neuro': process.env.OTP_DB,
+    'gnosis': process.env.NEURO_DB,
   };
   return new Promise((resolve, reject) => {
     const selectedDb = dbNameMapping[dbName] || process.env.DKG_DB;
@@ -85,9 +85,9 @@ function getLastMonthStats(dbName) {
 
 function getTotalStats(dbName) {
   const dbNameMapping = {
-    DKG_DB: process.env.DKG_DB,
-    OTP_DB: process.env.OTP_DB,
-    NEURO_DB: process.env.NEURO_DB,
+    '': process.env.DKG_DB,
+    'neuro': process.env.OTP_DB,
+    'gnosis': process.env.NEURO_DB,
   };
   return new Promise((resolve, reject) => {
     const selectedDb = dbNameMapping[dbName] || process.env.DKG_DB;
@@ -101,7 +101,7 @@ function getTotalStats(dbName) {
   });
 }
 
-async function fetchAndSendHourlyPubs(ctx, dbName = 'DKG_DB') {
+async function fetchAndSendHourlyPubs(ctx, dbName = process.env.DKG_DB) {
   const lastHourStats = await getLastHourStats(dbName);
 
   const totalPubs = lastHourStats.totalPubs;
@@ -118,10 +118,10 @@ async function fetchAndSendHourlyPubs(ctx, dbName = 'DKG_DB') {
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
   let dbLabel;
   switch (dbName) {
-    case 'GNO_DB':
+    case 'gnosis':
       dbLabel = '(Gnosis)';
       break;
-    case 'NEURO_DB':
+    case 'neuro':
       dbLabel = '(Neuro)';
       break;
     default:
@@ -155,10 +155,10 @@ async function fetchAndSendDailyPubs(ctx, dbName = 'DKG_DB') {
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
   let dbLabel;
   switch (dbName) {
-    case 'GNO_DB':
+    case 'gnosis':
       dbLabel = '(Gnosis)';
       break;
-    case 'NEURO_DB':
+    case 'neuro':
       dbLabel = '(Neuro)';
       break;
     default:
@@ -192,10 +192,10 @@ async function fetchAndSendWeeklyPubs(ctx, dbName = 'DKG_DB') {
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
   let dbLabel;
   switch (dbName) {
-    case 'GNO_DB':
+    case 'gnosis':
       dbLabel = '(Gnosis)';
       break;
-    case 'NEURO_DB':
+    case 'neuro':
       dbLabel = '(Neuro)';
       break;
     default:
@@ -229,10 +229,10 @@ async function fetchAndSendMonthlyPubs(ctx, dbName = 'DKG_DB') {
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
   let dbLabel;
   switch (dbName) {
-    case 'GNO_DB':
+    case 'gnosis':
       dbLabel = '(Gnosis)';
       break;
-    case 'NEURO_DB':
+    case 'neuro':
       dbLabel = '(Neuro)';
       break;
     default:
@@ -266,10 +266,10 @@ async function fetchAndSendTotalPubs(ctx, dbName = 'DKG_DB') {
   let avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
   let dbLabel;
   switch (dbName) {
-    case 'GNO_DB':
+    case 'gnosis':
       dbLabel = '(Gnosis)';
       break;
-    case 'NEURO_DB':
+    case 'neuro':
       dbLabel = '(Neuro)';
       break;
     default:
