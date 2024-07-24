@@ -94,128 +94,119 @@ message += `📊 Top assets published (day):\n${formattedRecords['Top assets pub
 await ctx.reply(message);
 }
 
-async function postNetworkStatistics() {
-const pubStats = await query('SELECT * FROM v_pubs_stats_total;');
-const nodeStats = await query('SELECT ROUND(AVG(nodeAsk), 3) AS avgNodeAsk, SUM(nodeStake) AS totalNodeStake, COUNT(*) AS totalNodes FROM v_nodes WHERE nodeStake >= 50000');
-const dailyStats = await query('SELECT totalTracSpent FROM v_pubs_stats_last24h');
+async function fetchNetworkStatistics() {
+  const pubStats = await query('SELECT * FROM v_pubs_stats_total;');
+  const nodeStats = await query('SELECT ROUND(AVG(nodeAsk), 3) AS avgNodeAsk, SUM(nodeStake) AS totalNodeStake, COUNT(*) AS totalNodes FROM v_nodes WHERE nodeStake >= 50000');
+  const symbol = 'TRAC';
+  const price = await getCoinPrice(symbol);
+  const marketCap = await getCoinCap(symbol);
+  const volume = await getCoinVolume(symbol);
 
-const dailyTracSpent = Number(dailyStats[0].totalTracSpent);
-const totalTracSpent = Number(pubStats[0].totalTracSpent);
-const totalNodes = Number(nodeStats[0].totalNodes);
-const totalNodeStake = Number(nodeStats[0].totalNodeStake);
+  const totalNodes = Number(nodeStats[0].totalNodes);
+  const totalNodeStake = Number(nodeStats[0].totalNodeStake);
+  const totalTracSpent = Number(pubStats[0].totalTracSpent);
 
-const symbol = 'TRAC';
-const price = await getCoinPrice(symbol);
-const marketCap = await getCoinCap(symbol);
-const volume = await getCoinVolume(symbol);
-const totalNodeStakeUsd = (price * totalNodeStake).toFixed(2);
-const totalTracSpentUsd = (price * totalTracSpent).toFixed(2);
-const dailyTracSpentUsd = (price * dailyTracSpent).toFixed(2);
+  const totalNodeStakeUsd = (price * totalNodeStake).toFixed(2);
+  const totalTracSpentUsd = (price * totalTracSpent).toFixed(2);
 
-const formatNumber = (number) => {
-    if (number >= 1_000_000) {
-    const value = number / 1_000_000;
-    return value % 1 === 0 ? `${value}M` : `${value.toFixed(1)}M`;
-    } else if (number >= 1_000) {
-    const value = number / 1_000;
-    return value % 1 === 0 ? `${value}K` : `${value.toFixed(1)}K`;
-    } else {
-    return number.toString();
-    }
-};
-
-const formatCurrency = (number) => {
-    if (number >= 1_000_000) {
-    const value = number / 1_000_000;
-    return value % 1 === 0 ? `${value}M` : `${value.toFixed(1)}M`;
-    } else if (number >= 1_000) {
-    const value = number / 1_000;
-    return value % 1 === 0 ? `${value}K` : `${value.toFixed(1)}K`;
-    } else {
-    return number.toFixed(1);
-    }
-};
-
-const totalNodesFormatted = formatNumber(totalNodes);
-const tvl = totalNodeStake + totalTracSpent;
-const tvlUsd = Number(totalNodeStakeUsd) + Number(totalTracSpentUsd);
-const dailyTracSpentFormatted = formatNumber(dailyTracSpent);
-const dailyTracSpentUsdFormatted = formatCurrency(Number(dailyTracSpentUsd));
-const totalTracSpentFormatted = formatNumber(totalTracSpent);
-const totalTracSpentUsdFormatted = formatCurrency(Number(totalTracSpentUsd));
-const tvlFormatted = formatNumber(tvl);
-const tvlUsdFormatted = formatCurrency(tvlUsd);
-const marketCapFormatted = formatCurrency(marketCap);
-const volumeFormatted = formatCurrency(volume);
-
-const message = `== Network Stats 📊 ==
-💻Active nodes: ${totalNodesFormatted}
-🥩TVL: ${tvlFormatted} ($${tvlUsdFormatted})
-💵TRAC spent 24H: ${dailyTracSpentFormatted} ($${dailyTracSpentUsdFormatted})
-💰TRAC spent total: ${totalTracSpentFormatted} ($${totalTracSpentUsdFormatted})
-⚖️Mcap: $${marketCapFormatted} | Volume: $${volumeFormatted}`;
-
-return {
-    dailyTracSpentFormatted,
-    dailyTracSpentUsdFormatted,
-    totalTracSpentFormatted,
-    totalTracSpentUsdFormatted,
-    tvlFormatted,
-    tvlUsdFormatted,
-    totalNodesFormatted,
-    marketCapFormatted,
-    volumeFormatted
-};
+  return {
+      totalNodes,
+      totalNodeStake,
+      totalTracSpent,
+      totalNodeStakeUsd,
+      totalTracSpentUsd,
+      price,
+      marketCap,
+      volume
+  };
 }
 
-function getLast24HourStats() {
-    return new Promise((resolve, reject) => {
-      connection.query(`SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last24h`, (error, results) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(results[0]);
-        }
-      });
-    });
+async function fetchPeriodStats(period) {
+  let sql;
+  switch (period) {
+      case 'daily':
+          sql = 'SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last24h';
+          break;
+      case 'weekly':
+          sql = 'SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last7d';
+          break;
+      case 'monthly':
+          sql = 'SELECT datetime, avgPubSize / 1024 AS avgPubSize, avgEpochsNumber, avgPubPrice, avgBid, totalPubs, totalTracSpent, privatePubsPercentage FROM v_pubs_stats_last30d';
+          break;
+      default:
+          throw new Error('Invalid period');
   }
-  
-  async function postDailyStatistics() {
-    try {
-      const networkStats = await postNetworkStatistics();
-      const last24HourStats = await getLast24HourStats();
-      const totalPubs = last24HourStats.totalPubs.toLocaleString('en-US', {maximumFractionDigits: 0});
-      const totalTracSpent = parseInt(last24HourStats.totalTracSpent);
-      //const avgPubSize = parseFloat(last24HourStats.avgPubSize).toFixed(2);
 
-      const message = `== Daily $TRAC Stats 📈 ==
+  const results = await query(sql);
+  return results[0];
+}
+
+async function postStatistics(period) {
+  try {
+      const networkStats = await fetchNetworkStatistics();
+
+      const periodStats = await fetchPeriodStats(period);
+
+      const formatNumber = (number) => {
+          if (number >= 1_000_000) {
+              const value = number / 1_000_000;
+              return value % 1 === 0 ? `${value}M` : `${value.toFixed(1)}M`;
+          } else if (number >= 1_000) {
+              const value = number / 1_000;
+              return value % 1 === 0 ? `${value}K` : `${value.toFixed(1)}K`;
+          } else {
+              return number.toString();
+          }
+      };
+
+      const formatCurrency = (number) => {
+          if (number >= 1_000_000) {
+              const value = number / 1_000_000;
+              return value % 1 === 0 ? `${value}M` : `${value.toFixed(1)}M`;
+          } else if (number >= 1_000) {
+              const value = number / 1_000;
+              return value % 1 === 0 ? `${value}K` : `${value.toFixed(1)}K`;
+          } else {
+              return number.toFixed(1);
+          }
+      };
+
+      const totalPubs = periodStats.totalPubs.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      const totalTracSpent = parseInt(periodStats.totalTracSpent);
+      const usdValue = (networkStats.price * totalTracSpent).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+      const periodTracSpentFormatted = formatNumber(totalTracSpent);
+      const periodTracSpentUsdFormatted = formatCurrency(Number((networkStats.price * totalTracSpent).toFixed(2)));
+      const totalTracSpentFormatted = formatNumber(networkStats.totalTracSpent);
+      const totalTracSpentUsdFormatted = formatCurrency(Number(networkStats.totalTracSpentUsd));
+      const tvl = networkStats.totalNodeStake + networkStats.totalTracSpent;
+      const tvlUsd = Number(networkStats.totalNodeStakeUsd) + Number(networkStats.totalTracSpentUsd);
+      const tvlFormatted = formatNumber(tvl);
+      const tvlUsdFormatted = formatCurrency(tvlUsd);
+      const marketCapFormatted = formatCurrency(networkStats.marketCap);
+      const volumeFormatted = formatCurrency(networkStats.volume);
+      const totalNodesFormatted = formatNumber(networkStats.totalNodes);
+
+      const message = `== ${period.charAt(0).toUpperCase() + period.slice(1)} $TRAC Stats 📈 ==
 💎Assets created: ${totalPubs}
-💵TRAC spent 24H: ${networkStats.dailyTracSpentFormatted}
-💰TRAC spent total: ${networkStats.totalTracSpentFormatted} ($${networkStats.totalTracSpentUsdFormatted})
-🥩TVL: ${networkStats.tvlFormatted} ($${networkStats.tvlUsdFormatted})
-💻Active nodes: ${networkStats.totalNodesFormatted}
-⚖️Mcap: $${networkStats.marketCapFormatted} | 👥Volume: $${networkStats.volumeFormatted}`;
-//💵TRAC spent 24H: ${networkStats.dailyTracSpentFormatted} ($${networkStats.dailyTracSpentUsdFormatted})
-      const symbol = 'TRAC';
-      const price = await getCoinPrice(symbol);
-      const usdValue = (price * totalTracSpent).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-  
-      const tweetMessage = `${message}\n\n💰 ${usdValue} has entered the @origin_trail DKG ecosystem in the last 24H!`;
-      console.log(tweetMessage);
-      await postTweet(tweetMessage);
-    } catch (error) {
-      console.error('Error posting daily publication stats:', error);
-    }
-  }
+💵TRAC spent ${period === 'daily' ? '24H' : period === 'weekly' ? '7D' : '30D'}: ${periodTracSpentFormatted} ($${periodTracSpentUsdFormatted})
+💰TRAC spent total: ${totalTracSpentFormatted} ($${totalTracSpentUsdFormatted})
+🥩TVL: ${tvlFormatted} ($${tvlUsdFormatted})
+💻Active nodes: ${totalNodesFormatted}
+⚖️Mcap: $${marketCapFormatted} | 👥Volume: $${volumeFormatted}\n
+💰 ${usdValue} has entered the @origin_trail DKG ecosystem in the last ${period === 'daily' ? '24H' : period === 'weekly' ? '7D' : '30D'}!`;
 
-// postNetworkStatistics().then(message => {
-//       console.log(message);
-// });
+      console.log(message);
+      return message;
+  } catch (error) {
+      console.error('Error generating statistics message:', error);
+      return null;
+  }
+}
   
   module.exports = {
     postTweet,
-    postNetworkStatistics,
-    postDailyStatistics,
+    postStatistics,
     fetchAndSendRecordStats,
     getRecordStats
   };

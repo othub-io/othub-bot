@@ -59,6 +59,17 @@ const handleCommand = async (ctx, command, actionFunction) => {
   }
 };
 
+async function postTelegramMessage(message, chatId, threadId) {
+  try {
+    await bot.telegram.sendMessage(chatId, message, {
+      message_thread_id: threadId
+    });
+    console.log('Message sent to Telegram');
+  } catch (error) {
+    console.error('Error sending message to Telegram:', error);
+  }
+}
+
 const createNodeStatsCommand = (commandName, nodeStatsFunction) => {
   bot.command(commandName, ctx => handleCommand(ctx, commandName, async (ctx, tokenSymbol) => {
     try {
@@ -82,19 +93,65 @@ autoTweet.getRecordStats().then(initialRecords => {
   recordAlerts.initializeLastKnownRecords(initialRecords);
 });
 
-cron.schedule('*/60 * * * *', async () => {
+cron.schedule(process.env.HOURLY, async () => {
   const currentRecords = await autoTweet.getRecordStats();
   recordAlerts.checkAndBroadcastNewRecords(bot, currentRecords);
 });
 
-cron.schedule('0 18 * * *', async () => {
+cron.schedule(process.env.DAILY, async () => {
   console.log('Running daily publication stats...');
-  await autoTweet.postDailyStatistics();
+  const message = await autoTweet.postStatistics('daily');
+  if (message) {
+    await autoTweet.postTweet(message);
+    await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
+  } else {
+    console.error('Failed to generate daily statistics message.');
+  }
 }, {
   timezone: 'America/New_York'
 });
 
+cron.schedule(process.env.WEEKLY, async () => {
+  console.log('Running weekly publication stats...');
+  const message = await autoTweet.postStatistics('weekly');
+  if (message) {
+    await autoTweet.postTweet(message);
+    await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
+  } else {
+    console.error('Failed to generate weekly statistics message.');
+  }
+}, {
+  timezone: 'America/New_York'
+});
 
+cron.schedule(process.env.MONTHLY, async () => {
+  console.log('Running monthly publication stats...');
+  const message = await autoTweet.postStatistics('monthly');
+  if (message) {
+    await autoTweet.postTweet(message);
+    await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
+  } else {
+    console.error('Failed to generate monthly statistics message.');
+  }
+}, {
+  timezone: 'America/New_York'
+});
+
+// (async () => {
+//   try {
+//     console.log('Running daily publication stats test...');
+//     const message = await autoTweet.postStatistics('monthly');
+//     if (message) {
+//       await autoTweet.postTweet(message);
+//       await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
+//       console.log('Messages posted successfully.');
+//     } else {
+//       console.error('Failed to generate daily statistics message.');
+//     }
+//   } catch (error) {
+//     console.error('Error during test execution:', error);
+//   }
+// })();
 
 bot.command('glossary', async (ctx) => {
   const command = 'glossary'
