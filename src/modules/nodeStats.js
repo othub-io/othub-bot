@@ -38,11 +38,11 @@ const queryNodeStats = (query, tokenSymbol) => {
 };
 
 const nodeQueries = {
-  lastHour: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last1h WHERE tokenSymbol = ?`,
-  lastDay: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last24h WHERE tokenSymbol = ?`,
-  lastWeek: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last7d WHERE tokenSymbol = ?`,
-  lastMonth: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_last30d WHERE tokenSymbol = ?`,
-  latest: `SELECT * FROM sync_otp_mainnet.v_nodes_stats_latest WHERE tokenSymbol = ?`
+  lastHour: `SELECT * FROM sync_gnosis_mainnet.v_nodes_stats_last1h WHERE tokenSymbol = ?`,
+  lastDay: `SELECT * FROM sync_gnosis_mainnet.v_nodes_stats_last24h WHERE tokenSymbol = ?`,
+  lastWeek: `SELECT * FROM sync_gnosis_mainnet.v_nodes_stats_last7d WHERE tokenSymbol = ?`,
+  lastMonth: `SELECT * FROM sync_gnosis_mainnet.v_nodes_stats_last30d WHERE tokenSymbol = ?`,
+  latest: `SELECT * FROM sync_gnosis_mainnet.v_nodes_stats_latest WHERE tokenSymbol = ?`
 };
 
 module.exports = {

@@ -1,4 +1,5 @@
 module.exports = {
+  commands: {
     'othub': 'othubbot landing page',
     'wallet': 'Link your Telegram ID with your public wallet for funding',
     'balance': 'View your balance',
@@ -19,5 +20,12 @@ module.exports = {
     'nodestatslastday <tokenSymbol>': 'Show node stats for provided tokenSymbol for the last day',
     'nodestatslastweek <tokenSymbol>': 'Show node stats for provided tokenSymbol for the last week',
     'nodestatslastmonth <tokenSymbol>': 'Show node stats for provided tokenSymbol for the last month',
-  };
-  
+  },
+  generateCommandList: function () {
+    let message = 'Here are the general commands:\n\n';
+    for (const [command, description] of Object.entries(this.commands)) {
+      message += `/${command} - ${description}\n`;
+    }
+    return message;
+  }
+};

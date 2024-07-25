@@ -11,9 +11,8 @@ bot.use(session({ ttl: 10 }))
 const queryTypes = require('./src/util/queryTypes');
 const networkPubs = require('./src/modules/networkPubs.js')
 const autoTweet = require ('./src/modules/autoTweet.js')
-const { isAdmin , adminCommand } = require('./src/modules/systemCommands.js')
-const adminCommandList = require('./src/modules/adminCommandList.js')
-const generalCommandList = require('./src/modules/generalCommandList.js')
+const { isAdmin, adminCommand, adminCommandList } = require('./src/modules/adminCommands.js')
+const generalCommandList = require('./src/modules/generalCommandList.js');
 const networkStats = require('./src/modules/networkStats.js')
 const nodeStats = require('./src/modules/nodeStats.js')
 const eventMonitor = require('./src/modules/eventMonitor.js')
@@ -88,7 +87,6 @@ const createNodeStatsCommand = (commandName, nodeStatsFunction) => {
 
 bot.command('networkstats', ctx => handleCommand(ctx, 'networkstats', networkStats.fetchNetworkStatistics));
 
-////////////////Auto Tweets
 autoTweet.getRecordStats().then(initialRecords => {
   recordAlerts.initializeLastKnownRecords(initialRecords);
 });
@@ -152,6 +150,31 @@ cron.schedule(process.env.MONTHLY, async () => {
 //     console.error('Error during test execution:', error);
 //   }
 // })();
+
+adminCommand(bot);
+
+bot.command('admincommands', ctx => handleCommand(ctx, 'admincommands', async (ctx) => {
+  if (!isAdmin(ctx)) {
+    const botmessage = await ctx.reply('You are not authorized to execute this command.');
+    if (botmessage) {
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, botmessage.message_id);
+        } catch (error) {
+          console.error('Error deleting message:', error);
+        }
+      }, process.env.DELETE_TIMER);
+    }
+    return;
+  }
+  const message = adminCommandList();
+  await ctx.reply(message);
+}));
+
+bot.command('commands', ctx => handleCommand(ctx, 'commands', async (ctx) => {
+  const message = generalCommandList.generateCommandList();
+  await ctx.reply(message);
+}));
 
 bot.command('glossary', async (ctx) => {
   const command = 'glossary'
