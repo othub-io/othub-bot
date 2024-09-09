@@ -119,11 +119,11 @@ async function initializeLastKnownRecords(initialRecords) {
     lastKnownRecords[recordKey] = record.value;
 
     // Post the initial record as a new record
-    // const message = await formatNewRecordMessage(record);
-    // console.log('New record detected:', message);
+    const message = await formatNewRecordMessage(record);
+    console.log('New record detected:', message);
     // await postTweet(message);
   }
-  // console.log('Initialized last known records:', lastKnownRecords);
+  console.log('Initialized last known records:', lastKnownRecords);
 }
 
 module.exports = {
