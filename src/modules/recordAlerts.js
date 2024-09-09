@@ -1,3 +1,5 @@
+this is my recordAlert.js
+
 require('dotenv').config();
 const { getCoinPrice } = require('./getCoinPrice.js');
 const { postTweet, postStatistics } = require('./autoTweet.js')
@@ -18,7 +20,9 @@ let lastKnownRecords = {
 
 async function formatNewRecordMessage(record) {
   const date = new Date(record.datetime).toISOString().split('T')[0];
+  // const time = new Date(record.datetime).toISOString().split('T')[1].slice(0, 5);
   const value = Number(record.value).toLocaleString();
+  const networkStatsMessage = await postStatistics();
   const symbol = 'TRAC';
   const price = await getCoinPrice(symbol);
   const usdValue = (price * Number(record.value)).toLocaleString('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0});
@@ -35,36 +39,33 @@ async function formatNewRecordMessage(record) {
     }
   };
 
-  // Determine the time resolution (hourly or daily) and pass it to postStatistics
-  const period = record.timeResolution === 'hour' ? 'hourly' : 'daily';
-  const networkStatsMessage = await postStatistics(period);
-
   let recordType;
   if (record.event === 'top_trac_spent') {
     recordType = `(${usdValue}) TRAC spent`;
-    let annualizedNumber = (record.timeResolution === 'day')
-      ? (Number(record.value) * 365 * price)
-      : (Number(record.value) * 8760 * price);
-    let annualizedEstimateFormatted = `$${formatCurrency(Number(annualizedNumber))}`;
-    return `🚨 New $TRAC Record! 🚨
-🏆 ${value} ${recordType} ${record.timeResolution}, equivalent to ${annualizedEstimateFormatted} annually!
-
-== Network Stats 📊 ==
-💻Active nodes: ${networkStatsMessage.totalNodesFormatted}
-🥩TVL: ${networkStatsMessage.tvlFormatted} ($${networkStatsMessage.tvlUsdFormatted})
-💵TRAC spent 24H: ${networkStatsMessage.dailyTracSpentFormatted} ($${networkStatsMessage.dailyTracSpentUsdFormatted})
-💰TRAC spent total: ${networkStatsMessage.totalTracSpentFormatted} ($${networkStatsMessage.totalTracSpentUsdFormatted})
-⚖️Mcap: $${networkStatsMessage.marketCapFormatted} | Volume: $${networkStatsMessage.volumeFormatted}`;
-  }
-
-  if (record.event === 'top_assets_published') {
+    if (record.timeResolution === 'day') {
+      annualizedNumber = (Number(record.value) * 365 * price);
+      annualizedEstimateFormatted = `$${formatCurrency(Number(annualizedNumber))}`;
+      time = 'daily';
+    } else if (record.timeResolution === 'hour') {
+      annualizedNumber = (Number(record.value) * 8760 * price);
+      annualizedEstimateFormatted = `$${formatCurrency(Number(annualizedNumber))}`;
+      time = 'hourly';
+    }
+  } else if (record.event === 'top_assets_published') {
     recordType = `assets published`;
-    let annualizedNumber = (record.timeResolution === 'day')
-      ? (Number(record.value) * 365)
-      : (Number(record.value) * 8760);
-    let annualizedEstimateFormatted = `${formatCurrency(Number(annualizedNumber))} assets`;
-    return `🚨 New $TRAC Record! 🚨
-🏆 ${value} ${recordType} ${record.timeResolution}, equivalent to ${annualizedEstimateFormatted} annually!
+    if (record.timeResolution === 'day') {
+      annualizedNumber = (Number(record.value) * 365);
+      annualizedEstimateFormatted = `${formatCurrency(Number(annualizedNumber))} assets`;
+      time = 'daily';
+    } else if (record.timeResolution === 'hour') {
+      annualizedNumber = (Number(record.value) * 8760);
+      annualizedEstimateFormatted = `${formatCurrency(Number(annualizedNumber))} assets`;
+      time = 'hourly';
+    }
+  }
+
+  return `🚨 New $TRAC Record! 🚨
+🏆 ${value} ${recordType} ${time}, equivalent to ${annualizedEstimateFormatted} annually!
 
 == Network Stats 📊 ==
 💻Active nodes: ${networkStatsMessage.totalNodesFormatted}
@@ -72,9 +73,7 @@ async function formatNewRecordMessage(record) {
 💵TRAC spent 24H: ${networkStatsMessage.dailyTracSpentFormatted} ($${networkStatsMessage.dailyTracSpentUsdFormatted})
 💰TRAC spent total: ${networkStatsMessage.totalTracSpentFormatted} ($${networkStatsMessage.totalTracSpentUsdFormatted})
 ⚖️Mcap: $${networkStatsMessage.marketCapFormatted} | Volume: $${networkStatsMessage.volumeFormatted}`;
-  }
 }
-
 
 async function broadcastMessage(bot, message) {
   for (const chatId of CHAT_IDS) {
@@ -122,11 +121,11 @@ async function initializeLastKnownRecords(initialRecords) {
     lastKnownRecords[recordKey] = record.value;
 
     // Post the initial record as a new record
-    // const message = await formatNewRecordMessage(record);
-    // console.log('New record detected:', message);
+    const message = await formatNewRecordMessage(record);
+    console.log('New record detected:', message);
     // await postTweet(message);
   }
-  // console.log('Initialized last known records:', lastKnownRecords);
+  console.log('Initialized last known records:', lastKnownRecords);
 }
 
 module.exports = {

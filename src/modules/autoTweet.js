@@ -203,11 +203,86 @@ async function postStatistics(period) {
       return null;
   }
 }
+
+async function postNetworkStatistics() {
+  const pubStats = await query('SELECT * FROM v_pubs_stats_total;');
+  const nodeStats = await query('SELECT ROUND(AVG(nodeAsk), 3) AS avgNodeAsk, SUM(nodeStake) AS totalNodeStake, COUNT(*) AS totalNodes FROM v_nodes WHERE nodeStake >= 50000');
+  const dailyStats = await query('SELECT totalTracSpent FROM v_pubs_stats_last24h');
+  
+  const dailyTracSpent = Number(dailyStats[0].totalTracSpent);
+  const totalTracSpent = Number(pubStats[0].totalTracSpent);
+  const totalNodes = Number(nodeStats[0].totalNodes);
+  const totalNodeStake = Number(nodeStats[0].totalNodeStake);
+  
+  const symbol = 'TRAC';
+  const price = await getCoinPrice(symbol);
+  const marketCap = await getCoinCap(symbol);
+  const volume = await getCoinVolume(symbol);
+  const totalNodeStakeUsd = (price * totalNodeStake).toFixed(2);
+  const totalTracSpentUsd = (price * totalTracSpent).toFixed(2);
+  const dailyTracSpentUsd = (price * dailyTracSpent).toFixed(2);
+  
+  const formatNumber = (number) => {
+      if (number >= 1_000_000) {
+      const value = number / 1_000_000;
+      return value % 1 === 0 ? ${value}M : ${value.toFixed(1)}M;
+      } else if (number >= 1_000) {
+      const value = number / 1_000;
+      return value % 1 === 0 ? ${value}K : ${value.toFixed(1)}K;
+      } else {
+      return number.toString();
+      }
+  };
+  
+  const formatCurrency = (number) => {
+      if (number >= 1_000_000) {
+      const value = number / 1_000_000;
+      return value % 1 === 0 ? ${value}M : ${value.toFixed(1)}M;
+      } else if (number >= 1_000) {
+      const value = number / 1_000;
+      return value % 1 === 0 ? ${value}K : ${value.toFixed(1)}K;
+      } else {
+      return number.toFixed(1);
+      }
+  };
+  
+  const totalNodesFormatted = formatNumber(totalNodes);
+  const tvl = totalNodeStake + totalTracSpent;
+  const tvlUsd = Number(totalNodeStakeUsd) + Number(totalTracSpentUsd);
+  const dailyTracSpentFormatted = formatNumber(dailyTracSpent);
+  const dailyTracSpentUsdFormatted = formatCurrency(Number(dailyTracSpentUsd));
+  const totalTracSpentFormatted = formatNumber(totalTracSpent);
+  const totalTracSpentUsdFormatted = formatCurrency(Number(totalTracSpentUsd));
+  const tvlFormatted = formatNumber(tvl);
+  const tvlUsdFormatted = formatCurrency(tvlUsd);
+  const marketCapFormatted = formatCurrency(marketCap);
+  const volumeFormatted = formatCurrency(volume);
+  
+  const message = `== Network Stats 📊 ==
+  💻Active nodes: ${totalNodesFormatted}
+  🥩TVL: ${tvlFormatted} ($${tvlUsdFormatted})
+  💵TRAC spent 24H: ${dailyTracSpentFormatted} ($${dailyTracSpentUsdFormatted})
+  💰TRAC spent total: ${totalTracSpentFormatted} ($${totalTracSpentUsdFormatted})
+  ⚖️Mcap: $${marketCapFormatted} | Volume: $${volumeFormatted};`
+  
+  return {
+      dailyTracSpentFormatted,
+      dailyTracSpentUsdFormatted,
+      totalTracSpentFormatted,
+      totalTracSpentUsdFormatted,
+      tvlFormatted,
+      tvlUsdFormatted,
+      totalNodesFormatted,
+      marketCapFormatted,
+      volumeFormatted
+  };
+  }
   
   module.exports = {
     postTweet,
     postStatistics,
     fetchAndSendRecordStats,
-    getRecordStats
+    getRecordStats,
+    postNetworkStatistics
   };
   
