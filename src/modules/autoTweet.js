@@ -225,10 +225,10 @@ async function postNetworkStatistics() {
   const formatNumber = (number) => {
       if (number >= 1_000_000) {
       const value = number / 1_000_000;
-      return value % 1 === 0 ? ${value}M : ${value.toFixed(1)}M;
+      return value % 1 === 0 ? `${value}M` : `${value.toFixed(1)}M`;
       } else if (number >= 1_000) {
       const value = number / 1_000;
-      return value % 1 === 0 ? ${value}K : ${value.toFixed(1)}K;
+      return value % 1 === 0 ? `${value}K` : `${value.toFixed(1)}K`;
       } else {
       return number.toString();
       }
@@ -237,10 +237,10 @@ async function postNetworkStatistics() {
   const formatCurrency = (number) => {
       if (number >= 1_000_000) {
       const value = number / 1_000_000;
-      return value % 1 === 0 ? ${value}M : ${value.toFixed(1)}M;
+      return value % 1 === 0 ? `${value}M` : `${value.toFixed(1)}M`;
       } else if (number >= 1_000) {
       const value = number / 1_000;
-      return value % 1 === 0 ? ${value}K : ${value.toFixed(1)}K;
+      return value % 1 === 0 ? `${value}K` : `${value.toFixed(1)}K`;
       } else {
       return number.toFixed(1);
       }
@@ -263,7 +263,7 @@ async function postNetworkStatistics() {
   🥩TVL: ${tvlFormatted} ($${tvlUsdFormatted})
   💵TRAC spent 24H: ${dailyTracSpentFormatted} ($${dailyTracSpentUsdFormatted})
   💰TRAC spent total: ${totalTracSpentFormatted} ($${totalTracSpentUsdFormatted})
-  ⚖️Mcap: $${marketCapFormatted} | Volume: $${volumeFormatted};`
+  ⚖️Mcap: $${marketCapFormatted} | Volume: $${volumeFormatted}`;
   
   return {
       dailyTracSpentFormatted,
@@ -285,4 +285,3 @@ async function postNetworkStatistics() {
     getRecordStats,
     postNetworkStatistics
   };
-  

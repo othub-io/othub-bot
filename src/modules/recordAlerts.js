@@ -1,8 +1,6 @@
-this is my recordAlert.js
-
 require('dotenv').config();
 const { getCoinPrice } = require('./getCoinPrice.js');
-const { postTweet, postStatistics } = require('./autoTweet.js')
+const { postTweet, postNetworkStatistics } = require('./autoTweet.js')
 
 const CHAT_IDS = [
   //process.env.TEST_ID
@@ -22,7 +20,7 @@ async function formatNewRecordMessage(record) {
   const date = new Date(record.datetime).toISOString().split('T')[0];
   // const time = new Date(record.datetime).toISOString().split('T')[1].slice(0, 5);
   const value = Number(record.value).toLocaleString();
-  const networkStatsMessage = await postStatistics();
+  const networkStatsMessage = await postNetworkStatistics();
   const symbol = 'TRAC';
   const price = await getCoinPrice(symbol);
   const usdValue = (price * Number(record.value)).toLocaleString('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0});
@@ -121,11 +119,11 @@ async function initializeLastKnownRecords(initialRecords) {
     lastKnownRecords[recordKey] = record.value;
 
     // Post the initial record as a new record
-    const message = await formatNewRecordMessage(record);
-    console.log('New record detected:', message);
+    // const message = await formatNewRecordMessage(record);
+    // console.log('New record detected:', message);
     // await postTweet(message);
   }
-  console.log('Initialized last known records:', lastKnownRecords);
+  // console.log('Initialized last known records:', lastKnownRecords);
 }
 
 module.exports = {
