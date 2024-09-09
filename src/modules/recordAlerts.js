@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { getCoinPrice } = require('./getCoinPrice.js');
-const { postTweet, postNetworkStatistics } = require('./autoTweet.js')
+const { postTweet, postStatistics } = require('./autoTweet.js')
 
 const CHAT_IDS = [
   //process.env.TEST_ID
@@ -20,7 +20,7 @@ async function formatNewRecordMessage(record) {
   const date = new Date(record.datetime).toISOString().split('T')[0];
   // const time = new Date(record.datetime).toISOString().split('T')[1].slice(0, 5);
   const value = Number(record.value).toLocaleString();
-  const networkStatsMessage = await postNetworkStatistics();
+  const networkStatsMessage = await postStatistics();
   const symbol = 'TRAC';
   const price = await getCoinPrice(symbol);
   const usdValue = (price * Number(record.value)).toLocaleString('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0});
