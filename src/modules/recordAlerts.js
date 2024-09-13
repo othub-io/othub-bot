@@ -5,7 +5,7 @@ const { postTweet, postNetworkStatistics } = require('./autoTweet.js')
 const CHAT_IDS = [
   //process.env.TEST_ID
   process.env.OTHUB_ID,
-  //process.env.ORIGINTRAIL_ID,
+  process.env.ORIGINTRAIL_ID,
   process.env.OTC_ID
 ];
 
