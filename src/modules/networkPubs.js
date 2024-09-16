@@ -46,7 +46,13 @@ function generateMessage(stats, period, dbName) {
   const avgPubPriceEmoji = avgPubPrice > 0.2 ? '😃' : avgPubPrice >= 0.1 ? '🙂' : avgPubPrice >= 0.05 ? '😐' : avgPubPrice >= 0.025 ? '🤕' : '🤮';
   const avgPubSizeEmoji = avgPubSize > 4 ? '🐳' : avgPubSize >= 3 ? '🐋' : avgPubSize >= 2 ? '🦭' : avgPubSize >= 1 ? '🐡' : '🐟';
 
-  const dbLabel = dbName === 'gnosis' || dbName === 'gno' ? '(Gnosis)' : dbName === 'neuro' || dbName === 'otp' || dbName === 'neuroweb' || dbName === 'neurowebai' ? '(Neuro)' : '';
+  const dbLabel = dbName === 'gnosis' || dbName === 'gno' 
+  ? '(Gnosis)' 
+  : dbName === 'neuro' || dbName === 'otp' || dbName === 'neuroweb' || dbName === 'neurowebai' 
+  ? '(Neuro)' 
+  : dbName === 'base' 
+  ? '(Base)' 
+  : '';
     
   return `== ${period} ${dbLabel} \u{1F4CA} ==
 ${totalPubsEmoji}Total pubs: ${totalPubs}
