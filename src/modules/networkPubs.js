@@ -16,6 +16,7 @@ const dbNameMapping = {
   'neurowebai': process.env.OTP_DB,
   'gnosis': process.env.GNO_DB,
   'gno': process.env.GNO_DB,
+  'base': process.env.BASE_DB
 };
 
 function fetchStats(dbName, query) {
