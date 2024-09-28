@@ -97,17 +97,12 @@ cron.schedule(process.env.HOURLY, async () => {
 });
 
 cron.schedule(process.env.DAILY, async () => {
-  try {
-    console.log('Running daily publication stats...');
-    const message = await autoTweet.gatherAndDisplayChainStatsWithImage();
-    if (message) {
-      await autoTweet.postTweet(message);
-      await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
-    } else {
-      console.error('Failed to generate daily statistics message.');
-    }
-  } catch (error) {
-    console.error('Error in daily publication stats:', error);
+  console.log('Running daily publication stats...');
+  const message = await autoTweet.gatherAndDisplayChainStatsWithImage();
+  if (message) {
+    await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
+  } else {
+    console.error('Failed to generate daily statistics message.');
   }
 }, {
   timezone: 'America/New_York'
@@ -126,8 +121,6 @@ cron.schedule(process.env.DAILY, async () => {
 //   } catch (error) {
 //     console.error('Error in manual tweet posting:', error);
 //   }
-// }, {
-//   timezone: 'America/New_York'
 // })();
 
 cron.schedule(process.env.WEEKLY, async () => {
