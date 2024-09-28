@@ -97,17 +97,38 @@ cron.schedule(process.env.HOURLY, async () => {
 });
 
 cron.schedule(process.env.DAILY, async () => {
-  console.log('Running daily publication stats...');
-  const message = await autoTweet.postStatistics('daily');
-  if (message) {
-    await autoTweet.postTweet(message);
-    await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
-  } else {
-    console.error('Failed to generate daily statistics message.');
+  try {
+    console.log('Running daily publication stats...');
+    const message = await autoTweet.gatherAndDisplayChainStatsWithImage();
+    if (message) {
+      await autoTweet.postTweet(message);
+      await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
+    } else {
+      console.error('Failed to generate daily statistics message.');
+    }
+  } catch (error) {
+    console.error('Error in daily publication stats:', error);
   }
 }, {
   timezone: 'America/New_York'
 });
+
+// (async () => {
+//   console.log('Manually testing the daily publication stats...');
+//   try {
+//     const message = await autoTweet.gatherAndDisplayChainStatsWithImage();
+//     if (message) {
+//       console.log('Tweet posted:', message);
+//       await postTelegramMessage(message, process.env.OTHUB_ADMIN_ID);
+//     } else {
+//       console.error('Failed to generate daily statistics message.');
+//     }
+//   } catch (error) {
+//     console.error('Error in manual tweet posting:', error);
+//   }
+// }, {
+//   timezone: 'America/New_York'
+// })();
 
 cron.schedule(process.env.WEEKLY, async () => {
   console.log('Running weekly publication stats...');
