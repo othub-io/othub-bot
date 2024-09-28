@@ -396,6 +396,9 @@ async function gatherAndDisplayChainStats() {
     if (number >= 1_000_000) {
         const value = number / 1_000_000;
         return value % 1 === 0 ? `${value}M` : `${value.toFixed(0)}M`;
+    } else if (number >= 10_000) {
+        const value = number / 1_000;
+        return value % 1 === 0 ? `${value}K` : `${value.toFixed(0)}K`;
     } else if (number >= 1_000) {
         const value = number / 1_000;
         return value % 1 === 0 ? `${value}K` : `${value.toFixed(1)}K`;
