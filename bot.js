@@ -235,7 +235,6 @@ for (let term in glossary) {
 cron.schedule(process.env.DAILY, function() {
   eventMonitor.otpContractsChange(eventMonitor.notifyTelegramOtpContractsChange);
   eventMonitor.gnosisContractsChange(eventMonitor.notifyTelegramGnosisContractsChange);
-  eventMonitor.dailyHighPubs(eventMonitor.notifyTelegramDailyHighPubs);
 });
 
 cron.schedule(process.env.HOURLY, function(){

@@ -160,11 +160,6 @@ const gnosis_connection = mysql.createConnection({
   //   bot.telegram.sendMessage(process.env.OTHUB_ID, message, { parse_mode: 'HTML' })
   //   bot.telegram.sendMessage(process.env.ORIGINTRAIL_ID, message, { parse_mode: 'HTML' });
   // }
+
   
-  function notifyTelegramDailyHighPubs(dailyHighPubs) {
-    const message = `🚀🚀 Daily Publishing Record Broken with ${dailyHighPubs} Publishes!! 🚀🚀`;
-    bot.telegram.sendMessage(process.env.OTHUB_ID, message);
-    bot.telegram.sendMessage(process.env.ORIGINTRAIL_ID, message, { parse_mode: 'HTML' })
-  }
-  
-  module.exports = { dailyHighPubs, otpContractsChange, gnosisContractsChange, gnosisStagingUpdateStatus, otpStagingUpdateStatus, notifyTelegramOtpContractsChange, notifyTelegramGnosisContractsChange, notifyTelegramOtpStagingUpdateStatus, notifyTelegramGnosisStagingUpdateStatus, notifyTelegramDailyHighPubs };
+  module.exports = { dailyHighPubs, otpContractsChange, gnosisContractsChange, gnosisStagingUpdateStatus, otpStagingUpdateStatus, notifyTelegramOtpContractsChange, notifyTelegramGnosisContractsChange, notifyTelegramOtpStagingUpdateStatus, notifyTelegramGnosisStagingUpdateStatus };
