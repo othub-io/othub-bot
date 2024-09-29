@@ -101,6 +101,8 @@ cron.schedule(process.env.DAILY, async () => {
   const message = await autoTweet.gatherAndDisplayChainStatsWithImage();
   if (message) {
     await postTelegramMessage(message, process.env.OTC_ID, process.env.OTC_THREAD_ID);
+    await postTelegramMessage(message, process.env.ORIGINTRAIL_ID);
+    await postTelegramMessage(message, process.env.OTHUB_ID);
   } else {
     console.error('Failed to generate daily statistics message.');
   }
