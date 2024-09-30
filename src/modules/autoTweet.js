@@ -434,7 +434,7 @@ async function gatherAndDisplayChainStats() {
       const tracDailyUsdValue = formatCurrency(price * tracDailyValue);
       const tracYearlyUsdValue = formatCurrency(price * tracDailyValue * 365);
       
-  let message = "== Daily $TRAC Overview 📊 ==\n\n";
+  let message = "📊 Daily $TRAC Record 📊\n\n";
 
   for (const [dbName, chainStats] of Object.entries(stats)) {
       const { pubs24h, nodes, totalPubs, totalTracSpent  } = chainStats;
